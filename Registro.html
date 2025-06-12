@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registro</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="login-container">
+    <h2>Registro de Usuario</h2>
+
+    <form>
+      <div class="form-group">
+        <label for="username">Nombre de usuario</label>
+        <input type="text" id="username" name="username" placeholder="Elegí un nombre de usuario" />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" placeholder="Elegí una contraseña" />
+      </div>
+
+      <div class="role-options">
+        <label><input type="radio" name="role" value="cliente" checked /> Cliente</label>
+        <label><input type="radio" name="role" value="trabajador" /> Trabajador</label>
+        <label><input type="radio" name="role" value="desempleado" /> Desempleado</label>
+      </div>
+
+      <!-- Contenedor dinámico -->
+      <div id="extra-fields"></div>
+
+      <button type="button" class="btn btn-register">Registrarse</button>
+    </form>
+
+    <div class="footer">
+      ¿Ya tenés cuenta? <a href="Inicio de Sesion.html">Iniciar sesión</a>
+    </div>
+  </div>
+
+  <script>
+    const roleInputs = document.querySelectorAll('input[name="role"]');
+    const extraFieldsContainer = document.getElementById('extra-fields');
+
+    function updateExtraFields(role) {
+      let html = '';
+
+      if (role === 'cliente') {
+        html = `
+          <div class="form-group">
+            <label for="zona">Zona en la que vivís</label>
+            <input type="text" id="zona" name="zona" placeholder="Ej. Palermo, La Boca, etc." />
+          </div>
+        `;
+      } else if (role === 'trabajador') {
+        html = `
+          <div class="form-group">
+            <label for="especialidad">Especialidad</label>
+            <input type="text" id="especialidad" name="especialidad" placeholder="Ej. Electricista, Plomero..." />
+          </div>
+        `;
+      } else if (role === 'desempleado') {
+        html = `
+          <div class="form-group">
+            <label for="educacion">Nivel de educación</label>
+            <input type="text" id="educacion" name="educacion" placeholder="Ej. Secundario completo, Terciario..." />
+          </div>
+        `;
+      }
+
+      extraFieldsContainer.innerHTML = html;
+    }
+
+    // Evento inicial
+    roleInputs.forEach(input => {
+      input.addEventListener('change', () => {
+        updateExtraFields(input.value);
+      });
+    });
+
+    // Carga inicial
+    updateExtraFields(document.querySelector('input[name="role"]:checked').value);
+  </script>
+</body>
+</html>

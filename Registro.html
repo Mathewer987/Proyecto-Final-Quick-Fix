@@ -11,12 +11,12 @@
     <h2>Registro de Usuario</h2>
 
     <form>
-      <div class="cajitanombre">
+      <div class="cajita">
         <label for="nombre">Nombre de usuario</label>
         <input type="text" id="nombre" name="nombre" placeholder="Elegí un nombre de usuario" />
       </div>
 
-      <div class="cajitacontra">
+      <div class="cajita">
         <label for="password">Contraseña</label>
         <input type="password" id="contra" name="contra" placeholder="Elegí una contraseña" />
       </div>
@@ -38,45 +38,45 @@
   </div>
 
   <script>
-    const roleInputs = document.querySelectorAll('input[name="role"]');
+    const rolInputs = document.querySelectorAll('input[name="rol"]');
     const extraFieldsContainer = document.getElementById('extra-fields');
-
-    function updateExtraFields(role) {
+  
+    function updateExtraFields(rol) {
       let html = '';
-
-      if (role === 'cliente') {
+  
+      if (rol === 'cliente') {
         html = `
-          <div class="form-group">
+          <div class="cajita">
             <label for="zona">Zona en la que vivís</label>
             <input type="text" id="zona" name="zona" placeholder="Ej. Palermo, La Boca, etc." />
           </div>
         `;
-      } else if (role === 'trabajador') {
+      } else if (rol === 'trabajador') {
         html = `
-          <div class="form-group">
+          <div class="cajita">
             <label for="especialidad">Especialidad</label>
             <input type="text" id="especialidad" name="especialidad" placeholder="Ej. Electricista, Plomero..." />
           </div>
         `;
-      } else if (role === 'desempleado') {
+      } else if (rol === 'desempleado') {
         html = `
-          <div class="form-group">
+          <div class="cajita">
             <label for="educacion">Nivel de educación</label>
             <input type="text" id="educacion" name="educacion" placeholder="Ej. Secundario completo, Terciario..." />
           </div>
         `;
       }
-
+  
       extraFieldsContainer.innerHTML = html;
     }
-
-    roleInputs.forEach(input => {
+  
+    rolInputs.forEach(input => {
       input.addEventListener('change', () => {
         updateExtraFields(input.value);
       });
     });
-
-    updateExtraFields(document.querySelector('input[name="role"]:checked').value);
+  
+    updateExtraFields(document.querySelector('input[name="rol"]:checked').value);
   </script>
 </body>
 </html>

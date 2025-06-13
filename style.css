@@ -28,26 +28,20 @@
     color: #333;
   }
   
-  .cajitanombre {
-    margin-bottom: 1rem;
-  }
-  .cajitacontra {
+  .cajita {
     margin-bottom: 1rem;
   }
   
-  .cajitacontra label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #555;
-  }
-  .cajitanombre label {
+  
+  .cajita label {
     display: block;
     margin-bottom: 0.5rem;
     color: #555;
   }
   
-  .cajitanombre input[type="text"],
-  .cajitacontra input[type="password"] {
+  
+  .cajita input[type="text"],
+  .cajita input[type="password"] {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid #ccc;
@@ -79,7 +73,7 @@
   }
   
   .btn-register {
-    background-color: #6c757d;
+    background-color: #007bff;
     color: white;
     margin-top: 0.5rem; 
   }

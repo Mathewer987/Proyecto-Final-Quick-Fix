@@ -141,52 +141,6 @@ body {
     box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
 }
 
-/* Features Section */
-.features {
-    display: flex; /* Usamos flexbox para alinear horizontalmente */
-    justify-content: center; /* Centra los cuadros horizontalmente */
-    gap: 30px; /* Espacio entre cuadros */
-    margin-top: 40px; /* Espacio después del texto principal */
-    flex-wrap: wrap; /* Permite que se apilen en móviles */
-}
-
-
-.feature-card {
-    background-color: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    transition: all 0.3s;
-    text-align: center;
-    flex: 1; /* Cada cuadro ocupa igual espacio */
-    min-width: 250px; /* Ancho mínimo para cada cuadro */
-    max-width: 350px;
-}
-
-.feature-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-}
-
-.feature-icon {
-    font-size: 40px;
-    color: var(--secondary-color);
-    margin-bottom: 20px;
-}
-
-.feature-title {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 15px;
-    color: var(--primary-color);
-}
-
-.feature-desc {
-    color: var(--text-light);
-    font-size: 15px;
-}
-
-/* Modal */
 .modal {
     display: none;
     position: fixed;

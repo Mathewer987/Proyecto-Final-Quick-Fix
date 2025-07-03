@@ -1,11 +1,22 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Inicio de Sesión</title>
+  <title>Inicio de Sesión - QuickFix</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+  <div class="background-lines">
+    <div class="line line-1"></div>
+    <div class="line line-2"></div>
+    <div class="line line-3"></div>
+    <div class="line line-4"></div>
+  </div>
+
   <div class="contenedordelogin">
     <h2>Iniciar Sesión</h2>
 
@@ -24,19 +35,16 @@
         <label><input type="radio" name="rol" value="cliente" /> Cliente</label>
         <label><input type="radio" name="rol" value="trabajador" checked /> Trabajador</label>
         <label><input type="radio" name="rol" value="desempleado" /> Desempleado</label>
-        
       </div>
 
-      <button type="button" class="btn btn-login">Iniciar Sesión</button>
+      <button type="button" class="btn btn-login">Iniciar Sesión <i class="fas fa-sign-in-alt"></i></button>
 
       <div class="footer">
         ¿No tenés cuenta? <a href="Registro.html">¡Registrate ya!</a>
-    </div>
-
-    
+      </div>
     </form>
-
-    
   </div>
+
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
 </html>

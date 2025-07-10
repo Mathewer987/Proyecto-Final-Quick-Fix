@@ -1,3 +1,147 @@
+
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --accent-color: #3498db;
+    --light-color: #ecf0f1;
+    --dark-color: #2c3e50;
+    --text-color: #333;
+    --text-light: #7f8c8d;
+}
+
+/* Estilos generales del fondo con líneas dinámicas */
+body {
+    position: relative;
+    overflow-x: hidden;
+    background-color: var(--light-color);
+    min-height: 100vh;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(135deg, rgba(52, 152, 219, 0.05) 25%, transparent 25%) -50px 0,
+        linear-gradient(225deg, rgba(52, 152, 219, 0.05) 25%, transparent 25%) -50px 0,
+        linear-gradient(315deg, rgba(52, 152, 219, 0.05) 25%, transparent 25%),
+        linear-gradient(45deg, rgba(52, 152, 219, 0.05) 25%, transparent 25%);
+    background-size: 100px 100px;
+    z-index: -1;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: 
+        linear-gradient(45deg, transparent 65%, rgba(52, 152, 219, 0.1) 65%, rgba(52, 152, 219, 0.1) 70%, transparent 70%),
+        linear-gradient(-45deg, transparent 65%, rgba(52, 152, 219, 0.1) 65%, rgba(52, 152, 219, 0.1) 70%, transparent 70%);
+    background-size: 60px 60px;
+    opacity: 0.5;
+    z-index: -1;
+    animation: moveLines 60s linear infinite;
+}
+
+.container {
+    background-color: rgba(255, 255, 255, 0.92);
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+    margin: 20px auto;
+    max-width: 1200px;
+}
+
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(52, 152, 219, 0.1) 0%, transparent 70%);
+    z-index: -1;
+}
+
+.container::after {
+    content: '';
+    position: absolute;
+    bottom: -100px;
+    left: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(52, 152, 219, 0.1) 0%, transparent 70%);
+    z-index: -1;
+}
+
+
+
+@keyframes moveLines {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Ajustes para los elementos de contenido con el nuevo fondo */
+.search-container, 
+.results-container {
+    backdrop-filter: blur(2px);
+    background-color: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(52, 152, 219, 0.1);
+}
+
+.professional-card {
+    background-color: rgba(255, 255, 255, 0.9);
+    position: relative;
+    overflow: hidden;
+}
+
+.professional-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent 95%, rgba(52, 152, 219, 0.05) 95%);
+    background-size: 20px 20px;
+    z-index: 0;
+}
+
+/* [Mantén todos los demás estilos que ya tenías...] */
+
+/* Solo agregamos estos ajustes adicionales para mejorar la visualización con el nuevo fondo */
+.search-box input {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.filter-select, .sort-select {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Efecto hover mejorado para las tarjetas */
+.professional-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(52, 152, 219, 0.15);
+}
+
+/* Asegurar que el contenido esté por encima de los fondos */
+.card-content, .card-actions {
+    position: relative;
+    z-index: 1;
+    background-color: transparent;
+}
+
 /* Estilos específicos para la página de búsqueda */
 
 .search-container {

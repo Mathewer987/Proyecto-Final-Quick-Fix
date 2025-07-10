@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Seleccionar tu ubicación en el mapa</title>
+  <meta charset="utf-8" />
+  <style>
+    #map {
+      height: 400px;
+      width: 100%;
+    }
+    #okButton {
+      display: none;
+      margin-top: 10px;
+      padding: 8px 12px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h3>Hacé click en el mapa para seleccionar tu ubicación</h3>
+  <div id="map"></div>
+  <button id="okButton">OK</button>
+
+  <script src="script.js"></script>
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQcLrAtTG5MLlmC_qQNv_I7Yf8FYFJXI8&callback=initMap">
+  </script>
+</body>
+</html>

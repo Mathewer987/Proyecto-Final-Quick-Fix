@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Trabajos - QuickFix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="Home.css">
+    <link rel="stylesheet" href="AceptarTrabajosStyle.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo-container">
+                <div class="logo">Quick<span>Fix</span></div>
+                <a href="#" class="back-button"><i class="fas fa-arrow-left"></i> Volver</a>
+            </div>
+            <nav class="nav">
+                <a href="#" class="nav-item">Inicio</a>
+                <a href="#" class="nav-item active">Buscar Trabajos</a>
+                <a href="#" class="nav-item">Mis Servicios</a>
+                <a href="#" class="nav-item">Ayuda</a>
+                <a class="nav-item" href="Inicio de Sesion.html"><i class="fas fa-user"></i> Mi Cuenta</a>
+            </nav>
+        </header>
+        
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" placeholder="¿Qué tipo de trabajo buscas? (pintura, plomería, etc.)">
+                <input type="text" placeholder="Ubicación (ciudad o barrio)">
+                <button class="search-button"><i class="fas fa-search"></i> Buscar</button>
+            </div>
+            
+            <div class="filter-section">
+                <div class="filter-title">Filtrar por:</div>
+                <div class="filter-options">
+                    <select class="filter-select">
+                        <option>Categoría</option>
+                        <option>Pintura</option>
+                        <option>Plomería</option>
+                        <option>Electricidad</option>
+                        <option>Albañilería</option>
+                    </select>
+                    
+                    <select class="filter-select">
+                        <option>Presupuesto</option>
+                        <option>Menor a $500</option>
+                        <option>$500 - $1500</option>
+                        <option>Más de $1500</option>
+                    </select>
+                    
+                    <select class="filter-select">
+                        <option>Urgencia</option>
+                        <option>Urgente (hoy)</option>
+                        <option>Esta semana</option>
+                        <option>Flexible</option>
+                    </select>
+                    
+                    <select class="filter-select">
+                        <option>Tipo de trabajo</option>
+                        <option>Residencial</option>
+                        <option>Comercial</option>
+                        <option>Oficina</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <main class="results-container">
+            <div class="results-header">
+                <h2>Trabajos disponibles</h2>
+                <div class="results-sort">
+                    Ordenar por: 
+                    <select class="sort-select">
+                        <option>Más recientes</option>
+                        <option>Mejor pagados</option>
+                        <option>Más cercanos</option>
+                        <option>Urgentes primero</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="jobs-list">
+                <!-- Trabajo 1 -->
+                <div class="job-card highlighted">
+                    <div class="job-badge">Urgente</div>
+                    <div class="job-content">
+                        <h3>Pintado de cerca exterior</h3>
+                        <div class="job-description">
+                            <p>Necesito pintar una cerca de madera de aproximadamente 20 metros lineales. Preparación de superficie incluida.</p>
+                        </div>
+                        <div class="job-details">
+                            <div class="detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>A 3.2 km - Colonia Centro</span>
+                            </div>
+                            <div class="detail">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Para realizar: 15-20 Oct</span>
+                            </div>
+                            <div class="detail">
+                                <i class="fas fa-dollar-sign"></i>
+                                <span>Presupuesto: <strong>$1,200 - $1,800</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="job-actions">
+                        <button class="action-button view-details">Ver detalles</button>
+                        <button class="action-button apply-now">Postularme</button>
+                    </div>
+                </div>
+                
+                <!-- Trabajo 2 -->
+                <div class="job-card">
+                    <div class="job-content">
+                        <h3>Reparación de tubería en cocina</h3>
+                        <div class="job-description">
+                            <p>Fuga de agua bajo el fregadero de la cocina. Se necesita diagnóstico y reparación.</p>
+                        </div>
+                        <div class="job-details">
+                            <div class="detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>A 5.1 km - Barrio Norte</span>
+                            </div>
+                            <div class="detail">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Para realizar: 18 Oct</span>
+                            </div>
+                            <div class="detail">
+                                <i class="fas fa-dollar-sign"></i>
+                                <span>Presupuesto: <strong>$800 - $1,200</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="job-actions">
+                        <button class="action-button view-details">Ver detalles</button>
+                        <button class="action-button apply-now">Postularme</button>
+                    </div>
+                </div>
+                
+                <!-- Trabajo 3 -->
+                <div class="job-card">
+                    <div class="job-badge">Proyecto grande</div>
+                    <div class="job-content">
+                        <h3>Instalación eléctrica completa</h3>
+                        <div class="job-description">
+                            <p>Nueva construcción, se necesita instalación eléctrica completa para casa de 3 habitaciones.</p>
+                        </div>
+                        <div class="job-details">
+                            <div class="detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>A 7.5 km - Las Lomas</span>
+                            </div>
+                            <div class="detail">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Para realizar: Noviembre</span>
+                            </div>
+                            <div class="detail">
+                                <i class="fas fa-dollar-sign"></i>
+                                <span>Presupuesto: <strong>$8,000 - $12,000</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="job-actions">
+                        <button class="action-button view-details">Ver detalles</button>
+                        <button class="action-button apply-now">Postularme</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pagination">
+                <button class="page-button active">1</button>
+                <button class="page-button">2</button>
+                <button class="page-button">3</button>
+                <button class="page-button">4</button>
+                <button class="page-button next">Siguiente <i class="fas fa-chevron-right"></i></button>
+            </div>
+        </main>
+    </div>
+    
+    <script src="BusquedaTrabajos.js"></script>
+</body>
+</html>
+

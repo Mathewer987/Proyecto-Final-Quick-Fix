@@ -87,6 +87,7 @@ if opcion == "1":
 
             print("¿Q queres hacer ahora?")
             print("1. Solicitar CV de trabajador")
+            print("2. Contratar a un trabajador para un trabajo")
 
             QHacer = input("Elegí una opción (1 o 2): ")
             MailTra = input("Ingresá el mail del trabajador: ")
@@ -102,10 +103,37 @@ if opcion == "1":
                     print(f"✅ CV recuperado y guardado como '{rutaCVR}'.")
                     
                     webbrowser.open(rutaCVR)
+            
+            #elif QHacer == "2":
+
 
         else:
             print("❌ Datos incorrectos. Por favor, intentá nuevamente.")
 
+    elif profesion == "3":
+        mail = input("Ingresá tu mail: ")
+        contraseña = input("Ingresá tu contraseña: ")
+
+        cursor.execute(
+        'SELECT * FROM desempleado WHERE "Mail" = %s AND "Contraseña" = %s',
+        (mail, contraseña)
+         )
+
+        usuario = cursor.fetchone()
+
+        if usuario:
+            nombre = usuario[1]
+            print("✅ Inicio de sesión exitoso. ¡Bienvenido,", nombre + "!")
+        
+
+            print("¿Q queres hacer ahora?")
+            print("1. Solicitar mentoria a un trabajador")
+
+            QHacer = input("Elegí una opción (1 o 2): ")
+            MailTra = input("Ingresá el mail del trabajador: ")
+
+            #if QHacer == "1":
+                     
 
 elif opcion == "2":
    
@@ -443,8 +471,8 @@ elif opcion == "2":
     
     elif RProfesion == "3":
         RDMail = input("Mail: ")
-        cursor.execute('SELECT * FROM cliente WHERE "Mail" = %s', (RDMail,))
-        existente = cursor.fetchone()
+        cursor.execute('SELECT * FROM desempleado WHERE "Mail" = %s', (RDMail,))
+        existente = cursor.fetchone()   
 
         while existente:
             print("❌ El mail ya está registrado. Ingresá otro mail:")
@@ -473,6 +501,11 @@ elif opcion == "2":
         if ruta_archivo:
             with open(ruta_archivo, "rb") as f:
                 RDCv = f.read()
+        
+        cursor.execute(
+        'INSERT INTO desempleado ("Mail", "Nombre", "Apellido", "Secundaria", "Fecha de nacimiento", "Contraseña", "CV") VALUES (%s, %s, %s, %s, %s, %s, %s)',
+        (RDMail,RDNombre ,RDApellido ,RDSecundaria , RDBirth, RDContraseña, psycopg2.Binary(RDCv))
+        )
 
 
         

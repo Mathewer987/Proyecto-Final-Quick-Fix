@@ -6,6 +6,7 @@ import threading
 import os
 import time
 import unidecode
+from datetime import datetime
 
 
 
@@ -90,9 +91,9 @@ if opcion == "1":
             print("2. Contratar a un trabajador para un trabajo")
 
             QHacer = input("Elegí una opción (1 o 2): ")
-            MailTra = input("Ingresá el mail del trabajador: ")
-
             if QHacer == "1":
+                MailTra = input("Ingresá el mail del trabajador: ")
+
                 cursor.execute('SELECT "CV" FROM trabajador WHERE "Mail" = %s', (MailTra,))
                 CVA = cursor.fetchone()
 
@@ -104,7 +105,99 @@ if opcion == "1":
                     
                     webbrowser.open(rutaCVR)
             
-            #elif QHacer == "2":
+            
+            elif QHacer == "2":
+                 especializaciones = {
+            1: "Fontanero / Plomero",
+            2: "Electricista",
+            3: "Gasista matriculado",
+            4: "Albañil",
+            5: "Carpintero",
+            6: "Pintor",
+            7: "Herrero",
+            8: "Techista / Impermeabilizador",
+            9: "Cerrajero",
+            10: "Instalador de aires acondicionados",
+            11: "Instalador de alarmas / cámaras de seguridad",
+            12: "Personal de limpieza",
+            13: "Limpieza de tanques de agua",
+            14: "Limpieza de vidrios en altura",
+            15: "Lavado de alfombras / cortinas",
+            16: "Fumigador",
+            17: "Jardinero",
+            18: "Podador de árboles",
+            19: "Mantenimiento de piletas",
+            20: "Paisajista",
+            21: "Técnico de electrodomésticos",
+            22: "Técnico de celulares",
+            23: "Técnico de computadoras / laptops",
+            24: "Técnico de televisores / equipos electrónicos",
+            25: "Técnico de impresoras",
+            26: "Instalador de redes / WiFi",
+            27: "Otro"
+            }
+            if QHacer == "2":
+                print("\n🔧 Reparaciones y mantenimiento del hogar")
+                for i in range(1, 12):
+                    print(f"{i}. {especializaciones[i]}")
+    
+                print("\n🧼 Limpieza y mantenimiento")
+                for i in range(12, 17):
+                   print(f"{i}. {especializaciones[i]}")
+    
+                print("\n🌳 Jardinería y exteriores")
+                for i in range(17, 21):
+                    print(f"{i}. {especializaciones[i]}")
+
+                print("\n🛠️ Servicios técnicos")
+                for i in range(21, 27):
+                    print(f"{i}. {especializaciones[i]}")
+
+                print("\n27. Otro")
+
+                Laburo = input("Que tipo de laburo necesitas hecho: ")
+                Laburo = int(Laburo)
+                LaburoPosta = especializaciones[Laburo]
+
+                query = f'SELECT "mail" FROM especializaciones WHERE "{LaburoPosta}" = %s'
+    
+                try:
+                    cursor.execute(query, (True,))
+                    resultados = cursor.fetchall()
+
+                    lista_mails = [fila[0] for fila in resultados]
+
+                    if lista_mails:
+                        print("\n📧 Trabajadores disponibles:\n")
+                        for i, mail in enumerate(lista_mails, start=1):
+                            print(f"{i}. {mail}")
+                    else:
+                        print("No se encontraron trabajadores con esa especialización.")
+                
+                except Exception as e:
+                    print("Ocurrió un error al consultar la base de datos:", e)
+
+                Tmail = input("A cual te gustaria contratar (ingresar el mail del trabajador)?:")
+                
+                cursor.execute('SELECT * FROM trabajador WHERE "Mail" = %s', (Tmail,))
+                existente = cursor.fetchone()
+
+                while existente == False:
+                    print("❌ El mail no existe. Ingresá otro mail:")
+                    Tmail = input("Mail: ")
+                    cursor.execute('SELECT * FROM trabajador WHERE "Mail" = %s', (Tmail,))
+                    existente = cursor.fetchone()
+
+                print("Listo, contratase a " + Tmail + " para que te haga un trabajado de " + LaburoPosta)
+
+                Costo = None
+                ahora = datetime.now()
+
+                cursor.execute(
+                    'INSERT INTO "historialTC" ("Tmail", "Cmail", "Costo", "HorarioContra") VALUES (%s, %s, %s,%s)',
+                    (Tmail, mail, Costo,ahora)
+                    )
+                
 
 
         else:
@@ -130,12 +223,104 @@ if opcion == "1":
             print("1. Solicitar mentoria a un trabajador")
 
             QHacer = input("Elegí una opción (1 o 2): ")
-            MailTra = input("Ingresá el mail del trabajador: ")
 
-            #if QHacer == "1":
+            especializaciones = {
+            1: "Fontanero / Plomero",
+            2: "Electricista",
+            3: "Gasista matriculado",
+            4: "Albañil",
+            5: "Carpintero",
+            6: "Pintor",
+            7: "Herrero",
+            8: "Techista / Impermeabilizador",
+            9: "Cerrajero",
+            10: "Instalador de aires acondicionados",
+            11: "Instalador de alarmas / cámaras de seguridad",
+            12: "Personal de limpieza",
+            13: "Limpieza de tanques de agua",
+            14: "Limpieza de vidrios en altura",
+            15: "Lavado de alfombras / cortinas",
+            16: "Fumigador",
+            17: "Jardinero",
+            18: "Podador de árboles",
+            19: "Mantenimiento de piletas",
+            20: "Paisajista",
+            21: "Técnico de electrodomésticos",
+            22: "Técnico de celulares",
+            23: "Técnico de computadoras / laptops",
+            24: "Técnico de televisores / equipos electrónicos",
+            25: "Técnico de impresoras",
+            26: "Instalador de redes / WiFi",
+            27: "Otro"
+            }
+            if QHacer == "1":
+                print("\n🔧 Reparaciones y mantenimiento del hogar")
+                for i in range(1, 12):
+                    print(f"{i}. {especializaciones[i]}")
+    
+                print("\n🧼 Limpieza y mantenimiento")
+                for i in range(12, 17):
+                   print(f"{i}. {especializaciones[i]}")
+    
+                print("\n🌳 Jardinería y exteriores")
+                for i in range(17, 21):
+                    print(f"{i}. {especializaciones[i]}")
+
+                print("\n🛠️ Servicios técnicos")
+                for i in range(21, 27):
+                    print(f"{i}. {especializaciones[i]}")
+
+                print("\n27. Otro")
+
+                Laburo = input("Que tipo de laburo necesitas: ")
+                Laburo = int(Laburo)
+                LaburoPosta = especializaciones[Laburo]
+
+                query = f'SELECT "mail" FROM especializaciones WHERE "{LaburoPosta}" = %s'
+    
+                try:
+                    cursor.execute(query, (True,))
+                    resultados = cursor.fetchall()
+
+                    lista_mails = [fila[0] for fila in resultados]
+
+                    if lista_mails:
+                        print("\n📧 Trabajadores disponibles:\n")
+                        for i, mail in enumerate(lista_mails, start=1):
+                            print(f"{i}. {mail}")
+                    else:
+                        print("No se encontraron trabajadores con esa especialización.")
+                
+                except Exception as e:
+                    print("Ocurrió un error al consultar la base de datos:", e)
+
+                Tmail = input("A cual te gustaria contratar (ingresar el mail del trabajador)?:")
+                
+                cursor.execute('SELECT * FROM trabajador WHERE "Mail" = %s', (Tmail,))
+                existente = cursor.fetchone()
+
+                while existente == False:
+                    print("❌ El mail no existe. Ingresá otro mail:")
+                    Tmail = input("Mail: ")
+                    cursor.execute('SELECT * FROM trabajador WHERE "Mail" = %s', (Tmail,))
+                    existente = cursor.fetchone()
+
+                print("Listo, contratase a " + Tmail + " para que te instruya en " + LaburoPosta)
+
+                Costo = None
+                ahora = datetime.now()
+
+                cursor.execute(
+                    'INSERT INTO "historialDT" ("Dmail", "Ttrabajador", "Costo", "HoraDeContra") VALUES (%s, %s, %s,%s)',
+                    (mail, Tmail, Costo,ahora)
+                    )
+                
+
+
                      
 
 elif opcion == "2":
+
    
     print("¿Qué querés ser?")
     print("1. Cliente")
@@ -503,7 +688,7 @@ elif opcion == "2":
                 RDCv = f.read()
         
         cursor.execute(
-        'INSERT INTO desempleado ("Mail", "Nombre", "Apellido", "Secundaria", "Fecha de nacimiento", "Contraseña", "CV") VALUES (%s, %s, %s, %s, %s, %s, %s)',
+        'INSERT INTO desempleado ("mail", "Nombre", "Apellido", "Secundaria", "Fecha de nacimiento", "Contraseña", "CV") VALUES (%s, %s, %s, %s, %s, %s, %s)',
         (RDMail,RDNombre ,RDApellido ,RDSecundaria , RDBirth, RDContraseña, psycopg2.Binary(RDCv))
         )
 

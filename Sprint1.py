@@ -468,30 +468,26 @@ elif opcion == "2":
     
     
     elif RProfesion == "2":
-
-        cursor.execute('SELECT COUNT(*) FROM trabajador')
-        cantidad = cursor.fetchone()[0]
-
-        if cantidad == 0:
-            cursor.execute('ALTER SEQUENCE public.trabajador_id_seq RESTART WITH 1')
-            Devuelta = True
-        
-        else:
-            Devuelta = False
-
-            
-
-
         RTMail = input("Mail: ")
 
-        cursor.execute('SELECT * FROM trabajador WHERE "Mail" = %s', (RTMail,))
-        existente = cursor.fetchone()
+        existenteMailTrabajador = False
 
-        while existente:
+        def obtener_datos_trabajador(trabajador_id):
+            global existenteMailTrabajador  
+            doc_ref = db.collection("trabajadores").document(trabajador_id)
+            doc = doc_ref.get()
+            if doc.exists:
+                existenteMailTrabajador = True
+            else:
+                existenteMailTrabajador = False
+
+        obtener_datos_trabajador(RTMail)  
+
+        while existenteMailTrabajador == True:
             print("❌ El mail ya está registrado. Ingresá otro mail:")
             RTMail = input("Mail: ")
-            cursor.execute('SELECT * FROM trabajador WHERE "Mail" = %s', (RTMail,))
-            existente = cursor.fetchone()
+            obtener_datos_trabajador(RTMail)  
+
 
 
         RTNombre = input("Nombre: ")
@@ -499,14 +495,24 @@ elif opcion == "2":
 
         RTTel = input("Tel: ")
         
-        cursor.execute('SELECT * FROM trabajador WHERE "Tel" = %s', (RTTel,))
-        existente = cursor.fetchone()
+        existenteTelTrabajador = False
 
-        while existente:
-            print("❌ El telefono ya está registrado. Ingresá otro telefono:")
+        def obtener_datos_trabajador_por_tel(telefono_busqueda):
+            global existenteTelTrabajador  
+            trabajadores_ref = db.collection("trabajadores")
+            query = trabajadores_ref.where("tel", "==", telefono_busqueda).limit(1).stream()
+
+            for doc in query:
+                existenteTelTrabajador = True
+                return
+            existenteTelTrabajador = False
+
+        obtener_datos_trabajador_por_tel(RTTel)  
+
+        while existenteTelTrabajador == True:
+            print("❌ El teléfono ya está registrado. Ingresá otro teléfono:")
             RTTel = input("Tel: ")
-            cursor.execute('SELECT * FROM trabajador WHERE "Tel" = %s', (RTTel,))
-            existente = cursor.fetchone()
+            obtener_datos_trabajador_por_tel(RTTel)  
 
         RTBirth = input("Fecha nacimiento (dejar espacio usando -): ")
         RTContraseña = input("Contraseña: ")
@@ -586,7 +592,7 @@ elif opcion == "2":
 
 
         def normalizar_nombre(nombre):
-            nombre = unidecode.unidecode(nombre)  # elimina tildes
+            nombre = unidecode.unidecode(nombre)  
             return nombre.lower().replace(" / ", "_").replace(" ", "_").replace("/", "_")
 
         def mostrar_especializaciones():
@@ -645,77 +651,125 @@ elif opcion == "2":
                     print("•", esp)
             else:
                 print("\n⚠️ No asignaste ninguna especialización.")
+            
 
         if __name__ == "__main__":
             main()
 
-
-        cursor.execute(
-        'INSERT INTO trabajador ("Nombre", "Apellido", "Tel", "Birth", "Contraseña", "Mail", "CV") VALUES (%s, %s, %s, %s, %s, %s, %s)',
-        (RTNombre, RTApellido, RTTel, RTBirth, RTContraseña, RTMail, psycopg2.Binary(RTCv))
-        )
-        
-        id_especializacion = 0
-        if Devuelta == True:
-            id_especializacion = 1
-        
-        elif Devuelta == False:
-            cursor.execute("SELECT MAX(trabajador_id) FROM trabajador")
-            id_especializacion = cursor.fetchone()[0]  
-        
         for esp in especializaciones_asignadasPosta:
             if esp in especializaciones_booleans:
                 especializaciones_booleans[esp] = True
 
-        cursor.execute(
-        'INSERT INTO especializaciones ("especializaciones_id", "Mail", "Otro", "Fontanero / Plomero", "Electricista", "Gasista matriculado", "Albañil", "Carpintero", "Pintor", "Herrero", "Techista", "Impermeabilizador", "Cerrajero", "Instalador de aires acondicionados", "Instalador de alarmas", "Instalador de cámaras de seguridad", "Personal de limpieza ", "Limpieza de tanques de agua", "Limpieza de vidrios en altura", "Fumigador", "Lavado de alfombras / cortinas", "Jardinero", "Podador de árboles", "Mantenimiento de piletas", "Paisajista", "Técnico de electrodomésticos", "Técnico de celulares", "Técnico de computadoras / laptops", "Técnico de televisores / equipos electrónicos", "Técnico de impresoras", "Instalador de redes / WiFi") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
-        (
-        id_especializacion,
-        RTMail,
-        otrosTrabajosPosta,
-        especializaciones_booleans["Fontanero_Plomero"],
-        especializaciones_booleans["Electricista"],
-        especializaciones_booleans["Gasista_matriculado"],
-        especializaciones_booleans["Albanil"],
-        especializaciones_booleans["Carpintero"],
-        especializaciones_booleans["Pintor"],
-        especializaciones_booleans["Herrero"],
-        especializaciones_booleans["Techista"],
-        especializaciones_booleans["Impermeabilizador"],
-        especializaciones_booleans["Cerrajero"],
-        especializaciones_booleans["Instalador_aires_acondicionados"],
-        especializaciones_booleans["Instalador_alarmas"],
-        especializaciones_booleans["Instalador_camaras_seguridad"],
-        especializaciones_booleans["Personal_limpieza"],
-        especializaciones_booleans["Limpieza_tanques_agua"],
-        especializaciones_booleans["Limpieza_vidrios_altura"],
-        especializaciones_booleans["Fumigador"],
-        especializaciones_booleans["Lavado_alfombras_cortinas"],
-        especializaciones_booleans["Jardinero"],
-        especializaciones_booleans["Podador_arboles"],
-        especializaciones_booleans["Mantenimiento_piletas"],
-        especializaciones_booleans["Paisajista"],
-        especializaciones_booleans["Tecnico_electrodomesticos"],
-        especializaciones_booleans["Tecnico_celulares"],
-        especializaciones_booleans["Tecnico_computadoras_laptops"],
-        especializaciones_booleans["Tecnico_televisores_equipos_electronicos"],
-        especializaciones_booleans["Tecnico_impresoras"],
-        especializaciones_booleans["Instalador_redes_WiFi"]
-    )
-        )
-  
+        def crear_trabajador (nombre, apellido, telefono, cumpleaños, contraseña, mail, cv, Fontanero_Plomero, Electricista, Gasista_matriculado, Albañil, Carpintero, Pintor, Herrero, Techista, Impermeabilizador, Cerrajero, Instalador_de_aires_acondicionados, Instalador_de_alarmas, Instalador_de_cámaras_de_seguridad, Personal_de_limpieza, Limpieza_de_tanques_de_agua, Limpieza_de_vidrios_en_altura, Fumigador, LavadoDeAlfombras_cortinas, Jardinero, Podador_de_árboles, Mantenimiento_de_piletas, Paisajista, Técnico_de_electrodomésticos, Técnico_de_celulares, TécnicoDeComputadoras_laptops, TécnicoDeTelevisores_equiposelectrónicos, Técnico_de_impresoras, InstaladorDeRedes_WiFi, Otro
+            ):
+            doc_ref = db.collection("trabajadores").document(mail)
+            doc_ref.set({
+                "nombre": nombre,
+                "apellido": apellido,
+                "tel": telefono,
+                "birth": cumpleaños,
+                "contraseña": contraseña,
+                "mail": mail,
+                "cv": cv,
+
+                "Fontanero_Plomero": Fontanero_Plomero,
+                "Electricista": Electricista,
+                "Gasista_matriculado": Gasista_matriculado,
+                "Albañil": Albañil,
+                "Carpintero": Carpintero,
+                "Pintor": Pintor,
+                "Herrero": Herrero,
+                "Techista": Techista,
+                "Impermeabilizador": Impermeabilizador,
+                "Cerrajero": Cerrajero,
+                "Instalador_de_aires_acondicionados": Instalador_de_aires_acondicionados,
+                "Instalador_de_alarmas": Instalador_de_alarmas,
+                "Instalador_de_cámaras_de_seguridad": Instalador_de_cámaras_de_seguridad,
+                "Personal_de_limpieza": Personal_de_limpieza,
+                "Limpieza_de_tanques_de_agua": Limpieza_de_tanques_de_agua,
+                "Limpieza_de_vidrios_en_altura": Limpieza_de_vidrios_en_altura,
+                "Fumigador": Fumigador,
+                "LavadoDeAlfombras_cortinas": LavadoDeAlfombras_cortinas,
+                "Jardinero": Jardinero,
+                "Podador_de_árboles": Podador_de_árboles,
+                "Mantenimiento_de_piletas": Mantenimiento_de_piletas,
+                "Paisajista": Paisajista,
+                "Técnico_de_electrodomésticos": Técnico_de_electrodomésticos,
+                "Técnico_de_celulares": Técnico_de_celulares,
+                "TécnicoDeComputadoras_laptops": TécnicoDeComputadoras_laptops,
+                "TécnicoDeTelevisores_equiposelectrónicos": TécnicoDeTelevisores_equiposelectrónicos,
+                "Técnico_de_impresoras": Técnico_de_impresoras,
+                "InstaladorDeRedes_WiFi": InstaladorDeRedes_WiFi,
+                "Otro": Otro
+
+                
+            })
+        
+
+
+        
+        crear_trabajador(
+                nombre = RTNombre,
+                apellido = RTApellido,
+                telefono = RTTel,
+                cumpleaños = RTBirth,
+                contraseña = RTContraseña,
+                mail = RTMail,
+                cv = RTCv,
+
+                Fontanero_Plomero = especializaciones_booleans["Fontanero_Plomero"],
+                Electricista = especializaciones_booleans["Electricista"],
+                Gasista_matriculado = especializaciones_booleans["Gasista_matriculado"],
+                Albañil = especializaciones_booleans["Albanil"],
+                Carpintero = especializaciones_booleans["Carpintero"],
+                Pintor = especializaciones_booleans["Pintor"],
+                Herrero = especializaciones_booleans["Herrero"],
+                Techista = especializaciones_booleans["Techista"],
+                Impermeabilizador = especializaciones_booleans["Impermeabilizador"],
+                Cerrajero = especializaciones_booleans["Cerrajero"],
+                Instalador_de_aires_acondicionados = especializaciones_booleans["Instalador_aires_acondicionados"],
+                Instalador_de_alarmas = especializaciones_booleans["Instalador_alarmas"],
+                Instalador_de_cámaras_de_seguridad = especializaciones_booleans["Instalador_camaras_seguridad"],
+                Personal_de_limpieza = especializaciones_booleans["Personal_limpieza"],
+                Limpieza_de_tanques_de_agua = especializaciones_booleans["Limpieza_tanques_agua"],
+                Limpieza_de_vidrios_en_altura = especializaciones_booleans["Limpieza_vidrios_altura"],
+                Fumigador = especializaciones_booleans["Fumigador"],
+                LavadoDeAlfombras_cortinas = especializaciones_booleans["Lavado_alfombras_cortinas"],
+                Jardinero = especializaciones_booleans["Jardinero"],
+                Podador_de_árboles = especializaciones_booleans["Podador_arboles"],
+                Mantenimiento_de_piletas = especializaciones_booleans["Mantenimiento_piletas"],
+                Paisajista = especializaciones_booleans["Paisajista"],
+                Técnico_de_electrodomésticos = especializaciones_booleans["Tecnico_electrodomesticos"],
+                Técnico_de_celulares = especializaciones_booleans["Tecnico_celulares"],
+                TécnicoDeComputadoras_laptops = especializaciones_booleans["Tecnico_computadoras_laptops"],
+                TécnicoDeTelevisores_equiposelectrónicos = especializaciones_booleans["Tecnico_televisores_equipos_electronicos"],
+                Técnico_de_impresoras = especializaciones_booleans["Tecnico_impresoras"],
+                InstaladorDeRedes_WiFi = especializaciones_booleans["Instalador_redes_WiFi"],
+                Otro = otrosTrabajosPosta
+        )   
+          
         print("✅ Te registraste bien. ¡Bienvenido,", RTNombre + "!")
     
     elif RProfesion == "3":
         RDMail = input("Mail: ")
-        cursor.execute('SELECT * FROM desempleado WHERE "Mail" = %s', (RDMail,))
-        existente = cursor.fetchone()   
 
-        while existente:
+        existenteMailDesempleado = False
+
+        def obtener_datos_cliente(desempleado_id):
+            global existenteMailDesempleado  
+            doc_ref = db.collection("desempleados").document(desempleado_id)
+            doc = doc_ref.get()
+            if doc.exists:
+                existenteMailDesempleado = True
+            else:
+                existenteMailDesempleado = False
+
+        obtener_datos_cliente(RDMail)  
+
+        while existenteMailDesempleado == True:
             print("❌ El mail ya está registrado. Ingresá otro mail:")
             RDMail = input("Mail: ")
-            cursor.execute('SELECT * FROM desempleado WHERE "Mail" = %s', (RDMail,))
-            existente = cursor.fetchone()
+            obtener_datos_cliente(RDMail)  
 
 
         RDNombre = input("Nombre: ")
@@ -739,10 +793,31 @@ elif opcion == "2":
             with open(ruta_archivo, "rb") as f:
                 RDCv = f.read()
         
-        cursor.execute(
-        'INSERT INTO desempleado ("mail", "Nombre", "Apellido", "Secundaria", "Fecha de nacimiento", "Contraseña", "CV") VALUES (%s, %s, %s, %s, %s, %s, %s)',
-        (RDMail,RDNombre ,RDApellido ,RDSecundaria , RDBirth, RDContraseña, psycopg2.Binary(RDCv))
-        )
+       
+
+        def crear_desempleado(mail, Nombre, Apellido, Secundaria, Fecha_de_nacimiento, Contraseña, cv):
+            doc_ref = db.collection("desempleados").document(mail)
+            doc_ref.set({
+                "mail": mail,
+                "nombre": Nombre,
+                "apellido": Apellido,
+                "birth": Fecha_de_nacimiento,
+                "contraseña": Contraseña,
+                "CV": cv,
+                "Secundaria": Secundaria
+            })
+
+
+        
+        crear_desempleado(
+                mail = RDMail,
+                Nombre =  RDNombre,
+                Apellido =  RDApellido,
+                Fecha_de_nacimiento =  RDBirth,
+                Contraseña = RDContraseña,
+                cv = RDCv,
+                Secundaria = RDSecundaria
+            )  
 
 
         

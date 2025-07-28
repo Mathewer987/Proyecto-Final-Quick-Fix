@@ -7,6 +7,13 @@ import os
 import time
 import unidecode
 from datetime import datetime
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+cred = credentials.Certificate("firebase-key.json")
+firebase_admin.initialize_app(cred)
+
+db = firestore.client()
 
 
 
@@ -330,22 +337,30 @@ elif opcion == "2":
     RProfesion = input("Elegí una opción (1, 2 o 3): ")
     
     if RProfesion == "1":
-        cursor.execute('SELECT COUNT(*) FROM cliente')
-        cantidad = cursor.fetchone()[0]
-
-        if cantidad == 0:
-            cursor.execute('ALTER SEQUENCE public.cliente_id_seq RESTART WITH 1')
+        
 
         RCMail = input("Mail: ")
 
-        cursor.execute('SELECT * FROM cliente WHERE "Mail" = %s', (RCMail,))
-        existente = cursor.fetchone()
+        existenteMailCliente = False
 
-        while existente:
+        def obtener_datos_cliente(cliente_id):
+            global existenteMailCliente  
+            doc_ref = db.collection("clientes").document(cliente_id)
+            doc = doc_ref.get()
+            if doc.exists:
+                existenteMailCliente = True
+            else:
+                existenteMailCliente = False
+
+        obtener_datos_cliente(RCMail)  
+
+        while existenteMailCliente == True:
             print("❌ El mail ya está registrado. Ingresá otro mail:")
             RCMail = input("Mail: ")
-            cursor.execute('SELECT * FROM cliente WHERE "Mail" = %s', (RCMail,))
-            existente = cursor.fetchone()
+            obtener_datos_cliente(RCMail)  
+
+
+        
 
         
         RCNombre = input("Nombre: ")
@@ -353,14 +368,26 @@ elif opcion == "2":
         
         RCTel = input("Tel: ")
         
-        cursor.execute('SELECT * FROM cliente WHERE "Tel" = %s', (RCTel,))
-        existente = cursor.fetchone()
+        existenteTelCliente = False
 
-        while existente:
-            print("❌ El telefono ya está registrado. Ingresá otro telefono:")
+        def obtener_datos_cliente_por_tel(telefono_busqueda):
+            global existenteTelCliente  
+            clientes_ref = db.collection("clientes")
+            query = clientes_ref.where("tel", "==", telefono_busqueda).limit(1).stream()
+
+            for doc in query:
+                existenteTelCliente = True
+                return
+            existenteTelCliente = False
+
+        obtener_datos_cliente_por_tel(RCTel)  
+
+        while existenteTelCliente == True:
+            print("❌ El teléfono ya está registrado. Ingresá otro teléfono:")
             RCTel = input("Tel: ")
-            cursor.execute('SELECT * FROM cliente WHERE "Tel" = %s', (RCTel,))
-            existente = cursor.fetchone()
+            obtener_datos_cliente_por_tel(RCTel)  
+
+
 
         RCBirth = input("Fecha nacimiento (dejar espacio usando -): ")
         RCContraseña = input("Contraseña: ")
@@ -370,6 +397,8 @@ elif opcion == "2":
                 if nombre_archivo in archivos:
                     return os.path.join(raiz, nombre_archivo)
             return None
+        
+
 
         nombre_archivo = "coordenadas.txt"
 
@@ -404,14 +433,37 @@ elif opcion == "2":
         RCLat = lat
         RCLng = lng
 
-        cursor.execute(
-        'INSERT INTO cliente ("Nombre", "Apellido", "Tel", "Birth", "Contraseña", "Mail", "Latitud", "Longitud") VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-        (RCNombre, RCApellido, RCTel, RCBirth, RCContraseña, RCMail, RCLat, RCLng)
+       
+        def crear_cliente(nombre, apellido, telefono, cumpleaños, contraseña, mail, latitud , longitud):
+            doc_ref = db.collection("clientes").document(mail)
+            doc_ref.set({
+                "nombre": nombre,
+                "apellido": apellido,
+                "tel": telefono,
+                "birth": cumpleaños,
+                "contraseña": contraseña,
+                "mail": mail,
+                "latitud": latitud,
+                "longitud": longitud
+            })
+
+
         
+        crear_cliente(
+                nombre = RCNombre,
+                apellido = RCApellido,
+                telefono = RCTel,
+                cumpleaños = RCBirth,
+                contraseña = RCContraseña,
+                mail = RCMail,
+                latitud = RCLat,
+                longitud = RCLng
+            )   
     
-)
+
         
         print("✅ Te registraste bien. ¡Bienvenido,", RCNombre + "!")
+
     
     
     

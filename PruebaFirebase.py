@@ -1,19 +1,28 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# Ruta al archivo de credenciales descargado
 cred = credentials.Certificate("firebase-key.json")
 firebase_admin.initialize_app(cred)
 
-# Conectarse a Firestore
 db = firestore.client()
 
-# Agregar un documento a la colección "usuarios"
-doc_ref = db.collection("usuarios").document("juan_123")
-doc_ref.set({
-    "nombre": "Juan",
-    "edad": 30,
-    "profesion": "Plomero"
-})
 
-print("Documento agregado exitosamente")
+def obtener_datos_cliente(cliente_id):
+
+    doc_ref = db.collection("clientes").document(cliente_id)
+    doc = doc_ref.get()
+    if doc.exists:
+        datos = doc.to_dict()
+
+        nombre = datos.get("nombre")
+       
+        print(f"Nombre: {nombre}")
+        
+        return datos  
+    else:
+        print(f"No existe el cliente con ID: {cliente_id}")
+        return None
+
+
+obtener_datos_cliente("mateoaguero31@gmail.com")
+

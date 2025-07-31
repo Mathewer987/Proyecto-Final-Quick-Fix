@@ -9,6 +9,7 @@ import unidecode
 from datetime import datetime
 import firebase_admin
 from firebase_admin import credentials, firestore
+import re
 
 cred = credentials.Certificate("firebase-key.json")
 firebase_admin.initialize_app(cred)
@@ -536,82 +537,81 @@ elif opcion == "2":
         otrosTrabajosPosta = []
 
         especializaciones = {
-            1: "Fontanero / Plomero",
-            2: "Electricista",
-            3: "Gasista matriculado",
-            4: "Albañil",
-            5: "Carpintero",
-            6: "Pintor",
-            7: "Herrero",
-            8: "Techista / Impermeabilizador",
-            9: "Cerrajero",
-            10: "Instalador de aires acondicionados",
-            11: "Instalador de alarmas / cámaras de seguridad",
-            12: "Personal de limpieza",
-            13: "Limpieza de tanques de agua",
-            14: "Limpieza de vidrios en altura",
-            15: "Lavado de alfombras / cortinas",
-            16: "Fumigador",
-            17: "Jardinero",
-            18: "Podador de árboles",
-            19: "Mantenimiento de piletas",
-            20: "Paisajista",
-            21: "Técnico de electrodomésticos",
-            22: "Técnico de celulares",
-            23: "Técnico de computadoras / laptops",
-            24: "Técnico de televisores / equipos electrónicos",
-            25: "Técnico de impresoras",
-            26: "Instalador de redes / WiFi",
-            27: "Otro"
+    1: "Fontanero / Plomero",
+    2: "Electricista",
+    3: "Gasista matriculado",
+    4: "Albañil",
+    5: "Carpintero",
+    6: "Pintor",
+    7: "Herrero",
+    8: "Techista / Impermeabilizador",
+    9: "Cerrajero",
+    10: "Instalador de aires acondicionados",
+    11: "Instalador de alarmas / cámaras de seguridad",
+    12: "Personal de limpieza",
+    13: "Limpieza de tanques de agua",
+    14: "Limpieza de vidrios en altura",
+    15: "Lavado de alfombras / cortinas",
+    16: "Fumigador",
+    17: "Jardinero",
+    18: "Podador de árboles",
+    19: "Mantenimiento de piletas",
+    20: "Paisajista",
+    21: "Técnico de electrodomésticos",
+    22: "Técnico de celulares",
+    23: "Técnico de computadoras / laptops",
+    24: "Técnico de televisores / equipos electrónicos",
+    25: "Técnico de impresoras",
+    26: "Instalador de redes / WiFi",
+    27: "Otro"
         }
 
         especializaciones_booleans = {
-            "Fontanero_Plomero": False,
-            "Electricista": False,
-            "Gasista_matriculado": False,
-            "Albanil": False,
-            "Carpintero": False,
-            "Pintor": False,
-            "Herrero": False,
-            "Techista": False, 
-            "Impermeabilizador": False,
-            "Cerrajero": False,
-            "Instalador_aires_acondicionados": False,
-            "Instalador_alarmas": False,
-            "Instalador_camaras_seguridad": False,
-            "Personal_limpieza": False,
-            "Limpieza_tanques_agua": False,
-            "Limpieza_vidrios_altura": False,
-            "Fumigador": False,
-            "Lavado_alfombras_cortinas": False,
-            "Jardinero": False,
-            "Podador_arboles": False,
-            "Mantenimiento_piletas": False,
-            "Paisajista": False,
-            "Tecnico_electrodomesticos": False,
-            "Tecnico_celulares": False,
-            "Tecnico_computadoras_laptops": False,
-            "Tecnico_televisores_equipos_electronicos": False,
-            "Tecnico_impresoras": False,
-            "Instalador_redes_WiFi": False,
+    "fontanero_plomero": False,
+    "electricista": False,
+    "gasista_matriculado": False,
+    "albanil": False,
+    "carpintero": False,
+    "pintor": False,
+    "herrero": False,
+    "techista": False,
+    "impermeabilizador": False,
+    "cerrajero": False,
+    "instalador_aires_acondicionados": False,
+    "instalador_alarmas": False,
+    "instalador_camaras_seguridad": False,
+    "personal_limpieza": False,
+    "limpieza_tanques_agua": False,
+    "limpieza_vidrios_altura": False,
+    "fumigador": False,
+    "lavado_alfombras_cortinas": False,
+    "jardinero": False,
+    "podador_arboles": False,
+    "mantenimiento_piletas": False,
+    "paisajista": False,
+    "tecnico_electrodomesticos": False,
+    "tecnico_celulares": False,
+    "tecnico_computadoras_laptops": False,
+    "tecnico_televisores_equipos_electronicos": False,
+    "tecnico_impresoras": False,
+    "instalador_redes_wifi": False
         }
 
-        
-
-
         def normalizar_nombre(nombre):
-            nombre = unidecode.unidecode(nombre)  
-            return nombre.lower().replace(" / ", "_").replace(" ", "_").replace("/", "_")
+            nombre = nombre.lower()
+            nombre = nombre.replace(" / ", "_").replace("/", "_").replace(" ", "_")
+            nombre = "".join(c for c in nombre if c.isalnum() or c == "_")
+            return nombre
 
         def mostrar_especializaciones():
             print("\n🔧 Reparaciones y mantenimiento del hogar")
             for i in range(1, 12):
                 print(f"{i}. {especializaciones[i]}")
-    
+            
             print("\n🧼 Limpieza y mantenimiento")
             for i in range(12, 17):
                 print(f"{i}. {especializaciones[i]}")
-    
+            
             print("\n🌳 Jardinería y exteriores")
             for i in range(17, 21):
                 print(f"{i}. {especializaciones[i]}")
@@ -619,46 +619,41 @@ elif opcion == "2":
             print("\n🛠️ Servicios técnicos")
             for i in range(21, 27):
                 print(f"{i}. {especializaciones[i]}")
-
+            
             print("\n27. Otro")
-
-
 
         def main():
             mostrar_especializaciones()
-    
             entrada = input("\nElegí tu especialización/es (en caso de ser más de una, separalas con coma): ")
             seleccion = entrada.split(",")
-    
+
+        
             especializaciones_asignadas = []
             otros_trabajos = []
 
             for item in seleccion:
                 try:
-                    numero = int(item.strip())
-                    if numero == 27:
-                        otros = input("📝 Ingresá el/los otro/s trabajo/s (separados por coma en caso de ser más de uno): ")
-                        otros_trabajos += [x.strip() for x in otros.split(",") if x.strip()]
-                    elif numero in especializaciones:
-                        especializaciones_asignadas.append(especializaciones[numero])
-                    
-                    else:
-                        print(f"❗ Opción inválida: {numero}")
-                    
+                    index = int(item.strip())
+                    if index ==  27:
+                        otro = input("Especificá cuál es tu otra especialización: ")
+                        otros_trabajos.append(otro.strip())
+                    elif 1 <= index <= 26:
+                        nombre = especializaciones[index]
+                        normalizado = normalizar_nombre(nombre)
+                        especializaciones_booleans[normalizado] = True
+                        especializaciones_asignadas.append(nombre)
                 except ValueError:
-                    print(f"❗ Entrada no válida: {item}")
+                    print(f"Opción inválida: {item.strip()}")
 
-                resultado = especializaciones_asignadas + otros_trabajos
+            global especializaciones_asignadasPosta, otrosTrabajosPosta
+            especializaciones_asignadasPosta = especializaciones_asignadas
+            otrosTrabajosPosta = otros_trabajos
 
-                especializaciones_asignadasPosta[:] = especializaciones_asignadas
-                otrosTrabajosPosta[:] = otros_trabajos
-            
-            if resultado:
-                print("\n✅ Elegiste:")
-                for esp in resultado:
-                    print("•", esp)
-            else:
-                print("\n⚠️ No asignaste ninguna especialización.")
+            print("\n✅ Especializaciones asignadas:", especializaciones_asignadasPosta)
+            if otrosTrabajosPosta:
+                print("🔧 Otros trabajos:", otrosTrabajosPosta)
+
+
             
 
         if __name__ == "__main__":

@@ -1,4 +1,3 @@
-import psycopg2
 import tkinter as tk
 from tkinter import filedialog
 import webbrowser
@@ -32,15 +31,7 @@ def seleccionar_pdf():
 
     
 
-conexion = psycopg2.connect(
-    host="localhost",
-    database="QuickFix",
-    user="postgres",    
-    password="Boca20052005",
-    port="5432"
-)
 
-cursor = conexion.cursor()
 Devuelta = None
 
 print("¿Qué querés hacer?")
@@ -126,7 +117,7 @@ if opcion == "1":
             8: "Techista / Impermeabilizador",
             9: "Cerrajero",
             10: "Instalador de aires acondicionados",
-            11: "Instalador de alarmas / cámaras de seguridad",
+            11: "Instalador de alarmas/cámaras de seguridad",
             12: "Personal de limpieza",
             13: "Limpieza de tanques de agua",
             14: "Limpieza de vidrios en altura",
@@ -243,7 +234,7 @@ if opcion == "1":
             8: "Techista / Impermeabilizador",
             9: "Cerrajero",
             10: "Instalador de aires acondicionados",
-            11: "Instalador de alarmas / cámaras de seguridad",
+            11: "Instalador de alarmas/cámaras de seguridad",
             12: "Personal de limpieza",
             13: "Limpieza de tanques de agua",
             14: "Limpieza de vidrios en altura",
@@ -521,8 +512,10 @@ elif opcion == "2":
             obtener_datos_trabajador_por_tel(RTTel)  
         
         RTTel = int(RTTel)
+
         
         RTBirth = datetime.strptime(input("Nacimiento (YYYY-MM-DD): "), "%Y-%m-%d")
+
 
         RTContraseña = input("Contraseña: ")
         
@@ -533,138 +526,103 @@ elif opcion == "2":
             with open(ruta_archivo, "rb") as f:
                 RTCv = f.read()
         
-        especializaciones_asignadasPosta = []
-        otrosTrabajosPosta = []
-
         especializaciones = {
-    1: "Fontanero / Plomero",
-    2: "Electricista",
-    3: "Gasista matriculado",
-    4: "Albañil",
-    5: "Carpintero",
-    6: "Pintor",
-    7: "Herrero",
-    8: "Techista / Impermeabilizador",
-    9: "Cerrajero",
-    10: "Instalador de aires acondicionados",
-    11: "Instalador de alarmas / cámaras de seguridad",
-    12: "Personal de limpieza",
-    13: "Limpieza de tanques de agua",
-    14: "Limpieza de vidrios en altura",
-    15: "Lavado de alfombras / cortinas",
-    16: "Fumigador",
-    17: "Jardinero",
-    18: "Podador de árboles",
-    19: "Mantenimiento de piletas",
-    20: "Paisajista",
-    21: "Técnico de electrodomésticos",
-    22: "Técnico de celulares",
-    23: "Técnico de computadoras / laptops",
-    24: "Técnico de televisores / equipos electrónicos",
-    25: "Técnico de impresoras",
-    26: "Instalador de redes / WiFi",
-    27: "Otro"
+            1: "Fontanero/Plomero",
+            2: "Electricista",
+            3: "Gasista matriculado",
+            4: "Albañil",
+            5: "Carpintero",
+            6: "Pintor",
+            7: "Herrero",
+            8: "Techista/Impermeabilizador",
+            9: "Cerrajero",
+            10: "Instalador de aires acondicionados",
+            11: "Instalador de alarmas/cámaras de seguridad",
+            12: "Personal de limpieza",
+            13: "Limpieza de tanques de agua",
+            14: "Limpieza de vidrios en altura",
+            15: "Lavado de alfombras/cortinas",
+            16: "Fumigador",
+            17: "Jardinero",
+            18: "Podador de árboles",
+            19: "Mantenimiento de piletas",
+            20: "Paisajista",
+            21: "Técnico de electrodomésticos",
+            22: "Técnico de celulares",
+            23: "Técnico de computadoras/laptops",
+            24: "Técnico de televisores/equipos electrónicos",
+            25: "Técnico de impresoras",
+            26: "Instalador de redes/WiFi",
+            27: "Otro"
         }
 
-        especializaciones_booleans = {
-    "fontanero_plomero": False,
-    "electricista": False,
-    "gasista_matriculado": False,
-    "albanil": False,
-    "carpintero": False,
-    "pintor": False,
-    "herrero": False,
-    "techista": False,
-    "impermeabilizador": False,
-    "cerrajero": False,
-    "instalador_aires_acondicionados": False,
-    "instalador_alarmas": False,
-    "instalador_camaras_seguridad": False,
-    "personal_limpieza": False,
-    "limpieza_tanques_agua": False,
-    "limpieza_vidrios_altura": False,
-    "fumigador": False,
-    "lavado_alfombras_cortinas": False,
-    "jardinero": False,
-    "podador_arboles": False,
-    "mantenimiento_piletas": False,
-    "paisajista": False,
-    "tecnico_electrodomesticos": False,
-    "tecnico_celulares": False,
-    "tecnico_computadoras_laptops": False,
-    "tecnico_televisores_equipos_electronicos": False,
-    "tecnico_impresoras": False,
-    "instalador_redes_wifi": False
-        }
-
-        def normalizar_nombre(nombre):
-            nombre = nombre.lower()
-            nombre = nombre.replace(" / ", "_").replace("/", "_").replace(" ", "_")
-            nombre = "".join(c for c in nombre if c.isalnum() or c == "_")
+        def normalizar_especializacion(nombre):
+            nombre = nombre.lower().replace("á", "a").replace("é", "e").replace("í", "i").replace("ó", "o").replace("ú", "u").replace("ü", "u")
+            nombre = nombre.replace("/", "_").replace("-", "").replace(".", "")
+            nombre = nombre.replace(" ", "_")
             return nombre
 
+
+        especializaciones_booleans = {
+        normalizar_especializacion(nombre): False
+        for nombre in especializaciones.values()
+        if nombre != "Otro"
+        }
+
+        otrosTrabajosPosta = []
+
         def mostrar_especializaciones():
-            print("\n🔧 Reparaciones y mantenimiento del hogar")
-            for i in range(1, 12):
-                print(f"{i}. {especializaciones[i]}")
-            
-            print("\n🧼 Limpieza y mantenimiento")
-            for i in range(12, 17):
-                print(f"{i}. {especializaciones[i]}")
-            
-            print("\n🌳 Jardinería y exteriores")
-            for i in range(17, 21):
-                print(f"{i}. {especializaciones[i]}")
-    
-            print("\n🛠️ Servicios técnicos")
-            for i in range(21, 27):
-                print(f"{i}. {especializaciones[i]}")
-            
-            print("\n27. Otro")
+            print("\nEspecializaciones disponibles:")
+            for key in especializaciones:
+                print(f"{key}. {especializaciones[key]}")
 
         def main():
+            global otrosTrabajosPosta  
             mostrar_especializaciones()
             entrada = input("\nElegí tu especialización/es (en caso de ser más de una, separalas con coma): ")
             seleccion = entrada.split(",")
 
-        
-            especializaciones_asignadas = []
-            otros_trabajos = []
-
             for item in seleccion:
                 try:
                     index = int(item.strip())
-                    if index ==  27:
+                    if index == 27:
                         otro = input("Especificá cuál es tu otra especialización: ")
-                        otros_trabajos.append(otro.strip())
+                        otrosTrabajosPosta = [trabajo.strip() for trabajo in otro.split(",") if trabajo.strip() != ""]
                     elif 1 <= index <= 26:
                         nombre = especializaciones[index]
-                        normalizado = normalizar_nombre(nombre)
-                        especializaciones_booleans[normalizado] = True
-                        especializaciones_asignadas.append(nombre)
+                        clave_normalizada = normalizar_especializacion(nombre)
+                        especializaciones_booleans[clave_normalizada] = True
+                    else:
+                        print(f"Opción inválida: {index}")
+                
                 except ValueError:
                     print(f"Opción inválida: {item.strip()}")
 
-            global especializaciones_asignadasPosta, otrosTrabajosPosta
-            especializaciones_asignadasPosta = especializaciones_asignadas
-            otrosTrabajosPosta = otros_trabajos
+            print("\n✅ Especializaciones asignadas:")
+            for clave, valor in especializaciones_booleans.items():
+                estado = "✅" if valor else "❌"
+                print(f"{estado} {clave}")
 
-            print("\n✅ Especializaciones asignadas:", especializaciones_asignadasPosta)
             if otrosTrabajosPosta:
-                print("🔧 Otros trabajos:", otrosTrabajosPosta)
-
-
-            
+                print("\n🔧 Otros trabajos especificados:")
+                for otro in otrosTrabajosPosta:
+                    print(f"- {otro}")
 
         if __name__ == "__main__":
             main()
 
-        for esp in especializaciones_asignadasPosta:
-            if esp in especializaciones_booleans:
-                especializaciones_booleans[esp] = True
 
-        def crear_trabajador (nombre: str, apellido: str, telefono: int, cumpleaños: datetime, contraseña: str, mail: str, cv, Fontanero_Plomero, Electricista, Gasista_matriculado, Albañil, Carpintero, Pintor, Herrero, Techista, Impermeabilizador, Cerrajero, Instalador_de_aires_acondicionados, Instalador_de_alarmas, Instalador_de_cámaras_de_seguridad, Personal_de_limpieza, Limpieza_de_tanques_de_agua, Limpieza_de_vidrios_en_altura, Fumigador, LavadoDeAlfombras_cortinas, Jardinero, Podador_de_árboles, Mantenimiento_de_piletas, Paisajista, Técnico_de_electrodomésticos, Técnico_de_celulares, TécnicoDeComputadoras_laptops, TécnicoDeTelevisores_equiposelectrónicos, Técnico_de_impresoras, InstaladorDeRedes_WiFi, Otro
-            ):
+        def crear_trabajador(
+            nombre: str, apellido: str, telefono: int, cumpleaños, contraseña: str, mail: str, cv,
+            Fontanero_Plomero, Electricista, Gasista_matriculado, Albañil, Carpintero, Pintor,
+            Herrero, Techista_Impermeabilizador, Cerrajero, Instalador_de_aires_acondicionados,
+            Instalador_de_alarmas_cámaras_de_seguridad, Personal_de_limpieza,
+            Limpieza_de_tanques_de_agua, Limpieza_de_vidrios_en_altura, Fumigador,
+            LavadoDeAlfombras_cortinas, Jardinero, Podador_de_árboles, Mantenimiento_de_piletas,
+            Paisajista, Técnico_de_electrodomésticos, Técnico_de_celulares,
+            TécnicoDeComputadoras_laptops, TécnicoDeTelevisores_equiposelectrónicos,
+            Técnico_de_impresoras, InstaladorDeRedes_WiFi, Otro: list
+        ):
             doc_ref = db.collection("trabajadores").document(mail)
             doc_ref.set({
                 "nombre": nombre,
@@ -682,12 +640,10 @@ elif opcion == "2":
                 "Carpintero": Carpintero,
                 "Pintor": Pintor,
                 "Herrero": Herrero,
-                "Techista": Techista,
-                "Impermeabilizador": Impermeabilizador,
+                "Techista_Impermeabilizador": Techista_Impermeabilizador,
                 "Cerrajero": Cerrajero,
                 "Instalador_de_aires_acondicionados": Instalador_de_aires_acondicionados,
-                "Instalador_de_alarmas": Instalador_de_alarmas,
-                "Instalador_de_cámaras_de_seguridad": Instalador_de_cámaras_de_seguridad,
+                "Instalador_de_alarmas_cámaras_de_seguridad": Instalador_de_alarmas_cámaras_de_seguridad,
                 "Personal_de_limpieza": Personal_de_limpieza,
                 "Limpieza_de_tanques_de_agua": Limpieza_de_tanques_de_agua,
                 "Limpieza_de_vidrios_en_altura": Limpieza_de_vidrios_en_altura,
@@ -704,52 +660,47 @@ elif opcion == "2":
                 "Técnico_de_impresoras": Técnico_de_impresoras,
                 "InstaladorDeRedes_WiFi": InstaladorDeRedes_WiFi,
                 "Otro": Otro
-
-                
             })
-        
 
 
-        
         crear_trabajador(
-                nombre = RTNombre,
-                apellido = RTApellido,
-                telefono = RTTel,
-                cumpleaños = RTBirth,
-                contraseña = RTContraseña,
-                mail = RTMail,
-                cv = RTCv,
+            nombre=RTNombre,
+            apellido=RTApellido,
+            telefono=RTTel,
+            cumpleaños=RTBirth,
+            contraseña=RTContraseña,
+            mail=RTMail,
+            cv=RTCv,
 
-                Fontanero_Plomero = especializaciones_booleans["Fontanero_Plomero"],
-                Electricista = especializaciones_booleans["Electricista"],
-                Gasista_matriculado = especializaciones_booleans["Gasista_matriculado"],
-                Albañil = especializaciones_booleans["Albanil"],
-                Carpintero = especializaciones_booleans["Carpintero"],
-                Pintor = especializaciones_booleans["Pintor"],
-                Herrero = especializaciones_booleans["Herrero"],
-                Techista = especializaciones_booleans["Techista"],
-                Impermeabilizador = especializaciones_booleans["Impermeabilizador"],
-                Cerrajero = especializaciones_booleans["Cerrajero"],
-                Instalador_de_aires_acondicionados = especializaciones_booleans["Instalador_aires_acondicionados"],
-                Instalador_de_alarmas = especializaciones_booleans["Instalador_alarmas"],
-                Instalador_de_cámaras_de_seguridad = especializaciones_booleans["Instalador_camaras_seguridad"],
-                Personal_de_limpieza = especializaciones_booleans["Personal_limpieza"],
-                Limpieza_de_tanques_de_agua = especializaciones_booleans["Limpieza_tanques_agua"],
-                Limpieza_de_vidrios_en_altura = especializaciones_booleans["Limpieza_vidrios_altura"],
-                Fumigador = especializaciones_booleans["Fumigador"],
-                LavadoDeAlfombras_cortinas = especializaciones_booleans["Lavado_alfombras_cortinas"],
-                Jardinero = especializaciones_booleans["Jardinero"],
-                Podador_de_árboles = especializaciones_booleans["Podador_arboles"],
-                Mantenimiento_de_piletas = especializaciones_booleans["Mantenimiento_piletas"],
-                Paisajista = especializaciones_booleans["Paisajista"],
-                Técnico_de_electrodomésticos = especializaciones_booleans["Tecnico_electrodomesticos"],
-                Técnico_de_celulares = especializaciones_booleans["Tecnico_celulares"],
-                TécnicoDeComputadoras_laptops = especializaciones_booleans["Tecnico_computadoras_laptops"],
-                TécnicoDeTelevisores_equiposelectrónicos = especializaciones_booleans["Tecnico_televisores_equipos_electronicos"],
-                Técnico_de_impresoras = especializaciones_booleans["Tecnico_impresoras"],
-                InstaladorDeRedes_WiFi = especializaciones_booleans["Instalador_redes_WiFi"],
-                Otro = otrosTrabajosPosta
-        )   
+            Fontanero_Plomero=especializaciones_booleans["fontanero_plomero"],
+            Electricista=especializaciones_booleans["electricista"],
+            Gasista_matriculado=especializaciones_booleans["gasista_matriculado"],
+            Albañil=especializaciones_booleans["albañil"],
+            Carpintero=especializaciones_booleans["carpintero"],
+            Pintor=especializaciones_booleans["pintor"],
+            Herrero=especializaciones_booleans["herrero"],
+            Techista_Impermeabilizador=especializaciones_booleans["techista_impermeabilizador"],
+            Cerrajero=especializaciones_booleans["cerrajero"],
+            Instalador_de_aires_acondicionados=especializaciones_booleans["instalador_de_aires_acondicionados"],
+            Instalador_de_alarmas_cámaras_de_seguridad=especializaciones_booleans["instalador_de_alarmas_camaras_de_seguridad"], # Revisa esta clave, podría ser "instalador_de_alarmas_camaras_de_seguridad"
+            Personal_de_limpieza=especializaciones_booleans["personal_de_limpieza"],
+            Limpieza_de_tanques_de_agua=especializaciones_booleans["limpieza_de_tanques_de_agua"],
+            Limpieza_de_vidrios_en_altura=especializaciones_booleans["limpieza_de_vidrios_en_altura"],
+            Fumigador=especializaciones_booleans["fumigador"],
+            LavadoDeAlfombras_cortinas=especializaciones_booleans["lavado_de_alfombras_cortinas"],
+            Jardinero=especializaciones_booleans["jardinero"],
+            Podador_de_árboles=especializaciones_booleans["podador_de_arboles"],
+            Mantenimiento_de_piletas=especializaciones_booleans["mantenimiento_de_piletas"],
+            Paisajista=especializaciones_booleans["paisajista"],
+            Técnico_de_electrodomésticos=especializaciones_booleans["tecnico_de_electrodomesticos"],
+            Técnico_de_celulares=especializaciones_booleans["tecnico_de_celulares"],
+            TécnicoDeComputadoras_laptops=especializaciones_booleans["tecnico_de_computadoras_laptops"],
+            TécnicoDeTelevisores_equiposelectrónicos=especializaciones_booleans["tecnico_de_televisores_equipos_electronicos"],
+            Técnico_de_impresoras=especializaciones_booleans["tecnico_de_impresoras"],
+            InstaladorDeRedes_WiFi=especializaciones_booleans["instalador_de_redes_wifi"],
+            Otro=otrosTrabajosPosta
+        )
+
           
         print("✅ Te registraste bien. ¡Bienvenido,", RTNombre + "!")
     
@@ -789,8 +740,10 @@ elif opcion == "2":
             RDSecundaria = False
         
 
-        RDBirth = datetime.strptime(input("Nacimiento (YYYY-MM-DD): "), "%Y-%m-%d")
+        
 
+        RDBirth = datetime.strptime(input("Nacimiento (YYYY-MM-DD): "), "%Y-%m-%d").date()
+        
         RDContraseña = input("Contraseña: ")
         print("Selecciona tu CV en formato PDF")
         ruta_archivo = seleccionar_pdf()
@@ -825,12 +778,6 @@ elif opcion == "2":
             )  
 
 
-        
- 
-
 else:
     print("No es una opción")
 
-conexion.commit()
-cursor.close()
-conexion.close()

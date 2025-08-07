@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inicio de Sesión - QuickFix</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="background-lines">
+    <div class="line line-1"></div>
+    <div class="line line-2"></div>
+    <div class="line line-3"></div>
+    <div class="line line-4"></div>
+  </div>
+
+  <div class="contenedordelogin">
+    <h2>Iniciar Sesión</h2>
+
+    <form id="loginForm">
+      <div class="cajita">
+        <label for="username">Email:</label>
+        <input type="email" id="username" name="username" required placeholder="Ingresa tu mail" />
+      </div>
+
+      <div class="cajita">
+        <label for="contra">Contraseña</label>
+        <input type="password" id="contra" name="contra" placeholder="Tu contraseña" required />
+      </div>
+
+      <div class="opciones">
+        <label><input type="radio" name="rol" value="cliente" /> Cliente</label>
+        <label><input type="radio" name="rol" value="trabajador" checked /> Trabajador</label>
+        <label><input type="radio" name="rol" value="desempleado" /> Desempleado</label>
+      </div>
+
+      <button type="submit" class="btn btn-login">Iniciar Sesión <i class="fas fa-sign-in-alt"></i></button>
+
+      <div id="mensaje" style="text-align:center; margin-top:1rem; font-size:0.95rem;"></div>
+
+      <div class="footer">
+        ¿No tenés cuenta? <a href="Registro.html">¡Registrate ya!</a>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('username').value.trim();
+      const password = document.getElementById('contra').value.trim();
+      const role = document.querySelector('input[name="rol"]:checked').value;
+      const mensaje = document.getElementById('mensaje');
+
+      if (email === '' || password === '') {
+        mensaje.style.color = 'red';
+        mensaje.textContent = 'Por favor, completá todos los campos.';
+        return;
+      }
+
+      const userType = {
+        'cliente': '1',
+        'trabajador': '2',
+        'desempleado': '3'
+      }[role];
+
+      // Guardar sesión
+      localStorage.setItem('userType', userType);
+      localStorage.setItem('isLoggedIn', 'true');
+
+      // Mostrar mensaje de éxito
+      mensaje.style.color = 'green';
+      mensaje.textContent = 'Inicio de sesión exitoso. Redirigiendo...';
+
+      setTimeout(() => {
+        window.location.href = 'Home.html';
+      }, 1500);
+    });
+  </script>
+
+  <script src="auth-check.js"></script>
+  <script src="auth.js"></script>
+  <script src="session-manager.js"></script>
+</body>
+</html>

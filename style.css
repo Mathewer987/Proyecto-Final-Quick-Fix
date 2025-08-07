@@ -127,7 +127,7 @@ body {
   font-size: 0.95rem;
 }
 
-.cajita input[type="text"],
+.cajita input[type="email"],
 .cajita input[type="password"] {
   width: 100%;
   padding: 0.9rem 1rem;
@@ -138,7 +138,7 @@ body {
   background-color: var(--light-color);
 }
 
-.cajita input[type="text"]:focus,
+.cajita input[type="email"]:focus,
 .cajita input[type="password"]:focus {
   outline: none;
   border-color: var(--primary-color);

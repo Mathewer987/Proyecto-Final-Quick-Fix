@@ -43,20 +43,7 @@ class SessionManager {
     
     const currentPage = window.location.pathname.split('/').pop();
     
-    if (protectedRoutes[currentPage] && protectedRoutes[currentPage] !== this.userType) {
-      this.showUnauthorizedMessage();
-    }
-  }
-
-  showUnauthorizedMessage() {
-    document.body.innerHTML = `
-      <div style="text-align: center; padding: 50px;">
-        <h1 style="color: red;">Acceso no autorizado</h1>
-        <p>No tienes permiso para acceder a esta página.</p>
-        <a href="Home.html" style="color: blue;">Volver al inicio</a>
-      </div>
-    `;
-  }
+    
 
   updateUI() {
     this.updateAuthButtons();

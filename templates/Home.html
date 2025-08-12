@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='Home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Home.css') }}">
 </head>
 <body>
     <div class="background-lines">
@@ -25,8 +25,28 @@
                 <a href="#" class="nav-item">Reseñas</a>
                 <a href="#" class="nav-item">Servicios</a>
                 <a href="#" class="nav-item">Ayuda</a>
-                <a class="nav-item login-btn" href="Inicio de Sesion.html">Iniciar sesión</a>
-                <a class="nav-item register-btn" href="Registro.html">Registrarse</a>
+                
+                {% if session.get('is_logged_in') %}
+                    <span class="user-info">
+                        {{ session.get('user_name', 'Usuario') }}
+                        <span class="user-badge">
+                            {% if session.get('user_type') == '1' %}Cliente
+                            {% elif session.get('user_type') == '2' %}Trabajador
+                            {% else %}Desempleado{% endif %}
+                        </span>
+                    </span>
+                    <!-- Cambio clave: Usar ruta directa /logout -->
+                    <a href="/logout" class="nav-item logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Salir
+                    </a>
+                {% else %}
+                    <a href="/" class="nav-item login-btn">
+                        <i class="fas fa-sign-in-alt"></i> Ingresar
+                    </a>
+                    <a href="/registro" class="nav-item register-btn">
+                        <i class="fas fa-user-plus"></i> Registrarse
+                    </a>
+                {% endif %}
             </nav>
             <div class="mobile-menu-btn">
                 <i class="fas fa-bars"></i>
@@ -35,98 +55,83 @@
         
         <main class="main-content">
             <div class="hero-text">
-                <div class="tagline">Soluciones a tu alcance</div>
-                <h1 class="title">Servicios rápidos y <span>confiables</span> cuando más los necesitas</h1>
-                <p class="description">Conectamos con los mejores profesionales para resolver tus problemas domésticos y técnicos con garantía de calidad y satisfacción.</p>
-                <!--
+                {% if session.get('is_logged_in') %}
+                    <div class="tagline">Bienvenido de vuelta</div>
+                    <h1 class="title">
+                        {% if session.get('user_type') == '1' %}
+                            Soluciones <span>personalizadas</span> para ti
+                        {% elif session.get('user_type') == '2' %}
+                            Oportunidades <span>laborales</span> disponibles
+                        {% else %}
+                            Encuentra tu próximo <span>empleo</span>
+                        {% endif %}
+                    </h1>
+                    <p class="description">
+                        {% if session.get('user_type') == '1' %}
+                            Conectamos con los mejores profesionales para resolver tus problemas domésticos.
+                        {% elif session.get('user_type') == '2' %}
+                            Trabajos que se ajustan a tus habilidades y experiencia profesional.
+                        {% else %}
+                            Oportunidades de capacitación y empleo adaptadas a tu perfil.
+                        {% endif %}
+
+                        
+                    </p>
+                {% else %}
+                    <div class="tagline">Soluciones a tu alcance</div>
+                    <h1 class="title">Servicios rápidos y <span>confiables</span> cuando más los necesitas</h1>
+                    <p class="description">Conectamos usuarios con profesionales certificados para resolver problemas técnicos y domésticos.</p>
+                {% endif %}
+
                 <div class="cta-container">
-                    <a href="Browser.html" class="cta-button primary">
-                        Solicitar servicio
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-                    <a href="#" class="cta-button secondary">
-                        Conocer más
-                    </a>
-                </div>
-                -->
-                <div class="cta-container" id="main-buttons-container">
-                    <!-- Los botones se generarán automáticamente -->
+                    {% if session.get('is_logged_in') %}
+                        {% if session.get('user_type') == '1' %}
+                            <a href="/browser" class="cta-button primary">
+                                Buscar profesionales <i class="fas fa-arrow-right"></i>
+                            </a>
+                            <a href="/mis-solicitudes" class="cta-button secondary">
+                                Mis solicitudes
+                            </a>
+                        {% elif session.get('user_type') == '2' %}
+                            <a href="/trabajos" class="cta-button primary">
+                                Trabajos disponibles <i class="fas fa-arrow-right"></i>
+                            </a>
+                            <a href="/mis-trabajos" class="cta-button secondary">
+                                Mis trabajos
+                            </a>
+                        {% else %}
+                            <a href="/oportunidades" class="cta-button primary">
+                                Oportunidades <i class="fas fa-arrow-right"></i>
+                            </a>
+                            <a href="/capacitaciones" class="cta-button secondary">
+                                Capacitaciones
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <a href="/" class="cta-button primary">
+                            Iniciar sesión <i class="fas fa-sign-in-alt"></i>
+                        </a>
+                        <a href="/registro" class="cta-button secondary">
+                            Registrarse
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </main>
     </div>
 
+    <script>
+        // Menú móvil
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            document.querySelector('.nav').classList.toggle('active');
+        });
 
-<script>
-// Sistema de autenticación infalible
-document.addEventListener('DOMContentLoaded', function() {
-    const container = document.getElementById('main-buttons-container');
-    
-    // Verificar si hay sesión
-    const userType = localStorage.getItem('userType');
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    
-    if (isLoggedIn && userType) {
-        // Usuario logueado
-        if (userType === '1') { // Cliente
-            container.innerHTML = `
-                <a href="Browser.html" class="cta-button primary">
-                    Buscar Profesionales
-                    <i class="fas fa-arrow-right"></i>
-                </a>
-                <button onclick="logout()" class="cta-button secondary">
-                    Cerrar sesión
-                </button>
-            `;
-        } else { // Trabajador/Desempleado
-            container.innerHTML = `
-                <a href="AceptarTrabajos.html" class="cta-button primary">
-                    ${userType === '2' ? 'Buscar Trabajos' : 'Explorar Oportunidades'}
-                    <i class="fas fa-arrow-right"></i>
-                </a>
-                <button onclick="logout()" class="cta-button secondary">
-                    Cerrar sesión
-                </button>
-            `;
-        }
-    } else {
-        // Usuario no logueado
-        container.innerHTML = `
-            <a href="Inicio de Sesion.html" class="cta-button primary">
-                Iniciar sesión
-                <i class="fas fa-sign-in-alt"></i>
-            </a>
-            <a href="Registro.html" class="cta-button secondary">
-                Registrarse
-            </a>
-        `;
-    }
-});
-
-function logout() {
-    localStorage.removeItem('userType');
-    localStorage.removeItem('isLoggedIn');
-    window.location.href = 'Home.html';
-}
-
-// Solo para desarrollo - Simular login si no existe
-if (!localStorage.getItem('userType') && confirm('¿Simular inicio de sesión?')) {
-    const type = prompt('Tipo de usuario (1=Cliente, 2=Trabajador, 3=Desempleado)');
-    if (type) {
-        localStorage.setItem('userType', type);
-        localStorage.setItem('isLoggedIn', 'true');
-        window.location.reload();
-    }
-}
-</script>
-
-
-
-
-    <script src="Home.js"></script>
-    <script src="auth-check.js"></script>
-    <script src="auth.js"></script>
-    <script src="session-manager.js"></script>
-    
+        // Cerrar menú al seleccionar opción (para móviles)
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelector('.nav').classList.remove('active');
+            });
+        });
+    </script>
 </body>
 </html>

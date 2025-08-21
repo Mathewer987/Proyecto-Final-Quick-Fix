@@ -1,7 +1,8 @@
-from flask import Flask, render_template, redirect, url_for, session, flash, request
+from flask import Flask, render_template, redirect, url_for, session, flash, request, jsonify
 import os
 import firebase_admin
 from firebase_admin import credentials, firestore
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -48,6 +49,7 @@ def login():
             if docs:
                 usuario = docs[0].to_dict()
                 session['is_logged_in'] = True
+                session['user_id'] = docs[0].id  # GUARDAR EL ID DEL USUARIO
                 session['user_name'] = usuario.get('nombre', 'Usuario')
                 session['user_type'] = USER_TYPE_MAPPING[role_form]
                 return redirect(url_for('home'))
@@ -139,6 +141,39 @@ def browser():
     
     return render_template('Browser.html', profesionales=profesionales)
 
+@app.route('/trabajos')
+def trabajos():
+    if not session.get('is_logged_in'):
+        flash('Debes iniciar sesión primero', 'warning')
+        return redirect(url_for('login'))
+    
+    # Verificar que el usuario es un trabajador
+    if session.get('user_type') != '2':
+        flash('Solo los trabajadores pueden acceder a esta página', 'error')
+        return redirect(url_for('home'))
+    
+    try:
+        # Obtener el ID del trabajador actual
+        trabajador_id = session.get('user_id')
+        
+        # Buscar todas las solicitudes pendientes para este trabajador
+        pendientes_ref = db.collection('PendClienteTrabajador')
+        query = pendientes_ref.where('profesional_id', '==', trabajador_id).where('estado', '==', 'pendiente')
+        docs = query.stream()
+        
+        trabajos_pendientes = []
+        for doc in docs:
+            trabajo_data = doc.to_dict()
+            trabajo_data['id'] = doc.id  # Agregar el ID del documento
+            trabajos_pendientes.append(trabajo_data)
+            
+        return render_template('AceptarTrabajos.html', trabajos=trabajos_pendientes)
+        
+    except Exception as e:
+        print(f"Error al obtener trabajos pendientes: {str(e)}")
+        flash('Error al cargar los trabajos pendientes', 'error')
+        return render_template('AceptarTrabajos.html', trabajos=[])
+
 @app.route('/perfil/<profesional_id>')
 def ver_perfil(profesional_id):
     if not session.get('is_logged_in'):
@@ -210,6 +245,74 @@ def contratar(profesional_id):
         print(f"Error: {str(e)}")
         flash('Error al cargar la página de contratación', 'error')
         return redirect(url_for('browser'))
+
+# NUEVA RUTA PARA PROCESAR CONTRATACIONES - GUARDAR EN PendClienteTrabajador
+@app.route('/procesar_contratacion', methods=['POST'])
+def procesar_contratacion():
+    if not session.get('is_logged_in'):
+        return jsonify({'success': False, 'message': 'Debes iniciar sesión primero'})
+    
+    if session.get('user_type') != '1':
+        return jsonify({'success': False, 'message': 'Solo los clientes pueden contratar servicios'})
+    
+    try:
+        # Obtener datos del formulario
+        data = request.get_json()
+        
+        profesional_id = data.get('profesionalId')
+        especializacion = data.get('especializacion', '')
+        fecha_trabajo = data.get('fechaTrabajo')
+        especificaciones = data.get('especificaciones')
+        metodo_pago = data.get('metodoPago')
+        ubicacion = data.get('ubicacion')
+        
+        # Validar datos obligatorios
+        if not all([profesional_id, fecha_trabajo, especificaciones, metodo_pago, ubicacion]):
+            return jsonify({'success': False, 'message': 'Faltan campos obligatorios'})
+        
+        # Obtener información del cliente
+        cliente_id = session.get('user_id')
+        cliente_nombre = session.get('user_name', 'Cliente')
+        
+        # Obtener información del profesional
+        doc_ref = db.collection('trabajadores').document(profesional_id)
+        profesional_doc = doc_ref.get()
+        
+        if not profesional_doc.exists:
+            return jsonify({'success': False, 'message': 'Profesional no encontrado'})
+        
+        profesional_data = profesional_doc.to_dict()
+        profesional_nombre = f"{profesional_data.get('nombre', '')} {profesional_data.get('apellido', '')}".strip()
+        
+        # Crear documento de contratación - GUARDAR EN PendClienteTrabajador
+        contratacion_data = {
+            'cliente_id': cliente_id,
+            'cliente_nombre': cliente_nombre,
+            'profesional_id': profesional_id,
+            'profesional_nombre': profesional_nombre,
+            'especializacion': especializacion,
+            'fecha_trabajo_propuesta': fecha_trabajo,
+            'especificaciones': especificaciones,
+            'metodo_pago': metodo_pago,
+            'ubicacion': ubicacion,
+            'estado': 'pendiente',  # pendiente, aceptada, rechazada, completada
+            'fecha_solicitud': datetime.now(),
+            'fecha_actualizacion': datetime.now()
+        }
+        
+        # Guardar en Firebase en la colección PendClienteTrabajador
+        pendientes_ref = db.collection('PendClienteTrabajador')
+        nueva_contratacion = pendientes_ref.add(contratacion_data)
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Solicitud enviada con éxito. El profesional será notificado.',
+            'contratacion_id': nueva_contratacion[1].id
+        })
+        
+    except Exception as e:
+        print(f"Error al procesar contratación: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error al procesar la solicitud'})
 
 @app.route('/logout')
 def logout():

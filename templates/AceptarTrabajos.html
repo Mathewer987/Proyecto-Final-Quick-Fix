@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitudes de Trabajo - QuickFix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='AceptarTrabajosStyle.css') }}">
+</head>
+<body>
+    <div class="background-lines">
+        <div class="line line-1"></div>
+        <div class="line line-2"></div>
+        <div class="line line-3"></div>
+        <div class="line line-4"></div>
+    </div>
+    
+    <div class="container">
+        <header class="header">
+            <div class="logo-container">
+                <div class="logo">Quick<span>Fix</span></div>
+                <a href="{{ url_for('home') }}" class="back-button"><i class="fas fa-arrow-left"></i> Volver</a>
+            </div>
+            <nav class="nav">
+                <a href="{{ url_for('home') }}" class="nav-item">Inicio</a>
+                <a href="/trabajos" class="nav-item active">Solicitudes</a>
+                <a href="#" class="nav-item">Mis Servicios</a>
+                <a href="#" class="nav-item">Ayuda</a>
+                <a class="nav-item" href="{{ url_for('logout') }}"><i class="fas fa-user"></i> Cerrar Sesión</a>
+            </nav>
+        </header>
+        
+        <main class="results-container">
+            <div class="results-header">
+                <h2>Solicitudes de Trabajo Pendientes</h2>
+                <div class="results-count">{{ trabajos|length }} solicitud(es)</div>
+            </div>
+            
+            {% if trabajos %}
+            <div class="jobs-list">
+                {% for trabajo in trabajos %}
+                <div class="job-card {% if trabajo.urgente %}highlighted{% endif %}">
+                    {% if trabajo.urgente %}
+                    <div class="job-badge">Urgente</div>
+                    {% endif %}
+                    
+                    <div class="job-content">
+                        <h3>Solicitud de {{ trabajo.especializacion }}</h3>
+                        <div class="job-description">
+                            <p><strong>Cliente:</strong> {{ trabajo.cliente_nombre }}</p>
+                            <p><strong>Especificaciones:</strong> {{ trabajo.especificaciones }}</p>
+                        </div>
+                        <div class="job-details">
+                            <div class="detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ trabajo.ubicacion }}</span>
+                            </div>
+                            <div class="detail">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Fecha solicitada: {{ trabajo.fecha_trabajo_propuesta }}</span>
+                            </div>
+                            <div class="detail">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Método de pago: {{ trabajo.metodo_pago }}</span>
+                            </div>
+                            <div class="detail">
+                                <i class="fas fa-clock"></i>
+                                <span>Solicitado el: {{ trabajo.fecha_solicitud.strftime('%d/%m/%Y') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="job-actions">
+                        <button class="action-button view-details" onclick="verDetalles('{{ trabajo.id }}')">Ver detalles</button>
+                        <button class="action-button apply-now" onclick="aceptarTrabajo('{{ trabajo.id }}')">Aceptar</button>
+                        <button class="action-button reject" onclick="rechazarTrabajo('{{ trabajo.id }}')">Rechazar</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-jobs">
+                <i class="fas fa-clipboard-list"></i>
+                <h3>No tienes solicitudes pendientes</h3>
+                <p>Cuando recibas nuevas solicitudes de trabajo, aparecerán aquí.</p>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+
+    <script>
+        function aceptarTrabajo(trabajoId) {
+            if (confirm('¿Estás seguro de que quieres aceptar este trabajo?')) {
+                fetch(`/aceptar_trabajo/${trabajoId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Trabajo aceptado con éxito');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al procesar la solicitud');
+                });
+            }
+        }
+
+        function rechazarTrabajo(trabajoId) {
+            if (confirm('¿Estás seguro de que quieres rechazar este trabajo?')) {
+                fetch(`/rechazar_trabajo/${trabajoId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Trabajo rechazado');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al procesar la solicitud');
+                });
+            }
+        }
+
+        function verDetalles(trabajoId) {
+            // Aquí puedes implementar la lógica para ver más detalles
+            alert('Funcionalidad de ver detalles en desarrollo para ID: ' + trabajoId);
+        }
+    </script>
+</body>
+</html>

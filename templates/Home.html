@@ -93,7 +93,7 @@
                                 Mis solicitudes
                             </a>
                         {% elif session.get('user_type') == '2' %}
-                            <a href="/trabajos" class="cta-button primary">
+                            <a href="{{ url_for('trabajos') }}" class="cta-button primary">
                                 Solicitudes <i class="fas fa-arrow-right"></i>
                             </a>
                             <a href="/mis-trabajos" class="cta-button secondary">

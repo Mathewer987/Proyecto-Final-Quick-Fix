@@ -348,6 +348,151 @@
             color: #6c757d;
             font-size: 12px;
         }
+        
+        /* FORMULARIO FLOTANTE */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: translateY(-50px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+            font-size: 22px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+        
+        .close-modal:hover {
+            color: #333;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #4e73df;
+            outline: none;
+        }
+        
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .optional {
+            color: #6c757d;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+        
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-cancel {
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-cancel:hover {
+            background: #e9ecef;
+        }
+        
+        .btn-submit {
+            background: #4e73df;
+            color: white;
+        }
+        
+        .btn-submit:hover {
+            background: #3a56c4;
+        }
     </style>
 </head>
 <body>
@@ -472,7 +617,7 @@
                         </div>
                         <div class="card-actions">
                             <button class="action-button view-profile" onclick="verPerfil('{{ profesional.id }}')">Ver perfil</button>
-                            <button class="action-button hire-now" onclick="contratar('{{ profesional.id }}')">Contratar</button>
+                            <button class="action-button hire-now" onclick="abrirFormularioContratacion('{{ profesional.id }}', '{{ profesional.nombre }} {{ profesional.apellido }}', '{{ profesional.especialidades | join(",") }}')">Contratar</button>
                         </div>
                     </div>
                     {% endfor %}
@@ -492,8 +637,61 @@
             </div>
         </main>
     </div>
+
+    <!-- FORMULARIO FLOTANTE DE CONTRATACIÓN -->
+    <div class="modal-overlay" id="modalContratacion">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitulo">Contratar a </h2>
+                <button class="close-modal" onclick="cerrarModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formContratacion">
+                    <input type="hidden" id="profesionalId" name="profesionalId">
+                    
+                    <div class="form-group" id="especializacionGroup" style="display: none;">
+                        <label for="especializacion">Especialización a contratar <span class="optional">(opcional)</span></label>
+                        <select id="especializacion" name="especializacion">
+                            <option value="">Seleccione una especialización</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fechaTrabajo">Fecha de realización del trabajo</label>
+                        <input type="datetime-local" id="fechaTrabajo" name="fechaTrabajo" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="especificaciones">Especificaciones del trabajo/contanos el problema que tenés</label>
+                        <textarea id="especificaciones" name="especificaciones" placeholder="Describí en detalle el trabajo a realizar..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="metodoPago">Método de pago</label>
+                        <select id="metodoPago" name="metodoPago" required>
+                            <option value="">Seleccione un método de pago</option>
+                            <option value="efectivo">Efectivo</option>
+                            <option value="mercadopago">Mercado Pago</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ubicacion">Ubicación exacta del trabajo</label>
+                        <input type="text" id="ubicacion" name="ubicacion" placeholder="Ingresá la dirección exacta donde se realizará el trabajo" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn btn-submit" onclick="enviarSolicitud()">Enviar solicitud</button>
+            </div>
+        </div>
+    </div>
     
     <script>
+        // Variable global para almacenar datos del profesional actual
+        let profesionalActual = null;
+        
         function filtrarProfesionales() {
             const searchText = document.getElementById('searchInput').value.toLowerCase();
             const categoria = document.getElementById('categoriaFilter').value;
@@ -523,9 +721,112 @@
             window.location.href = `/perfil/${profesionalId}`;
         }
         
-        function contratar(profesionalId) {
-            window.location.href = `/contratar/${profesionalId}`;
+        function abrirFormularioContratacion(profesionalId, nombreProfesional, especialidadesStr) {
+            // Convertir el string de especialidades a array
+            const especialidades = especialidadesStr.split(',').filter(e => e.trim() !== '');
+            
+            profesionalActual = {
+                id: profesionalId,
+                nombre: nombreProfesional,
+                especialidades: especialidades
+            };
+            
+            // Actualizar título del modal
+            document.getElementById('modalTitulo').textContent = `Contratar a ${nombreProfesional}`;
+            document.getElementById('profesionalId').value = profesionalId;
+            
+            // Manejar especialidades (si tiene más de una)
+            const especializacionGroup = document.getElementById('especializacionGroup');
+            const especializacionSelect = document.getElementById('especializacion');
+            
+            // Limpiar select de especialidades
+            especializacionSelect.innerHTML = '<option value="">Seleccione una especialización</option>';
+            
+            if (especialidades && especialidades.length > 1) {
+                // Mostrar selector de especialización
+                especializacionGroup.style.display = 'block';
+                
+                // Llenar con las especialidades disponibles
+                especialidades.forEach(especialidad => {
+                    const option = document.createElement('option');
+                    option.value = especialidad;
+                    option.textContent = especialidad;
+                    especializacionSelect.appendChild(option);
+                });
+            } else {
+                // Ocultar selector de especialización
+                especializacionGroup.style.display = 'none';
+            }
+            
+            // Limpiar formulario
+            document.getElementById('fechaTrabajo').value = '';
+            document.getElementById('especificaciones').value = '';
+            document.getElementById('metodoPago').value = '';
+            document.getElementById('ubicacion').value = '';
+            
+            // Mostrar modal
+            document.getElementById('modalContratacion').classList.add('active');
         }
+        
+        function cerrarModal() {
+            document.getElementById('modalContratacion').classList.remove('active');
+        }
+        
+        function enviarSolicitud() {
+        // Validar formulario
+        const formulario = document.getElementById('formContratacion');
+        const fechaTrabajo = document.getElementById('fechaTrabajo').value;
+        const especificaciones = document.getElementById('especificaciones').value;
+        const metodoPago = document.getElementById('metodoPago').value;
+        const ubicacion = document.getElementById('ubicacion').value;
+        
+        if (!fechaTrabajo || !especificaciones || !metodoPago || !ubicacion) {
+            alert('Por favor, complete todos los campos obligatorios.');
+            return;
+        }
+        
+        // Obtener especialización si está disponible
+        const especializacion = document.getElementById('especializacion').value;
+        
+        // Preparar datos para enviar
+        const datosContratacion = {
+            profesionalId: profesionalActual.id,
+            especializacion: especializacion,
+            fechaTrabajo: fechaTrabajo,
+            especificaciones: especificaciones,
+            metodoPago: metodoPago,
+            ubicacion: ubicacion
+        };
+        
+        // Enviar datos al servidor - ESTA ES LA PARTE QUE DEBES CAMBIAR
+        fetch('/procesar_contratacion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(datosContratacion)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                cerrarModal();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al enviar la solicitud. Por favor, intenta nuevamente.');
+        });
+    }
+        
+        // Cerrar modal al hacer clic fuera del contenido
+        document.getElementById('modalContratacion').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarModal();
+            }
+        });
         
         // Agregar event listeners a los campos de búsqueda y filtros
         document.addEventListener('DOMContentLoaded', function() {
@@ -534,6 +835,8 @@
                 select.addEventListener('change', filtrarProfesionales);
             });
         });
+
+
     </script>
 </body>
 </html>

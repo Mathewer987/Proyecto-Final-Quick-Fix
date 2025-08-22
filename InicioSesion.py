@@ -68,7 +68,21 @@ def login():
 def home():
     if not session.get('is_logged_in'):
         return redirect(url_for('login'))
-    return render_template('Home.html')
+    
+    # Obtener número de solicitudes pendientes si es trabajador
+    solicitudes_pendientes = 0
+    if session.get('user_type') == '2':
+        try:
+            trabajador_id = session.get('user_id')
+            pendientes_ref = db.collection('PendClienteTrabajador')
+            query = pendientes_ref.where('profesional_id', '==', trabajador_id).where('estado', '==', 'pendiente')
+            docs = query.stream()
+            solicitudes_pendientes = sum(1 for _ in docs)
+        except Exception as e:
+            print(f"Error al contar solicitudes pendientes: {str(e)}")
+            solicitudes_pendientes = 0
+    
+    return render_template('Home.html', solicitudes_pendientes=solicitudes_pendientes)
 
 @app.route('/browser')
 def browser():

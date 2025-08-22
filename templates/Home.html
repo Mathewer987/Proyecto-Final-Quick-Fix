@@ -92,10 +92,15 @@
                             <a href="/mis-solicitudes" class="cta-button secondary">
                                 Mis solicitudes
                             </a>
-                        {% elif session.get('user_type') == '2' %}
-                            <a href="{{ url_for('trabajos') }}" class="cta-button primary">
-                                Solicitudes <i class="fas fa-arrow-right"></i>
-                            </a>
+                       {% elif session.get('user_type') == '2' %}
+                            <div class="solicitudes-container" style="position: relative; display: inline-block;">
+                                <a href="{{ url_for('trabajos') }}" class="cta-button primary">
+                                    Solicitudes <i class="fas fa-arrow-right"></i>
+                                </a>
+                                {% if solicitudes_pendientes > 0 %}
+                                <span class="notification-badge">{{ solicitudes_pendientes }}</span>
+                                {% endif %}
+                            </div>
                             <a href="/mis-trabajos" class="cta-button secondary">
                                 Trabajos pendientes
                             </a>

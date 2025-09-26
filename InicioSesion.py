@@ -194,42 +194,93 @@ def trabajos():
 
 @app.route('/mis_solicitudes')
 def mis_solicitudes():
-    if not session.get('is_logged_in'):
-        flash('Debes iniciar sesión primero', 'warning')
-        return re|direct(url_for('login'))
-    
-    if session.get('user_type') != '1':
-        flash('Solo los clientes pueden acceder a esta página', 'error')
-        return redirect(url_for('home'))
-    
-    cliente_id = session.get('user_id')
-    
-    solicitudes_ref = db.collection('PendClienteTrabajador')
-    solicitudes_docs = solicitudes_ref.where('cliente_id', '==', cliente_id).stream()
-    
-    solicitudes = [doc.to_dict() for doc in solicitudes_docs]
+    try:
+        # SOLICITUDES PENDIENTES
+        solicitudes_pendientes = []
+        docs_pendientes = db.collection('PendClienteTrabajador').where('estado', '==', 'pendiente').stream()
+        
+        for doc in docs_pendientes:
+            data = doc.to_dict()
+            data['documento_id'] = doc.id  # ← AGREGAR ID DEL DOCUMENTO
+            solicitudes_pendientes.append(data)
 
-    solicitudes_pendientes = [s for s in solicitudes if s.get('estado') == 'pendiente']
-    solicitudes_aceptadas = [s for s in solicitudes if s.get('estado') == 'aceptado']
-    solicitudes_rechazadas = [s for s in solicitudes if s.get('estado') == 'rechazado']
-    solicitudes_devueltas = [s for s in solicitudes if s.get('estado') == 'devuelto']
+        # SOLICITUDES ACEPTADAS
+        solicitudes_aceptadas = []
+        docs_aceptados = db.collection('PendClienteTrabajador').where('estado', '==', 'aceptado').stream()
+        
+        for doc in docs_aceptados:
+            data = doc.to_dict()
+            data['documento_id'] = doc.id  # ← AGREGAR ID DEL DOCUMENTO
+            solicitudes_aceptadas.append(data)
 
-    finalizados_ref = db.collection('TrabajosFinalizados')
-    finalizados_docs = finalizados_ref.where('cliente_id', '==', cliente_id).stream()
-    solicitudes_finalizadas = [doc.to_dict() for doc in finalizados_docs]
+        # SOLICITUDES DEVUELTAS
+        solicitudes_devueltas = []
+        docs_devueltos = db.collection('PendClienteTrabajador').where('estado', '==', 'devuelto').stream()
+        
+        for doc in docs_devueltos:
+            data = doc.to_dict()
+            data['documento_id'] = doc.id  # ← AGREGAR ID DEL DOCUMENTO
+            solicitudes_devueltas.append(data)
 
-    cancelados_ref = db.collection('TrabajosCancelados')
-    cancelados_docs = cancelados_ref.where('cliente_id', '==', cliente_id).stream()
-    solicitudes_canceladas = [doc.to_dict() for doc in cancelados_docs]
+        # SOLICITUDES RECHAZADAS
+        solicitudes_rechazadas = []
+        docs_rechazados = db.collection('PendClienteTrabajador').where('estado', '==', 'rechazado').stream()
+        
+        for doc in docs_rechazados:
+            data = doc.to_dict()
+            data['documento_id'] = doc.id  # ← AGREGAR ID DEL DOCUMENTO
+            solicitudes_rechazadas.append(data)
 
-    return render_template('MisSolicitudes.html', 
-                           solicitudes_pendientes=solicitudes_pendientes,
-                           solicitudes_aceptadas=solicitudes_aceptadas,
-                           solicitudes_rechazadas=solicitudes_rechazadas,
-                           solicitudes_devueltas=solicitudes_devueltas,
-                           solicitudes_finalizadas=solicitudes_finalizadas,
-                           solicitudes_canceladas=solicitudes_canceladas,
-                           especialidades_predefinidas=ESPECIALIDADES_PREDEFINIDAS)
+        # SOLICITUDES FINALIZADAS (de TrabajosFinalizados)
+        solicitudes_finalizadas = []
+        docs_finalizados = db.collection('TrabajosFinalizados').stream()
+        
+        for doc in docs_finalizados:
+            data = doc.to_dict()
+            data['documento_id'] = doc.id  # ← AGREGAR ID DEL DOCUMENTO
+            solicitudes_finalizadas.append(data)
+
+        # SOLICITUDES CANCELADAS (de TrabajosCancelados)
+        solicitudes_canceladas = []
+        docs_cancelados = db.collection('TrabajosCancelados').stream()
+        
+        for doc in docs_cancelados:
+            data = doc.to_dict()
+            data['documento_id'] = doc.id  # ← AGREGAR ID DEL DOCUMENTO
+            solicitudes_canceladas.append(data)
+
+        # Obtener especialidades predefinidas (si las necesitas)
+        especialidades_predefinidas = [
+            "Fontanero Pionero", 
+            "Electricista", 
+            "Carpintero", 
+            "Pintor", 
+            "Albañil",
+            "Técnico en climatización",
+            "Jardinero",
+            "Técnico en electrodomésticos"
+        ]
+
+        return render_template('MisSolicitudes.html',
+                             solicitudes_pendientes=solicitudes_pendientes,
+                             solicitudes_aceptadas=solicitudes_aceptadas,
+                             solicitudes_devueltas=solicitudes_devueltas,
+                             solicitudes_rechazadas=solicitudes_rechazadas,
+                             solicitudes_finalizadas=solicitudes_finalizadas,
+                             solicitudes_canceladas=solicitudes_canceladas,
+                             especialidades_predefinidas=especialidades_predefinidas)
+
+    except Exception as e:
+        print(f"Error al obtener solicitudes: {e}")
+        # En caso de error, pasar listas vacías
+        return render_template('MisSolicitudes.html',
+                             solicitudes_pendientes=[],
+                             solicitudes_aceptadas=[],
+                             solicitudes_devueltas=[],
+                             solicitudes_rechazadas=[],
+                             solicitudes_finalizadas=[],
+                             solicitudes_canceladas=[],
+                             especialidades_predefinidas=[])
 
         
    
@@ -407,17 +458,35 @@ def procesar_contratacion():
 @app.route('/obtener_solicitud/<solicitud_id>')
 def obtener_solicitud(solicitud_id):
     try:
-        solicitud_ref = db.collection('PendClienteTrabajador').document(solicitud_id)
-        solicitud = solicitud_ref.get()
+        # Obtener la solicitud
+        doc_ref = db.collection('PendClienteTrabajador').document(solicitud_id)
+        doc = doc_ref.get()
         
-        if solicitud.exists:
-            return jsonify(solicitud.to_dict())
+        if doc.exists:
+            solicitud_data = doc.to_dict()
+            
+            # Obtener las especialidades del trabajador
+            trabajador_id = solicitud_data.get('profesional_id')
+            if trabajador_id:
+                # Buscar el trabajador en la colección de trabajadores
+                trabajador_ref = db.collection('trabajadores').document(trabajador_id)
+                trabajador_doc = trabajador_ref.get()
+                
+                if trabajador_doc.exists:
+                    trabajador_data = trabajador_doc.to_dict()
+                    # ✅ CORREGIDO: usar 'especialidades_trabajador'
+                    solicitud_data['especialidades_trabajador'] = trabajador_data.get('especializacion', [])
+                else:
+                    solicitud_data['especialidades_trabajador'] = []
+            else:
+                solicitud_data['especialidades_trabajador'] = []
+            
+            return jsonify(solicitud_data)
         else:
             return jsonify({'error': 'Solicitud no encontrada'}), 404
             
     except Exception as e:
-        print(f"Error al obtener solicitud: {str(e)}")
-        return jsonify({'error': 'Error del servidor'}), 500
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/logout')
 def logout():

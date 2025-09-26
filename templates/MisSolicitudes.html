@@ -540,7 +540,7 @@
                             {% endif %}
                             
                             <div class="solicitud-actions">
-                                <button class="btn btn-warning" onclick="abrirModalReenvio('{{ solicitud.id }}')">
+                                <button class="btn btn-warning" onclick="abrirModalReenvio('{{ solicitud.documento_id }}')">
                                     <i class="fas fa-redo"></i> Reenviar Solicitud
                                 </button>
                             </div>
@@ -745,47 +745,63 @@
     let solicitudActual = null;
     
     function abrirModalReenvio(solicitudId) {
-        console.log('Intentando abrir modal para solicitud:', solicitudId);
-        
-        // Primero obtener los datos de la solicitud desde el servidor
-        fetch(`/obtener_solicitud/${solicitudId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error al obtener los datos');
-                }
-                return response.json();
-            })
-            .then(solicitudData => {
-                console.log('Datos recibidos:', solicitudData);
-                
-                solicitudActual = solicitudData;
-                document.getElementById('solicitudIdReenvio').value = solicitudId;
-                
-                // Llenar el formulario con los datos actuales
-                document.getElementById('especializacion').value = solicitudData.especializacion || '';
-                document.getElementById('fechaTrabajo').value = solicitudData.fecha_trabajo_propuesta || '';
-                document.getElementById('especificaciones').value = solicitudData.especificaciones || '';
-                document.getElementById('metodoPago').value = solicitudData.metodo_pago || '';
-                document.getElementById('ubicacion').value = solicitudData.ubicacion || '';
-                
-                // Mostrar comentarios del profesional si existen
-                const comentariosContainer = document.getElementById('comentariosContainer');
-                const comentariosProfesional = document.getElementById('comentariosProfesional');
-                
-                if (solicitudData.especificaciones_trabajador) {
-                    comentariosProfesional.textContent = solicitudData.especificaciones_trabajador;
-                    comentariosContainer.style.display = 'block';
-                } else {
-                    comentariosContainer.style.display = 'none';
-                }
-                
-                document.getElementById('modalReenvio').style.display = 'flex';
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al cargar los datos de la solicitud: ' + error.message);
+    console.log('Intentando abrir modal para solicitud:', solicitudId);
+    
+    fetch(`/obtener_solicitud/${solicitudId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al obtener los datos');
+            }
+            return response.json();
+        })
+        .then(solicitudData => {
+            console.log('Datos recibidos:', solicitudData);
+            
+            solicitudActual = solicitudData;
+            document.getElementById('solicitudIdReenvio').value = solicitudId;
+            
+            // Llenar el formulario con los datos actuales
+            document.getElementById('especializacion').value = solicitudData.especializacion || '';
+            document.getElementById('fechaTrabajo').value = solicitudData.fecha_trabajo_propuesta || '';
+            document.getElementById('especificaciones').value = solicitudData.especificaciones || '';
+            document.getElementById('metodoPago').value = solicitudData.metodo_pago || '';
+            document.getElementById('ubicacion').value = solicitudData.ubicacion || '';
+            
+            // LIMPIAR Y CARGAR SOLO LAS ESPECIALIDADES DEL TRABAJADOR
+            const selectEspecializacion = document.getElementById('especializacion');
+            selectEspecializacion.innerHTML = '<option value="">Seleccione una especialización</option>';
+            
+            const especialidadesTrabajador = solicitudData.especialidades_trabajador || [];
+            especialidadesTrabajador.forEach(especialidad => {
+                const option = document.createElement('option');
+                option.value = especialidad;
+                option.textContent = especialidad;
+                selectEspecializacion.appendChild(option);
             });
-    }
+            
+            // Seleccionar la especialización original si existe
+            if (solicitudData.especializacion) {
+                selectEspecializacion.value = solicitudData.especializacion;
+            }
+            
+            // Mostrar comentarios del profesional si existen
+            const comentariosContainer = document.getElementById('comentariosContainer');
+            const comentariosProfesional = document.getElementById('comentariosProfesional');
+            
+            if (solicitudData.especificaciones_trabajador) {
+                comentariosProfesional.textContent = solicitudData.especificaciones_trabajador;
+                comentariosContainer.style.display = 'block';
+            } else {
+                comentariosContainer.style.display = 'none';
+            }
+            
+            document.getElementById('modalReenvio').style.display = 'flex';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cargar los datos de la solicitud: ' + error.message);
+        });
+}
     
     function cerrarModalReenvio() {
         document.getElementById('modalReenvio').style.display = 'none';

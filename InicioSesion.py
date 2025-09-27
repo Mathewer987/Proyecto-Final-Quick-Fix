@@ -464,9 +464,12 @@ def obtener_solicitud(solicitud_id):
         
         if doc.exists:
             solicitud_data = doc.to_dict()
+            solicitud_data['documento_id'] = doc.id  # ← Agregar ID del documento
             
             # Obtener las especialidades del trabajador
             trabajador_id = solicitud_data.get('profesional_id')
+            especialidades_trabajador = []
+            
             if trabajador_id:
                 # Buscar el trabajador en la colección de trabajadores
                 trabajador_ref = db.collection('trabajadores').document(trabajador_id)
@@ -474,18 +477,38 @@ def obtener_solicitud(solicitud_id):
                 
                 if trabajador_doc.exists:
                     trabajador_data = trabajador_doc.to_dict()
-                    # ✅ CORREGIDO: usar 'especialidades_trabajador'
-                    solicitud_data['especialidades_trabajador'] = trabajador_data.get('especializacion', [])
-                else:
-                    solicitud_data['especialidades_trabajador'] = []
-            else:
-                solicitud_data['especialidades_trabajador'] = []
+                    
+                    # ✅ CORREGIDO: Obtener especialidades como lo haces en /browser
+                    campos_especialidad = [
+                        'Albañil', 'Carpintero', 'Cerrajero', 'Electricista', 
+                        'Fontanero_Plomero', 'Fumigador', 'Gasista_matriculado', 
+                        'Herrero', 'InstaladorDeRedes_WiFi', 'Instalador_de_aires_acondicionados',
+                        'Instalador_de_alarmas_cámaras_de_seguridad', 'Jardinero', 
+                        'LavadoDeAlfombras_cortinas', 'Limpieza_de_tanques_de_agua',
+                        'Limpieza_de_vidrios_en_altura', 'Mantenimiento_de_piletas',
+                        'Paisajista', 'Personal_de_limpieza', 'Pintor', 
+                        'Podador_de_árboles', 'Techista_Impermeabilizador',
+                        'TécnicoDeComputadoras_laptops', 'TécnicoDeTelevisores_equiposelectrónicos',
+                        'Técnico_de_celulares', 'Técnico_de_electrodomésticos', 'Técnico_de_impresoras'
+                    ]
+                    
+                    for especialidad in campos_especialidad:
+                        if trabajador_data.get(especialidad) == True:
+                            nombre_bonito = especialidad.replace('_', ' ').replace('De', ' de').title()
+                            especialidades_trabajador.append(nombre_bonito)
+                    
+                    if not especialidades_trabajador:
+                        especialidades_trabajador = ["Servicios generales"]
+            
+            # ✅ CORREGIDO: Usar el nombre correcto de la propiedad
+            solicitud_data['especialidades_trabajador'] = especialidades_trabajador
             
             return jsonify(solicitud_data)
         else:
             return jsonify({'error': 'Solicitud no encontrada'}), 404
             
     except Exception as e:
+        print(f"Error en obtener_solicitud: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/logout')

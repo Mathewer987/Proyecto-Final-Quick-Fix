@@ -684,68 +684,67 @@
     </div>
 
     <!-- Modal de reenvío completo -->
-    <div class="modal-overlay" id="modalReenvio">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Reenviar Solicitud</h3>
-                <button class="close-modal" onclick="cerrarModalReenvio()">&times;</button>
-            </div>
-            
-            <div id="comentariosContainer" class="comentarios-profesional" style="display: none;">
-                <h4>Comentarios del profesional:</h4>
-                <p id="comentariosProfesional"></p>
-            </div>
-            
-            <form id="formReenvio">
-                <input type="hidden" id="solicitudIdReenvio" value="">
-                
-                <div class="form-group">
-                    <label for="especializacion">Especialización *</label>
-                    <select id="especializacion" name="especializacion" required>
-                        <option value="">Seleccione una especialización</option>
-                        {% for especialidad in especialidades_predefinidas %}
-                        <option value="{{ especialidad }}">{{ especialidad }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="fechaTrabajo">Fecha de realización *</label>
-                    <input type="datetime-local" id="fechaTrabajo" name="fechaTrabajo" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="especificaciones">Especificaciones del trabajo *</label>
-                    <textarea id="especificaciones" name="especificaciones" placeholder="Describí en detalle el trabajo a realizar..." required></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="metodoPago">Método de pago *</label>
-                    <select id="metodoPago" name="metodoPago" required>
-                        <option value="">Seleccione un método</option>
-                        <option value="efectivo">Efectivo</option>
-                        <option value="mercadopago">Mercado Pago</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="ubicacion">Ubicación exacta *</label>
-                    <input type="text" id="ubicacion" name="ubicacion" placeholder="Dirección completa..." required>
-                </div>
-                
-                <div class="form-actions">
-                    <button type="button" class="btn btn-cancel" onclick="cerrarModalReenvio()">Cancelar</button>
-                    <button type="button" class="btn btn-submit" onclick="reenviarSolicitud()">Reenviar Solicitud</button>
-                </div>
-            </form>
+    <!-- Modal de reenvío completo -->
+<div class="modal-overlay" id="modalReenvio">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Reenviar Solicitud</h3>
+            <button class="close-modal" onclick="cerrarModalReenvio()">&times;</button>
         </div>
+        
+        <div id="comentariosContainer" class="comentarios-profesional" style="display: none;">
+            <h4>Comentarios del profesional:</h4>
+            <p id="comentariosProfesional"></p>
+        </div>
+        
+        <form id="formReenvio">
+            <input type="hidden" id="solicitudIdReenvio" value="">
+            
+            <div class="form-group">
+                <label for="especializacion">Especialización *</label>
+                <select id="especializacion" name="especializacion" required>
+                    <option value="">Seleccione una especialización</option>
+                    <!-- Las opciones se cargan dinámicamente desde JavaScript -->
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="fechaTrabajo">Fecha de realización *</label>
+                <input type="datetime-local" id="fechaTrabajo" name="fechaTrabajo" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="especificaciones">Especificaciones del trabajo *</label>
+                <textarea id="especificaciones" name="especificaciones" placeholder="Describí en detalle el trabajo a realizar..." required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="metodoPago">Método de pago *</label>
+                <select id="metodoPago" name="metodoPago" required>
+                    <option value="">Seleccione un método</option>
+                    <option value="efectivo">Efectivo</option>
+                    <option value="mercadopago">Mercado Pago</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="ubicacion">Ubicación exacta *</label>
+                <input type="text" id="ubicacion" name="ubicacion" placeholder="Dirección completa..." required>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-cancel" onclick="cerrarModalReenvio()">Cancelar</button>
+                <button type="button" class="btn btn-submit" onclick="reenviarSolicitud()">Reenviar Solicitud</button>
+            </div>
+        </form>
     </div>
+</div>
 
     <script>
     let solicitudActual = null;
     
     function abrirModalReenvio(solicitudId) {
-    console.log('Intentando abrir modal para solicitud:', solicitudId);
+    console.log('Abriendo modal para solicitud:', solicitudId);
     
     fetch(`/obtener_solicitud/${solicitudId}`)
         .then(response => {
@@ -755,23 +754,25 @@
             return response.json();
         })
         .then(solicitudData => {
-            console.log('Datos recibidos:', solicitudData);
+            console.log('✅ Datos COMPLETOS recibidos:', solicitudData);
+            console.log('🔍 Propiedades disponibles:', Object.keys(solicitudData));
             
             solicitudActual = solicitudData;
             document.getElementById('solicitudIdReenvio').value = solicitudId;
             
-            // Llenar el formulario con los datos actuales
-            document.getElementById('especializacion').value = solicitudData.especializacion || '';
-            document.getElementById('fechaTrabajo').value = solicitudData.fecha_trabajo_propuesta || '';
-            document.getElementById('especificaciones').value = solicitudData.especificaciones || '';
-            document.getElementById('metodoPago').value = solicitudData.metodo_pago || '';
-            document.getElementById('ubicacion').value = solicitudData.ubicacion || '';
-            
-            // LIMPIAR Y CARGAR SOLO LAS ESPECIALIDADES DEL TRABAJADOR
+            // CARGAR ESPECIALIDADES DEL TRABAJADOR EN EL SELECT
             const selectEspecializacion = document.getElementById('especializacion');
             selectEspecializacion.innerHTML = '<option value="">Seleccione una especialización</option>';
             
+            // ✅ VERIFICAR LA PROPIEDAD CORRECTA
             const especialidadesTrabajador = solicitudData.especialidades_trabajador || [];
+            console.log('🎯 Especialidades del trabajador:', especialidadesTrabajador);
+            
+            if (especialidadesTrabajador.length === 0) {
+                console.log('⚠️ No se encontraron especialidades. Datos completos:', solicitudData);
+            }
+            
+            // Agregar cada especialidad como opción en el select
             especialidadesTrabajador.forEach(especialidad => {
                 const option = document.createElement('option');
                 option.value = especialidad;
@@ -784,6 +785,12 @@
                 selectEspecializacion.value = solicitudData.especializacion;
             }
             
+            // Llenar el resto del formulario
+            document.getElementById('fechaTrabajo').value = solicitudData.fecha_trabajo_propuesta || '';
+            document.getElementById('especificaciones').value = solicitudData.especificaciones || '';
+            document.getElementById('metodoPago').value = solicitudData.metodo_pago || '';
+            document.getElementById('ubicacion').value = solicitudData.ubicacion || '';
+            
             // Mostrar comentarios del profesional si existen
             const comentariosContainer = document.getElementById('comentariosContainer');
             const comentariosProfesional = document.getElementById('comentariosProfesional');
@@ -795,18 +802,19 @@
                 comentariosContainer.style.display = 'none';
             }
             
+            // Mostrar el modal
             document.getElementById('modalReenvio').style.display = 'flex';
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('Error al cargar los datos de la solicitud: ' + error.message);
+            console.error('❌ Error:', error);
+            alert('Error al cargar los datos de la solicitud');
         });
 }
-    
-    function cerrarModalReenvio() {
-        document.getElementById('modalReenvio').style.display = 'none';
-        solicitudActual = null;
-    }
+
+function cerrarModalReenvio() {
+    document.getElementById('modalReenvio').style.display = 'none';
+    solicitudActual = null;
+}
     
     function reenviarSolicitud() {
         const formData = {

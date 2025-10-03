@@ -25,7 +25,7 @@ class MercadoPagoQR:
                         "title": descripcion,
                         "quantity": 1,
                         "unit_price": float(monto),
-                        "currency_id": "ARS"  # CAMBIO 1: Moneda (ARS, BRL, USD, etc.)
+                        "currency_id": "ARS"  # Puedes cambiar la moneda según tu país
                     }
                 ],
                 "payer": {
@@ -41,11 +41,11 @@ class MercadoPagoQR:
                     "installments": 1,
                     "default_installments": 1
                 },
-                "notification_url": "https://tu-webhook.com/notifications",  # CAMBIO 2: Tu webhook
+                "notification_url": "https://tu-dominio.com/webhook",  # Configura tu webhook
                 "back_urls": {
-                    "success": "https://tu-sitio.com/success",  # CAMBIO 3: Tus URLs
-                    "failure": "https://tu-sitio.com/failure",
-                    "pending": "https://tu-sitio.com/pending"
+                    "success": "https://tu-dominio.com/success",
+                    "failure": "https://tu-dominio.com/failure",
+                    "pending": "https://tu-dominio.com/pending"
                 },
                 "auto_return": "approved",
                 "external_reference": external_reference or f"ref_{datetime.now().timestamp()}"
@@ -175,62 +175,23 @@ class MercadoPagoQR:
                 "error": str(e)
             }
 
-def main():
-    """
-    Ejemplo de uso completo
-    """
-    # CAMBIO 4: CONFIGURA TU ACCESS_TOKEN AQUÍ ⚠️
-    ACCESS_TOKEN = "APP_USR-XXXXXXXXXXXX-XXXXXXXXXXXX"  # ¡REEMPLAZA ESTO!
+# Ejemplo de uso
+if __name__ == "__main__":
+    # Configura tu access token
+    ACCESS_TOKEN = "APP_USR-XXXXXXXXXXXX-XXXXXXXXXXXX"
     
-    # Inicializar cliente
     mp = MercadoPagoQR(ACCESS_TOKEN)
     
-    # Datos del pago
-    monto = 1000.00  # CAMBIO 5: Monto del pago
-    descripcion = "Compra en Mi Tienda Online"  # CAMBIO 6: Descripción
-    email_comprador = "cliente@ejemplo.com"  # CAMBIO 7: Email del cliente
-    referencia = "pedido_12345"  # CAMBIO 8: Tu referencia interna
-    
-    print("🔄 Creando pago con QR...")
-    
-    # Crear pago
+    # Ejemplo de creación de pago
     resultado = mp.crear_pago_qr(
-        monto=monto,
-        descripcion=descripcion,
-        email_comprador=email_comprador,
-        external_reference=referencia
+        monto=1500.00,
+        descripcion="Servicio de Plomería",
+        email_comprador="cliente@ejemplo.com"
     )
     
     if resultado["success"]:
-        print("✅ Pago creado exitosamente")
-        print(f"🆔 ID del pago: {resultado['payment_id']}")
-        print(f"📋 Referencia: {referencia}")
-        
-        # Generar imagen QR
-        qr_image = mp.generar_imagen_qr(resultado['qr_code'])
-        
-        if qr_image:
-            print("🎯 QR Code generado correctamente")
-            # Para guardar el QR como imagen:
-            # with open("qr_pago.png", "wb") as f:
-            #     f.write(base64.b64decode(qr_image.split(",")[1]))
-        
-        print(f"\n🔗 Link de pago: {resultado.get('init_point', 'No disponible')}")
-        print(f"📱 QR Data: {resultado['qr_code'][:100]}...")
-        
-        # Simular verificación de pago
-        print("\n⏳ Verificando estado del pago (simulación)...")
-        time.sleep(2)
-        
-        estado = mp.verificar_estado_pago(resultado['payment_id'])
-        if estado["success"]:
-            print(f"📊 Estado del pago: {estado['estado']}")
-            print(f"💰 Monto: ${estado['monto']}")
-        else:
-            print(f"❌ Error verificando estado: {estado['error']}")
-            
+        print("Pago creado:", resultado["payment_id"])
+        qr_image = mp.generar_imagen_qr(resultado["qr_code"])
+        print("QR generado correctamente")
     else:
-        print(f"❌ Error creando pago: {resultado['error']}")
-
-if __name__ == "__main__":
-    main()
+        print("Error:", resultado["error"])

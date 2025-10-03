@@ -209,6 +209,11 @@
             background: #059669;
         }
 
+        .pay-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
         .security-notice {
             text-align: center;
             margin-top: 20px;
@@ -219,6 +224,44 @@
         .security-notice i {
             color: var(--success-color);
             margin-right: 5px;
+        }
+
+        .qr-container {
+            text-align: center;
+            padding: 20px;
+            background: var(--light-color);
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .qr-image {
+            max-width: 250px;
+            height: auto;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px;
+            background: white;
+        }
+
+        .payment-info {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .payment-info p {
+            margin: 5px 0;
+            color: var(--text-color);
+        }
+
+        .status-checking {
+            text-align: center;
+            padding: 10px;
+            background: #fef3c7;
+            border-radius: 5px;
+            margin: 10px 0;
         }
 
         @keyframes fadeIn {
@@ -257,12 +300,12 @@
 <body>
     <div class="payment-container">
         <div class="payment-header">
-            <a href="Home.html" class="back-button">
+            <a href="/" class="back-button">
                 <i class="fas fa-arrow-left"></i> Volver
             </a>
             <h1>Portal de Pagos</h1>
-            <div class="payment-amount">$1,500.00</div>
-            <div class="payment-service">Servicio de Plomería - Juan Pérez</div>
+            <div class="payment-amount" id="monto-display">$1,500.00</div>
+            <div class="payment-service" id="descripcion-display">Servicio de Plomería - Juan Pérez</div>
         </div>
 
         <div class="payment-content">
@@ -275,6 +318,10 @@
                     <div class="method-tab" data-method="digital">
                         <i class="fas fa-mobile-alt"></i>
                         <span>Billeteras</span>
+                    </div>
+                    <div class="method-tab" data-method="qr">
+                        <i class="fas fa-qrcode"></i>
+                        <span>QR</span>
                     </div>
                 </div>
 
@@ -328,9 +375,46 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Método: QR -->
+                <div class="method-content" id="qr-method">
+                    <div class="form-group">
+                        <label>Email del comprador</label>
+                        <input type="email" id="email-comprador" placeholder="tu@email.com" value="cliente@ejemplo.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Monto a pagar</label>
+                        <input type="number" id="monto-pago" placeholder="1500.00" value="1500.00" step="0.01" min="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Descripción del pago</label>
+                        <input type="text" id="descripcion-pago" placeholder="Descripción del servicio" value="Servicio de Plomería - Juan Pérez">
+                    </div>
+                    
+                    <button class="pay-button" onclick="generarQRPago()">
+                        <i class="fas fa-qrcode"></i> Generar QR de Pago
+                    </button>
+                    
+                    <div id="qr-result" style="display: none;">
+                        <div class="qr-container">
+                            <h3>Escanea el QR para pagar</h3>
+                            <img id="qr-image" class="qr-image" src="" alt="QR Code">
+                            <div class="payment-info">
+                                <p><strong>Monto:</strong> $<span id="monto-qr">0.00</span></p>
+                                <p><strong>Descripción:</strong> <span id="descripcion-qr"></span></p>
+                                <p><strong>ID de Pago:</strong> <span id="payment-id"></span></p>
+                            </div>
+                            <div class="status-checking" id="status-checking">
+                                <i class="fas fa-sync-alt fa-spin"></i> Verificando estado del pago...
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <button class="pay-button" onclick="processPayment()">
+            <button class="pay-button" id="pagar-button" onclick="processPayment()">
                 <i class="fas fa-lock"></i> Pagar $1,500.00
             </button>
 
@@ -342,6 +426,9 @@
     </div>
 
     <script>
+        let currentPaymentId = null;
+        let checkInterval = null;
+
         // Cambiar entre métodos de pago
         document.querySelectorAll('.method-tab').forEach(tab => {
             tab.addEventListener('click', () => {
@@ -353,6 +440,9 @@
                 tab.classList.add('active');
                 const method = tab.getAttribute('data-method');
                 document.getElementById(`${method}-method`).classList.add('active');
+                
+                // Actualizar texto del botón según método
+                updatePayButtonText(method);
             });
         });
 
@@ -380,7 +470,112 @@
             e.target.value = value.substring(0, 5);
         });
 
-        // Procesar pago
+        // Actualizar texto del botón de pago
+        function updatePayButtonText(method) {
+            const button = document.getElementById('pagar-button');
+            const amount = document.getElementById('monto-display').textContent;
+            
+            if (method === 'qr') {
+                button.innerHTML = `<i class="fas fa-qrcode"></i> Generar QR de Pago`;
+                button.onclick = generarQRPago;
+            } else {
+                button.innerHTML = `<i class="fas fa-lock"></i> Pagar ${amount}`;
+                button.onclick = processPayment;
+            }
+        }
+
+        // Generar QR de pago
+        async function generarQRPago() {
+            const button = document.getElementById('pagar-button');
+            const originalText = button.innerHTML;
+            
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando QR...';
+            button.disabled = true;
+            
+            const monto = document.getElementById('monto-pago').value;
+            const descripcion = document.getElementById('descripcion-pago').value;
+            const email = document.getElementById('email-comprador').value;
+            
+            try {
+                const response = await fetch('/generar_pago', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        monto: parseFloat(monto),
+                        descripcion: descripcion,
+                        email: email
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Mostrar QR
+                    document.getElementById('qr-image').src = data.qr_image;
+                    document.getElementById('monto-qr').textContent = data.monto;
+                    document.getElementById('descripcion-qr').textContent = data.descripcion;
+                    document.getElementById('payment-id').textContent = data.payment_id;
+                    document.getElementById('qr-result').style.display = 'block';
+                    
+                    currentPaymentId = data.payment_id;
+                    
+                    // Actualizar displays
+                    document.getElementById('monto-display').textContent = `$${data.monto}`;
+                    document.getElementById('descripcion-display').textContent = data.descripcion;
+                    
+                    // Iniciar verificación de estado
+                    iniciarVerificacionEstado(data.payment_id);
+                    
+                } else {
+                    alert('Error: ' + data.error);
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al generar el QR de pago');
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        // Iniciar verificación de estado del pago
+        function iniciarVerificacionEstado(paymentId) {
+            if (checkInterval) {
+                clearInterval(checkInterval);
+            }
+            
+            checkInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/verificar_pago/${paymentId}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const statusElement = document.getElementById('status-checking');
+                        statusElement.innerHTML = `<i class="fas fa-sync-alt fa-spin"></i> Estado: ${data.estado}`;
+                        
+                        if (data.estado === 'approved') {
+                            statusElement.innerHTML = `<i class="fas fa-check-circle" style="color: var(--success-color);"></i> ¡Pago aprobado!`;
+                            clearInterval(checkInterval);
+                            
+                            // Redirigir después de pago exitoso
+                            setTimeout(() => {
+                                window.location.href = '/?pago=exitoso';
+                            }, 3000);
+                        } else if (data.estado === 'rejected') {
+                            statusElement.innerHTML = `<i class="fas fa-times-circle" style="color: var(--error-color);"></i> Pago rechazado`;
+                            clearInterval(checkInterval);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error verificando estado:', error);
+                }
+            }, 5000); // Verificar cada 5 segundos
+        }
+
+        // Procesar pago (para otros métodos)
         function processPayment() {
             const activeMethod = document.querySelector('.method-tab.active').getAttribute('data-method');
             
@@ -410,7 +605,7 @@
         }
 
         function simulatePayment(method) {
-            const button = document.querySelector('.pay-button');
+            const button = document.getElementById('pagar-button');
             const originalText = button.innerHTML;
             
             button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
@@ -424,11 +619,17 @@
                 
                 // Redirigir a home después de pago exitoso
                 setTimeout(() => {
-                    window.location.href = 'Home.html';
+                    window.location.href = '/?pago=exitoso';
                 }, 2000);
                 
             }, 3000);
         }
+
+        // Actualizar monto cuando cambia en el formulario QR
+        document.getElementById('monto-pago').addEventListener('input', function(e) {
+            const monto = e.target.value;
+            document.getElementById('monto-display').textContent = `$${monto}`;
+        });
     </script>
 </body>
 </html>

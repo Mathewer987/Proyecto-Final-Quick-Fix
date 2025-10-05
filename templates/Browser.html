@@ -493,8 +493,272 @@
         .btn-submit:hover {
             background: #3a56c4;
         }
+
+                /* MODAL DE PERFIL DEL TRABAJADOR */
+        .modal-perfil-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+        
+        .modal-perfil-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-perfil-content {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transform: translateY(-50px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-perfil-overlay.active .modal-perfil-content {
+            transform: translateY(0);
+        }
+        
+        .modal-perfil-header {
+            padding: 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            background: linear-gradient(135deg, #4e73df 0%, #3a56c4 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .perfil-info {
+            flex: 1;
+        }
+        
+        .perfil-info h2 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .perfil-especialidad {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        .perfil-rating {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .perfil-rating .stars {
+            color: #ffc107;
+        }
+        
+        .perfil-rating .reviews {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .close-perfil-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: white;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+            padding: 5px;
+        }
+        
+        .close-perfil-modal:hover {
+            opacity: 1;
+        }
+        
+        .modal-perfil-body {
+            padding: 30px;
+        }
+        
+        .perfil-section {
+            margin-bottom: 30px;
+        }
+        
+        .perfil-section h3 {
+            color: #2c3e50;
+            font-size: 20px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4e73df;
+        }
+        
+        .especialidades-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .especialidad-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .perfil-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .detail-item i {
+            color: #4e73df;
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .detail-item .label {
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 120px;
+        }
+        
+        .detail-item .value {
+            color: #5a6c7d;
+        }
+        
+        .perfil-bio {
+            line-height: 1.6;
+            color: #5a6c7d;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4e73df;
+        }
+        
+        .modal-perfil-footer {
+            padding: 20px 30px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        
+        .btn-perfil {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-contactar {
+            background: #4e73df;
+            color: white;
+        }
+        
+        .btn-contactar:hover {
+            background: #3a56c4;
+        }
+        
+        .btn-contratar {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-contratar:hover {
+            background: #218838;
+        }
     </style>
 </head>
+
+    <!-- MODAL DE PERFIL DEL TRABAJADOR -->
+    <div class="modal-perfil-overlay" id="modalPerfil">
+        <div class="modal-perfil-content">
+            <div class="modal-perfil-header">
+                <div class="perfil-info">
+                    <h2 id="perfilNombre">Nombre del Profesional</h2>
+                    <div class="perfil-especialidad" id="perfilEspecialidad">Especialidad Principal</div>
+                    <div class="perfil-rating">
+                        <div class="stars" id="perfilRating">
+                            <!-- Estrellas se generan dinámicamente -->
+                        </div>
+                        <span class="reviews" id="perfilReviews">(0 reseñas)</span>
+                    </div>
+                </div>
+                <button class="close-perfil-modal" onclick="cerrarModalPerfil()">&times;</button>
+            </div>
+            
+            <div class="modal-perfil-body">
+                <div class="perfil-section">
+                    <h3>Especialidades</h3>
+                    <div class="especialidades-list" id="perfilEspecialidades">
+                        <!-- Especialidades se generan dinámicamente -->
+                    </div>
+                </div>
+                
+                <div class="perfil-section">
+                    <h3>Información de Contacto</h3>
+                    <div class="perfil-details">
+                        <div class="detail-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span class="label">Ubicación:</span>
+                            <span class="value" id="perfilUbicacion">No disponible</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span class="label">Precio base:</span>
+                            <span class="value" id="perfilPrecio">Consultar</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-clock"></i>
+                            <span class="label">Disponibilidad:</span> 
+                            <span class="value" id="perfilDisponibilidad">Flexible</span>
+                        </div>
+                    </div>
+                </div>
+                
+                
+            </div>
+            
+            <div class="modal-perfil-footer">
+                
+                <button class="btn-perfil btn-contratar" onclick="contratarDesdePerfil()">
+                    <i class="fas fa-briefcase"></i> Contratar
+                </button>
+            </div>
+        </div>
+    </div>
 <body>
     <div class="container">
         <header class="header">
@@ -717,8 +981,77 @@
         }
         
         function verPerfil(profesionalId) {
-            window.location.href = `/perfil/${profesionalId}`;
-        }
+    // Buscar los datos del profesional en la lista actual
+    const profesionalCard = document.querySelector(`[onclick*="${profesionalId}"]`).closest('.professional-card');
+    
+    if (profesionalCard) {
+        const nombre = profesionalCard.querySelector('h3').textContent;
+        const especialidadPrincipal = profesionalCard.querySelector('.card-specialty').textContent.trim();
+        const rating = profesionalCard.querySelector('.card-rating');
+        const ubicacion = profesionalCard.querySelector('.card-location').textContent.trim();
+        const precio = profesionalCard.querySelector('.card-price span').textContent;
+        
+        // Obtener todas las especialidades
+        const todasEspecialidades = profesionalCard.querySelector('.all-specialties').textContent.split(',');
+        
+        // Llenar el modal con los datos
+        document.getElementById('perfilNombre').textContent = nombre;
+        document.getElementById('perfilEspecialidad').textContent = especialidadPrincipal;
+        document.getElementById('perfilUbicacion').textContent = ubicacion.replace('📍 ', '');
+        document.getElementById('perfilPrecio').textContent = `$${precio}`;
+        
+        // Generar estrellas de rating
+        const ratingStars = rating.innerHTML;
+        document.getElementById('perfilRating').innerHTML = ratingStars;
+        
+        // Generar lista de especialidades
+        const especialidadesContainer = document.getElementById('perfilEspecialidades');
+        especialidadesContainer.innerHTML = '';
+        todasEspecialidades.forEach(especialidad => {
+            if (especialidad.trim()) {
+                const tag = document.createElement('div');
+                tag.className = 'especialidad-tag';
+                tag.textContent = especialidad.trim();
+                especialidadesContainer.appendChild(tag);
+            }
+        });
+        
+        // Mostrar el modal
+        document.getElementById('modalPerfil').classList.add('active');
+        
+        // Guardar el ID del profesional para usar en los botones
+        document.getElementById('modalPerfil').dataset.profesionalId = profesionalId;
+    }
+}
+
+function cerrarModalPerfil() {
+    document.getElementById('modalPerfil').classList.remove('active');
+}
+
+function contactarProfesional() {
+    const profesionalId = document.getElementById('modalPerfil').dataset.profesionalId;
+    const nombre = document.getElementById('perfilNombre').textContent;
+    alert(`Función de contacto para ${nombre} (ID: ${profesionalId}) - En desarrollo`);
+}
+
+function contratarDesdePerfil() {
+    const profesionalId = document.getElementById('modalPerfil').dataset.profesionalId;
+    const nombre = document.getElementById('perfilNombre').textContent;
+    const especialidades = Array.from(document.querySelectorAll('.especialidad-tag'))
+                               .map(tag => tag.textContent)
+                               .join(',');
+    
+    // Cerrar modal de perfil y abrir modal de contratación
+    cerrarModalPerfil();
+    abrirFormularioContratacion(profesionalId, nombre, especialidades);
+}
+
+// Cerrar modal al hacer clic fuera del contenido
+document.getElementById('modalPerfil').addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarModalPerfil();
+    }
+});
         
         function abrirFormularioContratacion(profesionalId, nombreProfesional, especialidadesStr) {
             // Convertir el string de especialidades a array

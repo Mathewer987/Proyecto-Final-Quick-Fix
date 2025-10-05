@@ -105,8 +105,269 @@
         .btn-submit:hover {
             background: #3a56c4;
         }
+
+                /* MODAL DE DETALLES DEL TRABAJO */
+        .modal-detalles-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+        
+        .modal-detalles-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-detalles-content {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transform: translateY(-50px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-detalles-overlay.active .modal-detalles-content {
+            transform: translateY(0);
+        }
+        
+        .modal-detalles-header {
+            padding: 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            background: linear-gradient(135deg, #4e73df 0%, #3a56c4 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .detalles-info h2 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .detalles-cliente {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .detalles-estado {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .close-detalles-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: white;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+            padding: 5px;
+        }
+        
+        .close-detalles-modal:hover {
+            opacity: 1;
+        }
+        
+        .modal-detalles-body {
+            padding: 30px;
+        }
+        
+        .detalles-section {
+            margin-bottom: 25px;
+        }
+        
+        .detalles-section h3 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #4e73df;
+        }
+        
+        .detalles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .detalle-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .detalle-item i {
+            color: #4e73df;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .detalle-item .label {
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 140px;
+        }
+        
+        .detalle-item .value {
+            color: #5a6c7d;
+            flex: 1;
+        }
+        
+        .especificaciones-content {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4e73df;
+            line-height: 1.6;
+            color: #5a6c7d;
+        }
+        
+        .modal-detalles-footer {
+            padding: 20px 30px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        
+        .btn-detalles {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-aceptar-detalles {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-aceptar-detalles:hover {
+            background: #218838;
+        }
+        
+        .btn-rechazar-detalles {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-rechazar-detalles:hover {
+            background: #c82333;
+        }
+        
+        .btn-devolver-detalles {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .btn-devolver-detalles:hover {
+            background: #f57c00;
+        }
     </style>
 </head>
+
+    <!-- MODAL DE DETALLES DEL TRABAJO -->
+    <div class="modal-detalles-overlay" id="modalDetalles">
+        <div class="modal-detalles-content">
+            <div class="modal-detalles-header">
+                <div class="detalles-info">
+                    <h2 id="detallesEspecializacion">Especialización</h2>
+                    <div class="detalles-cliente" id="detallesCliente">Cliente: </div>
+                    <span class="detalles-estado" id="detallesEstado">Pendiente</span>
+                </div>
+                <button class="close-detalles-modal" onclick="cerrarModalDetalles()">&times;</button>
+            </div>
+            
+                        <div class="modal-detalles-body">
+                <div class="detalles-section">
+                    <h3>Información del Trabajo</h3>
+                    <div class="detalles-grid">
+                        <div class="detalle-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span class="label">Ubicación:</span>
+                            <span class="value" id="detallesUbicacion">-</span>
+                        </div>
+                        <div class="detalle-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span class="label">Fecha solicitada:</span>
+                            <span class="value" id="detallesFecha">-</span>
+                        </div>
+                        <div class="detalle-item">
+                            <i class="fas fa-credit-card"></i>
+                            <span class="label">Método de pago:</span>
+                            <span class="value" id="detallesPago">-</span>
+                        </div>
+                        <div class="detalle-item">
+                            <i class="fas fa-clock"></i>
+                            <span class="label">Solicitado el:</span>
+                            <span class="value" id="detallesSolicitud">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="detalles-section">
+                    <h3>Especificaciones del Cliente</h3>
+                    <div class="especificaciones-content" id="detallesEspecificaciones">
+                        No hay especificaciones disponibles.
+                    </div>
+                </div>
+                
+                <!-- Sección para comentarios del trabajador (se llena dinámicamente) -->
+                <div class="detalles-section" id="seccionComentariosTrabajador" style="display: none;">
+                    <h3>Tus Comentarios Anteriores</h3>
+                    <div class="especificaciones-content" style="border-left-color: #ff9800;" id="detallesComentariosTrabajador">
+                        <!-- Los comentarios se cargan dinámicamente -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-detalles-footer">
+                <button class="btn-detalles btn-devolver-detalles" onclick="devolverDesdeDetalles()">
+                    <i class="fas fa-redo"></i> Devolver
+                </button>
+                <button class="btn-detalles btn-rechazar-detalles" onclick="rechazarDesdeDetalles()">
+                    <i class="fas fa-times"></i> Rechazar
+                </button>
+                <button class="btn-detalles btn-aceptar-detalles" onclick="aceptarDesdeDetalles()">
+                    <i class="fas fa-check"></i> Aceptar Trabajo
+                </button>
+            </div>
+        </div>
+    </div>
 <body>
     <div class="background-lines">
         <div class="line line-1"></div>
@@ -305,9 +566,118 @@
             });
         }
 
-        function verDetalles(trabajoId) {
-            alert('Funcionalidad de ver detalles en desarrollo para ID: ' + trabajoId);
+       function verDetalles(trabajoId) {
+    console.log('Abriendo detalles del trabajo:', trabajoId);
+    
+    // Buscar el trabajo en la lista actual
+    const trabajoCard = document.querySelector(`button[onclick*="verDetalles('${trabajoId}')"]`).closest('.job-card');
+    
+    if (trabajoCard) {
+        console.log('Tarjeta encontrada:', trabajoCard);
+        
+        // Obtener información básica
+        const titulo = trabajoCard.querySelector('h3').textContent;
+        const especializacion = titulo.replace('Solicitud de ', '');
+        
+        const descripcionParrafos = trabajoCard.querySelectorAll('.job-description p');
+        let cliente = 'Cliente no disponible';
+        let especificaciones = 'No hay especificaciones disponibles';
+        
+        if (descripcionParrafos.length >= 1) {
+            cliente = descripcionParrafos[0].textContent.replace('Cliente: ', '');
         }
+        if (descripcionParrafos.length >= 2) {
+            especificaciones = descripcionParrafos[1].textContent.replace('Especificaciones: ', '');
+        }
+        
+        // Obtener detalles específicos de ubicación, fechas, etc.
+        const detalles = trabajoCard.querySelectorAll('.job-details .detail');
+        let ubicacion = 'Ubicación no especificada';
+        let fechaTrabajo = 'Fecha no especificada';
+        let metodoPago = 'Método no especificado';
+        let fechaSolicitud = 'Fecha no disponible';
+        
+        detalles.forEach(detalle => {
+            const icono = detalle.querySelector('i');
+            const texto = detalle.textContent.trim();
+            
+            if (icono.classList.contains('fa-map-marker-alt')) {
+                ubicacion = texto.replace('📍', '').trim();
+            } else if (icono.classList.contains('fa-calendar-alt')) {
+                fechaTrabajo = texto.replace('Fecha solicitada:', '').trim();
+            } else if (icono.classList.contains('fa-credit-card')) {
+                metodoPago = texto.replace('Método de pago:', '').trim();
+            } else if (icono.classList.contains('fa-clock')) {
+                fechaSolicitud = texto.replace('Solicitado el:', '').trim();
+            }
+        });
+        
+        console.log('Datos extraídos:', {
+            especializacion,
+            cliente,
+            ubicacion,
+            fechaTrabajo,
+            metodoPago,
+            fechaSolicitud,
+            especificaciones
+        });
+        
+        // Llenar el modal con los datos
+        document.getElementById('detallesEspecializacion').textContent = especializacion;
+        document.getElementById('detallesCliente').textContent = 'Cliente: ' + cliente;
+        document.getElementById('detallesUbicacion').textContent = ubicacion;
+        document.getElementById('detallesFecha').textContent = fechaTrabajo;
+        document.getElementById('detallesPago').textContent = metodoPago;
+        document.getElementById('detallesSolicitud').textContent = fechaSolicitud;
+        document.getElementById('detallesEspecificaciones').textContent = especificaciones;
+        
+        // Verificar si es urgente
+        const esUrgente = trabajoCard.classList.contains('highlighted');
+        document.getElementById('detallesEstado').textContent = esUrgente ? '⚠️ Urgente' : 'Pendiente';
+        
+        // Ocultar sección de comentarios del trabajador por defecto
+        document.getElementById('seccionComentariosTrabajador').style.display = 'none';
+        
+        // Mostrar el modal
+        document.getElementById('modalDetalles').classList.add('active');
+        
+        // Guardar el ID del trabajo para usar en los botones
+        document.getElementById('modalDetalles').dataset.trabajoId = trabajoId;
+        
+    } else {
+        console.error('No se pudo encontrar la tarjeta del trabajo con ID:', trabajoId);
+        alert('Error: No se pudieron cargar los detalles del trabajo.');
+    }
+}
+
+function cerrarModalDetalles() {
+    document.getElementById('modalDetalles').classList.remove('active');
+}
+
+function aceptarDesdeDetalles() {
+    const trabajoId = document.getElementById('modalDetalles').dataset.trabajoId;
+    cerrarModalDetalles();
+    aceptarTrabajo(trabajoId);
+}
+
+function rechazarDesdeDetalles() {
+    const trabajoId = document.getElementById('modalDetalles').dataset.trabajoId;
+    cerrarModalDetalles();
+    rechazarTrabajo(trabajoId);
+}
+
+function devolverDesdeDetalles() {
+    const trabajoId = document.getElementById('modalDetalles').dataset.trabajoId;
+    cerrarModalDetalles();
+    abrirModalDevolucion(trabajoId);
+}
+
+// Cerrar modal al hacer clic fuera del contenido
+document.getElementById('modalDetalles').addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarModalDetalles();
+    }
+});
         
         // Cerrar modal al hacer clic fuera del contenido
         document.getElementById('modalDevolucion').addEventListener('click', function(e) {

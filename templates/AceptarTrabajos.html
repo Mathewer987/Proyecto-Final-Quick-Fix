@@ -368,6 +368,66 @@
             </div>
         </div>
     </div>
+
+        <!-- MODAL DETALLES MENTORÍA -->
+    <div class="modal-detalles-mentoria-overlay" id="modalDetallesMentoria">
+        <div class="modal-detalles-mentoria-content">
+            <div class="modal-detalles-mentoria-header">
+                <div class="detalles-mentoria-info">
+                    <h2 id="detallesMentoriaAreaInteres">Mentoría - Área de Interés</h2>
+                    <div class="detalles-mentoria-aprendiz" id="detallesMentoriaAprendiz">Aprendiz: </div>
+                    <span class="detalles-mentoria-estado" id="detallesMentoriaEstado">Pendiente</span>
+                </div>
+                <button class="close-detalles-mentoria-modal" onclick="cerrarModalDetallesMentoria()">&times;</button>
+            </div>
+            
+            <div class="modal-detalles-mentoria-body">
+                <div class="detalles-mentoria-section">
+                    <h3>Información de la Solicitud</h3>
+                    <div class="detalles-mentoria-grid">
+                        <div class="detalle-mentoria-item">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span class="label">Área de interés:</span>
+                            <span class="value" id="detallesMentoriaArea">-</span>
+                        </div>
+                        <div class="detalle-mentoria-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span class="label">Solicitado el:</span>
+                            <span class="value" id="detallesMentoriaFecha">-</span>
+                        </div>
+                        <div class="detalle-mentoria-item">
+                            <i class="fas fa-user-graduate"></i>
+                            <span class="label">Tipo:</span>
+                            <span class="value">Solicitud de Mentoría</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="detalles-mentoria-section">
+                    <h3>Objetivos de Aprendizaje</h3>
+                    <div class="objetivos-content" id="detallesMentoriaObjetivos">
+                        No hay objetivos especificados.
+                    </div>
+                </div>
+                
+                <div class="detalles-mentoria-section">
+                    <h3>Disponibilidad del Aprendiz</h3>
+                    <div class="disponibilidad-content" id="detallesMentoriaDisponibilidad">
+                        No hay disponibilidad especificada.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-detalles-mentoria-footer">
+                <button class="btn-detalles-mentoria btn-rechazar-mentoria-detalles" onclick="rechazarDesdeDetallesMentoria()">
+                    <i class="fas fa-times"></i> Rechazar
+                </button>
+                <button class="btn-detalles-mentoria btn-aceptar-mentoria-detalles" onclick="aceptarDesdeDetallesMentoria()">
+                    <i class="fas fa-check"></i> Aceptar Mentoría
+                </button>
+            </div>
+        </div>
+    </div>
 <body>
     <div class="background-lines">
         <div class="line line-1"></div>
@@ -391,61 +451,127 @@
             </nav>
         </header>
         
-        <main class="results-container">
+                <main class="results-container">
             <div class="results-header">
-                <h2>Solicitudes de Trabajo Pendientes</h2>
-                <div class="results-count">{{ trabajos|length }} solicitud(es)</div>
-            </div>
-            
-            {% if trabajos %}
-            <div class="jobs-list">
-                {% for trabajo in trabajos %}
-                <div class="job-card {% if trabajo.urgente %}highlighted{% endif %}">
-                    {% if trabajo.urgente %}
-                    <div class="job-badge">Urgente</div>
-                    {% endif %}
-                    
-                    <div class="job-content">
-                        <h3>Solicitud de {{ trabajo.especializacion }}</h3>
-                        <div class="job-description">
-                            <p><strong>Cliente:</strong> {{ trabajo.cliente_nombre }}</p>
-                            <p><strong>Especificaciones:</strong> {{ trabajo.especificaciones }}</p>
-                        </div>
-                        <div class="job-details">
-                            <div class="detail">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>{{ trabajo.ubicacion }}</span>
-                            </div>
-                            <div class="detail">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>Fecha solicitada: {{ trabajo.fecha_trabajo_propuesta }}</span>
-                            </div>
-                            <div class="detail">
-                                <i class="fas fa-credit-card"></i>
-                                <span>Método de pago: {{ trabajo.metodo_pago }}</span>
-                            </div>
-                            <div class="detail">
-                                <i class="fas fa-clock"></i>
-                                <span>Solicitado el: {{ trabajo.fecha_solicitud.strftime('%d/%m/%Y') }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="job-actions">
-                        <button class="action-button view-details" onclick="verDetalles('{{ trabajo.id }}')">Ver detalles</button>
-                        <button class="action-button apply-now" onclick="aceptarTrabajo('{{ trabajo.id }}')">Aceptar</button>
-                        <button class="action-button reject" onclick="rechazarTrabajo('{{ trabajo.id }}')">Rechazar</button>
-                        <button class="action-button return" onclick="abrirModalDevolucion('{{ trabajo.id }}')">Devolver</button>
-                    </div>
+                <h2>Solicitudes Pendientes</h2>
+                <div class="results-count">
+                    <span class="count-badge contratacion">{{ trabajos_contrataciones|length }} contrataciones</span>
+                    <span class="count-badge mentoria">{{ trabajos_mentorias|length }} mentorías</span>
                 </div>
-                {% endfor %}
             </div>
-            {% else %}
-            <div class="no-jobs">
-                <i class="fas fa-clipboard-list"></i>
-                <h3>No tienes solicitudes pendientes</h3>
-                <p>Cuando recibas nuevas solicitudes de trabajo, aparecerán aquí.</p>
+
+            <!-- SECCIÓN CONTRATACIONES DE CLIENTES -->
+            <div class="seccion-solicitudes">
+                <div class="seccion-header">
+                    <h3>Contrataciones de Clientes</h3>
+                    <span class="contador-solicitudes">{{ trabajos_contrataciones|length }} pendientes</span>
+                </div>
+                
+                {% if trabajos_contrataciones %}
+                <div class="jobs-list">
+                    {% for trabajo in trabajos_contrataciones %}
+                    <div class="job-card {% if trabajo.urgente %}highlighted{% endif %}" data-tipo="contratacion">
+                        
+                        {% if trabajo.urgente %}
+                        <div class="job-badge">Urgente</div>
+                        {% endif %}
+                        
+                        <div class="job-content">
+                            <h3>Solicitud de {{ trabajo.especializacion }}</h3>
+                            <div class="job-description">
+                                <p><strong>Cliente:</strong> {{ trabajo.cliente_nombre }}</p>
+                                <p><strong>Especificaciones:</strong> {{ trabajo.especificaciones }}</p>
+                            </div>
+                            <div class="job-details">
+                                <div class="detail">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>{{ trabajo.ubicacion }}</span>
+                                </div>
+                                <div class="detail">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>Fecha solicitada: {{ trabajo.fecha_trabajo_propuesta }}</span>
+                                </div>
+                                <div class="detail">
+                                    <i class="fas fa-credit-card"></i>
+                                    <span>Método de pago: {{ trabajo.metodo_pago }}</span>
+                                </div>
+                                <div class="detail">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Solicitado el: {{ trabajo.fecha_solicitud.strftime('%d/%m/%Y') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="job-actions">
+                            <button class="action-button view-details" onclick="verDetalles('{{ trabajo.id }}')">Ver detalles</button>
+                            <button class="action-button apply-now" onclick="aceptarTrabajo('{{ trabajo.id }}', 'contratacion')">Aceptar</button>
+                            <button class="action-button reject" onclick="rechazarTrabajo('{{ trabajo.id }}', 'contratacion')">Rechazar</button>
+                            <button class="action-button return" onclick="abrirModalDevolucion('{{ trabajo.id }}', 'contratacion')">Devolver</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="no-solicitudes">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>No tienes contrataciones pendientes</h3>
+                    <p>Cuando recibas nuevas solicitudes de trabajo, aparecerán aquí.</p>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
+
+            <!-- SECCIÓN SOLICITUDES DE MENTORÍA -->
+            <div class="seccion-solicitudes">
+                <div class="seccion-header">
+                    <h3>Solicitudes de Mentoría</h3>
+                    <span class="contador-solicitudes">{{ trabajos_mentorias|length }} pendientes</span>
+                </div>
+                
+                {% if trabajos_mentorias %}
+                <div class="jobs-list">
+                    {% for mentoria in trabajos_mentorias %}
+                    <div class="job-card" data-tipo="mentoria">
+                        
+                        <div class="job-content">
+                            <h3>Solicitud de Mentoría - {{ mentoria.area_interes }}</h3>
+                            <div class="job-description">
+                                <p><strong>Aprendiz:</strong> {{ mentoria.desempleado_nombre }}</p>
+                                <p><strong>Objetivos:</strong> {{ mentoria.objetivo[:100] }}{% if mentoria.objetivo|length > 100 %}...{% endif %}</p>
+                            </div>
+                            <div class="job-details">
+                                <div class="detail">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    <span>Área: {{ mentoria.area_interes }}</span>
+                                </div>
+                                <div class="detail">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Disponibilidad: {{ mentoria.disponibilidad }}</span>
+                                </div>
+                                <div class="detail">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>Solicitado el: {{ mentoria.fecha_solicitud.strftime('%d/%m/%Y') }}</span>
+                                </div>
+                                <div class="detail">
+                                    <i class="fas fa-user-graduate"></i>
+                                    <span>Tipo: Solicitud de mentoría</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="job-actions">
+                            <button class="action-button view-details" onclick="verDetallesMentoria('{{ mentoria.id }}')">Ver detalles</button>
+                            <button class="action-button apply-now" onclick="aceptarMentoria('{{ mentoria.id }}')">Aceptar Mentoría</button>
+                            <button class="action-button reject" onclick="rechazarMentoria('{{ mentoria.id }}')">Rechazar</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="no-solicitudes">
+                    <i class="fas fa-users"></i>
+                    <h3>No tienes solicitudes de mentoría</h3>
+                    <p>Cuando recibas solicitudes de mentoría, aparecerán aquí.</p>
+                </div>
+                {% endif %}
+            </div>
         </main>
     </div>
 
@@ -685,6 +811,201 @@ document.getElementById('modalDetalles').addEventListener('click', function(e) {
                 cerrarModalDevolucion();
             }
         });
+
+// Funciones para mentorías
+function aceptarMentoria(mentoriaId) {
+    if (confirm('¿Estás seguro de que quieres aceptar esta solicitud de mentoría?')) {
+        fetch(`/aceptar_mentoria/${mentoriaId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Mentoría aceptada con éxito');
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al procesar la solicitud');
+        });
+    }
+}
+
+function rechazarMentoria(mentoriaId) {
+    if (confirm('¿Estás seguro de que quieres rechazar esta solicitud de mentoría?')) {
+        fetch(`/rechazar_mentoria/${mentoriaId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Mentoría rechazada');
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al procesar la solicitud');
+        });
+    }
+}
+
+function verDetallesMentoria(mentoriaId) {
+    console.log('Abriendo detalles de mentoría:', mentoriaId);
+    
+    // Buscar la mentoría en la lista actual
+    const mentoriaCard = document.querySelector(`button[onclick*="verDetallesMentoria('${mentoriaId}')"]`).closest('.job-card');
+    
+    if (mentoriaCard) {
+        console.log('Tarjeta de mentoría encontrada:', mentoriaCard);
+        
+        // Obtener información básica
+        const titulo = mentoriaCard.querySelector('h3').textContent;
+        const areaInteres = titulo.replace('Solicitud de Mentoría - ', '');
+        
+        const descripcionParrafos = mentoriaCard.querySelectorAll('.job-description p');
+        let aprendiz = 'Aprendiz no disponible';
+        let objetivos = 'No hay objetivos disponibles';
+        
+        if (descripcionParrafos.length >= 1) {
+            aprendiz = descripcionParrafos[0].textContent.replace('Aprendiz: ', '');
+        }
+        if (descripcionParrafos.length >= 2) {
+            objetivos = descripcionParrafos[1].textContent.replace('Objetivos: ', '');
+        }
+        
+        // Obtener detalles específicos
+        const detalles = mentoriaCard.querySelectorAll('.job-details .detail');
+        let disponibilidad = 'Disponibilidad no especificada';
+        let fechaSolicitud = 'Fecha no disponible';
+        
+        detalles.forEach(detalle => {
+            const icono = detalle.querySelector('i');
+            const texto = detalle.textContent.trim();
+            
+            if (icono.classList.contains('fa-clock')) {
+                disponibilidad = texto.replace('Disponibilidad:', '').trim();
+            } else if (icono.classList.contains('fa-calendar-alt')) {
+                fechaSolicitud = texto.replace('Solicitado el:', '').trim();
+            }
+        });
+        
+        console.log('Datos de mentoría extraídos:', {
+            areaInteres,
+            aprendiz,
+            objetivos,
+            disponibilidad,
+            fechaSolicitud
+        });
+        
+        // Llenar el modal con los datos
+        document.getElementById('detallesMentoriaAreaInteres').textContent = `Mentoría - ${areaInteres}`;
+        document.getElementById('detallesMentoriaAprendiz').textContent = 'Aprendiz: ' + aprendiz;
+        document.getElementById('detallesMentoriaArea').textContent = areaInteres;
+        document.getElementById('detallesMentoriaFecha').textContent = fechaSolicitud;
+        document.getElementById('detallesMentoriaObjetivos').textContent = objetivos;
+        document.getElementById('detallesMentoriaDisponibilidad').textContent = disponibilidad;
+        
+        // Mostrar el modal
+        document.getElementById('modalDetallesMentoria').classList.add('active');
+        
+        // Guardar el ID de la mentoría para usar en los botones
+        document.getElementById('modalDetallesMentoria').dataset.mentoriaId = mentoriaId;
+        
+    } else {
+        console.error('No se pudo encontrar la tarjeta de mentoría con ID:', mentoriaId);
+        alert('Error: No se pudieron cargar los detalles de la mentoría.');
+    }
+}
+
+function cerrarModalDetallesMentoria() {
+    document.getElementById('modalDetallesMentoria').classList.remove('active');
+}
+
+function aceptarDesdeDetallesMentoria() {
+    const mentoriaId = document.getElementById('modalDetallesMentoria').dataset.mentoriaId;
+    cerrarModalDetallesMentoria();
+    aceptarMentoria(mentoriaId);
+}
+
+function rechazarDesdeDetallesMentoria() {
+    const mentoriaId = document.getElementById('modalDetallesMentoria').dataset.mentoriaId;
+    cerrarModalDetallesMentoria();
+    rechazarMentoria(mentoriaId);
+}
+
+// Cerrar modal al hacer clic fuera del contenido
+document.getElementById('modalDetallesMentoria').addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarModalDetallesMentoria();
+    }
+});
+
+// Modificar funciones existentes para soportar tipos
+function aceptarTrabajo(trabajoId, tipo) {
+    const url = tipo === 'contratacion' ? `/aceptar_trabajo/${trabajoId}` : `/aceptar_mentoria/${trabajoId}`;
+    const mensaje = tipo === 'contratacion' ? 'trabajo' : 'mentoría';
+    
+    if (confirm(`¿Estás seguro de que quieres aceptar este ${mensaje}?`)) {
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`${tipo === 'contratacion' ? 'Trabajo' : 'Mentoría'} aceptado con éxito`);
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al procesar la solicitud');
+        });
+    }
+}
+
+function rechazarTrabajo(trabajoId, tipo) {
+    const url = tipo === 'contratacion' ? `/rechazar_trabajo/${trabajoId}` : `/rechazar_mentoria/${trabajoId}`;
+    const mensaje = tipo === 'contratacion' ? 'trabajo' : 'mentoría';
+    
+    if (confirm(`¿Estás seguro de que quieres rechazar este ${mensaje}?`)) {
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`${tipo === 'contratacion' ? 'Trabajo' : 'Mentoría'} rechazado`);
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al procesar la solicitud');
+        });
+    }
+}
     </script>
 </body>
 </html>

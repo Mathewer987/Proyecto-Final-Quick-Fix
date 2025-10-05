@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oportunidades de Mentoría - QuickFix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Oportunidades.css') }}">
+</head>
+
+    <!-- MODAL DE PERFIL DEL MENTOR -->
+    <div class="modal-perfil-overlay" id="modalPerfilMentor">
+        <div class="modal-perfil-content">
+            <div class="modal-perfil-header">
+                <div class="perfil-info">
+                    <h2 id="perfilNombreMentor">Nombre del Mentor</h2>
+                    <div class="perfil-badge">💡 Mentor Disponible</div>
+                    <div class="perfil-especialidad" id="perfilEspecialidadMentor">Especialidad Principal</div>
+                    <div class="perfil-rating">
+                        <div class="stars" id="perfilRatingMentor">
+                            <!-- Estrellas se generan dinámicamente -->
+                        </div>
+                        <span class="reviews" id="perfilReviewsMentor">(0 reseñas)</span>
+                    </div>
+                </div>
+                <button class="close-perfil-modal" onclick="cerrarModalPerfilMentor()">&times;</button>
+            </div>
+            
+            <div class="modal-perfil-body">
+                <div class="perfil-section">
+                    <h3>Especialidades</h3>
+                    <div class="especialidades-list" id="perfilEspecialidadesMentor">
+                        <!-- Especialidades se generan dinámicamente -->
+                    </div>
+                </div>
+                
+                <div class="perfil-section">
+                    <h3>Información del Mentor</h3>
+                    <div class="perfil-details">
+                        <div class="detail-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span class="label">Ubicación:</span>
+                            <span class="value" id="perfilUbicacionMentor">No disponible</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-briefcase"></i>
+                            <span class="label">Experiencia:</span>
+                            <span class="value" id="perfilExperienciaMentor">No especificada</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-star"></i>
+                            <span class="label">Calificación:</span>
+                            <span class="value" id="perfilCalificacionMentor">Sin calificaciones</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-handshake"></i>
+                            <span class="label">Mentorías:</span>
+                            <span class="value" id="perfilMentoriasMentor">Disponible</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="perfil-section">
+                    <h3>Sobre el Mentor</h3>
+                    <div class="perfil-bio" id="perfilBioMentor">
+                        Profesional experimentado que se ha ofrecido voluntariamente como mentor para guiar a nuevos talentos en el sector. Comprometido con el desarrollo profesional de la comunidad.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-perfil-footer">
+                <button class="btn-perfil btn-solicitar-mentoria" onclick="solicitarMentoriaDesdePerfil()">
+                    <i class="fas fa-handshake"></i> Solicitar Mentoría
+                </button>
+            </div>
+        </div>
+    </div>
+<body>
+    <div class="background-lines">
+        <div class="line line-1"></div>
+        <div class="line line-2"></div>
+        <div class="line line-3"></div>
+        <div class="line line-4"></div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <div class="logo-container">
+                <div class="logo">Quick<span>Fix</span></div>
+                <a href="{{ url_for('home') }}" class="back-button"><i class="fas fa-arrow-left"></i> Volver al Inicio</a>
+            </div>
+            <nav class="nav">
+                <a href="{{ url_for('home') }}" class="nav-item">Inicio</a>
+                <a href="/oportunidades" class="nav-item active">Oportunidades</a>
+                <a href="/capacitaciones" class="nav-item">Capacitaciones</a>
+                <a href="#" class="nav-item">Mi Progreso</a>
+                <a class="nav-item" href="{{ url_for('logout') }}"><i class="fas fa-user"></i> Cerrar Sesión</a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Oportunidades de Mentoría</h1>
+                <p>Conecta con trabajadores experimentados dispuestos a guiarte en tu desarrollo profesional</p>
+            </div>
+
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar mentores por especialidad..." id="searchInput">
+                    <button class="search-button" onclick="filtrarMentores()">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+                
+                <div class="filter-section">
+                    <div class="filter-title">Filtrar por:</div>
+                    <div class="filter-options">
+                        <select class="filter-select" id="especialidadFilter">
+                            <option value="">Todas las especialidades</option>
+                            <option value="Electricista">Electricista</option>
+                            <option value="Plomero">Plomero</option>
+                            <option value="Carpintero">Carpintero</option>
+                            <option value="Pintor">Pintor</option>
+                            <option value="Albañil">Albañil</option>
+                        </select>
+                        
+                        <select class="filter-select" id="experienciaFilter">
+                            <option value="">Experiencia</option>
+                            <option value="alta">+5 años</option>
+                            <option value="media">2-5 años</option>
+                            <option value="baja">0-2 años</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-container">
+                <div class="results-header">
+                    <h2>Mentores Disponibles <span class="mentor-badge">{{ mentores|length }} mentores</span></h2>
+                    <div class="results-info">
+                        <i class="fas fa-info-circle"></i>
+                        Los mentores son trabajadores que se ofrecieron voluntariamente a ayudar
+                    </div>
+                </div>
+                
+                <div class="mentores-list">
+                    {% if mentores %}
+                        {% for mentor in mentores %}
+                        <div class="mentor-card">
+                            <div class="mentor-badge-mentor">Mentor</div>
+                            
+                            <div class="card-image">
+                                {% if mentor.get('foto') %}
+                                    <img src="{{ mentor.foto }}" alt="Mentor">
+                                {% else %}
+                                    <div class="no-image">
+                                        <i class="fas fa-user-tie fa-2x"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="card-content">
+                                <h3>{{ mentor.nombre }} {{ mentor.apellido }}</h3>
+                                <div class="card-rating">
+                                    {% for i in range(5) %}
+                                        {% if i < mentor.rating|int %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            {% if i < mentor.rating %}
+                                                <i class="fas fa-star-half-alt"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span>({{ mentor.reseñas }} reseñas)</span>
+                                </div>
+                                
+                                <div class="card-specialty">
+                                    <i class="fas fa-wrench"></i> {{ mentor.especialidad_principal }}
+                                    {% if mentor.especialidades|length > 1 %}
+                                    <div class="more-specialties">
+                                        +{{ mentor.especialidades|length - 1 }} especialidades más
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- DIV OCULTO CON TODAS LAS ESPECIALIDADES PARA BÚSQUEDA -->
+                                <div class="all-specialties" style="display: none;">
+                                    {% for especialidad in mentor.especialidades %}
+                                        {{ especialidad }}{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                </div>
+                                
+                                <div class="card-location">
+                                    <i class="fas fa-map-marker-alt"></i> {{ mentor.ubicacion }}
+                                </div>
+                                
+                                <div class="card-experience">
+                                    <i class="fas fa-briefcase"></i> Experiencia: {{ mentor.experiencia }}
+                                </div>
+                                
+                                <div class="card-description">
+                                    <p>Trabajador experimentado dispuesto a compartir sus conocimientos y guiarte en tu desarrollo profesional.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="card-actions">
+                                <button class="action-button view-profile" onclick="verPerfilMentor('{{ mentor.id }}')">
+                                    <i class="fas fa-eye"></i> Ver Perfil
+                                </button>
+                                <button class="action-button request-mentorship" onclick="solicitarMentoria('{{ mentor.id }}', '{{ mentor.nombre }} {{ mentor.apellido }}', '{{ mentor.especialidades | join(",") }}')">
+                                    <i class="fas fa-handshake"></i> Solicitar Mentoría
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-results">
+                            <i class="fas fa-users-slash"></i>
+                            <h3>No hay mentores disponibles en este momento</h3>
+                            <p>Vuelve a revisar más tarde o completa tu perfil para recibir recomendaciones.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL DE SOLICITUD DE MENTORÍA -->
+    <div class="modal-overlay" id="modalMentoria">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTituloMentoria">Solicitar Mentoría a </h2>
+                <button class="close-modal" onclick="cerrarModalMentoria()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formMentoria">
+                    <input type="hidden" id="mentorId" name="mentorId">
+                    
+                    <div class="form-group">
+                        <label for="areaInteres">Área de interés principal</label>
+                        <select id="areaInteres" name="areaInteres" required>
+                            <option value="">Selecciona un área de interés</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="objetivo">Objetivos de aprendizaje</label>
+                        <textarea id="objetivo" name="objetivo" placeholder="Describe qué te gustaría aprender, tus metas profesionales, áreas donde necesitas ayuda..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+    <label for="disponibilidad">Tu disponibilidad</label>
+    <select id="disponibilidad" name="disponibilidad" required>
+        <option value="">Selecciona tu disponibilidad</option>
+        <option value="mañanas">Mañanas (8:00 - 12:00)</option>
+        <option value="tardes">Tardes (14:00 - 18:00)</option>
+        <option value="noches">Noches (19:00 - 22:00)</option>
+        <option value="fines_semana">Fines de semana</option>
+        <option value="flexible">Horario flexible</option>
+        <option value="personalizado">Horario personalizado (especificar en objetivos)</option>
+    </select>
+</div>
+                    
+                    <div class="form-info">
+                        <i class="fas fa-info-circle"></i>
+                        El mentor revisará tu solicitud y te contactará si acepta ser tu guía.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="cerrarModalMentoria()">Cancelar</button>
+                <button class="btn btn-submit" onclick="enviarSolicitudMentoria()">Enviar Solicitud</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let mentorActual = null;
+        
+        function filtrarMentores() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const especialidad = document.getElementById('especialidadFilter').value;
+            const cards = document.querySelectorAll('.mentor-card');
+            
+            cards.forEach(card => {
+                const nombre = card.querySelector('h3').textContent.toLowerCase();
+                const todasEspecialidades = card.querySelector('.all-specialties').textContent.toLowerCase();
+                
+                const coincideTexto = nombre.includes(searchText) || todasEspecialidades.includes(searchText);
+                const coincideEspecialidad = !especialidad || todasEspecialidades.includes(especialidad.toLowerCase());
+                
+                card.style.display = (coincideTexto && coincideEspecialidad) ? 'flex' : 'none';
+            });
+        }
+        
+        function verPerfilMentor(mentorId) {
+    // Buscar los datos del mentor en la lista actual
+    const mentorCard = document.querySelector(`button[onclick*="verPerfilMentor('${mentorId}')"]`).closest('.mentor-card');
+    
+    if (mentorCard) {
+        const nombre = mentorCard.querySelector('h3').textContent;
+        const especialidadPrincipal = mentorCard.querySelector('.card-specialty').textContent.trim().replace('🔧 ', '');
+        const rating = mentorCard.querySelector('.card-rating');
+        const ubicacion = mentorCard.querySelector('.card-location').textContent.trim().replace('📍 ', '');
+        const experiencia = mentorCard.querySelector('.card-experience').textContent.trim().replace('💼 ', '');
+        
+        // Obtener todas las especialidades
+        const todasEspecialidades = mentorCard.querySelector('.all-specialties').textContent.split(',');
+        
+        // Llenar el modal con los datos
+        document.getElementById('perfilNombreMentor').textContent = nombre;
+        document.getElementById('perfilEspecialidadMentor').textContent = especialidadPrincipal;
+        document.getElementById('perfilUbicacionMentor').textContent = ubicacion;
+        document.getElementById('perfilExperienciaMentor').textContent = experiencia;
+        
+        // Generar estrellas de rating
+        const ratingStars = rating.innerHTML;
+        document.getElementById('perfilRatingMentor').innerHTML = ratingStars;
+        
+        // Actualizar texto de reseñas
+        const reviewsText = rating.querySelector('span').textContent;
+        document.getElementById('perfilReviewsMentor').textContent = reviewsText;
+        
+        // Calificación numérica
+        const calificacion = `${mentorCard.querySelector('.card-rating').childElementCount - 1}/5`;
+        document.getElementById('perfilCalificacionMentor').textContent = calificacion;
+        
+        // Generar lista de especialidades
+        const especialidadesContainer = document.getElementById('perfilEspecialidadesMentor');
+        especialidadesContainer.innerHTML = '';
+        todasEspecialidades.forEach(especialidad => {
+            if (especialidad.trim()) {
+                const tag = document.createElement('div');
+                tag.className = 'especialidad-tag';
+                tag.textContent = especialidad.trim();
+                especialidadesContainer.appendChild(tag);
+            }
+        });
+        
+        // Mostrar el modal
+        document.getElementById('modalPerfilMentor').classList.add('active');
+        
+        // Guardar el ID del mentor para usar en el botón
+        document.getElementById('modalPerfilMentor').dataset.mentorId = mentorId;
+        document.getElementById('modalPerfilMentor').dataset.mentorNombre = nombre;
+        document.getElementById('modalPerfilMentor').dataset.mentorEspecialidades = todasEspecialidades.join(',');
+    }
+}
+
+function cerrarModalPerfilMentor() {
+    document.getElementById('modalPerfilMentor').classList.remove('active');
+}
+
+function solicitarMentoriaDesdePerfil() {
+    const mentorId = document.getElementById('modalPerfilMentor').dataset.mentorId;
+    const nombreMentor = document.getElementById('modalPerfilMentor').dataset.mentorNombre;
+    const especialidades = document.getElementById('modalPerfilMentor').dataset.mentorEspecialidades;
+    
+    // Cerrar modal de perfil y abrir modal de mentoría
+    cerrarModalPerfilMentor();
+    solicitarMentoria(mentorId, nombreMentor, especialidades);
+}
+
+// Cerrar modal al hacer clic fuera del contenido
+document.getElementById('modalPerfilMentor').addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarModalPerfilMentor();
+    }
+});
+        
+        function solicitarMentoria(mentorId, nombreMentor, especialidadesStr) {
+            const especialidades = especialidadesStr.split(',').filter(e => e.trim() !== '');
+            
+            mentorActual = {
+                id: mentorId,
+                nombre: nombreMentor,
+                especialidades: especialidades
+            };
+            
+            document.getElementById('modalTituloMentoria').textContent = `Solicitar Mentoría a ${nombreMentor}`;
+            document.getElementById('mentorId').value = mentorId;
+            
+            // Llenar áreas de interés
+            const areaInteresSelect = document.getElementById('areaInteres');
+            areaInteresSelect.innerHTML = '<option value="">Selecciona un área de interés</option>';
+            
+            especialidades.forEach(especialidad => {
+                const option = document.createElement('option');
+                option.value = especialidad;
+                option.textContent = especialidad;
+                areaInteresSelect.appendChild(option);
+            });
+            
+            // Limpiar formulario
+            document.getElementById('objetivo').value = '';
+            document.getElementById('disponibilidad').value = '';
+            
+            // Mostrar modal
+            document.getElementById('modalMentoria').classList.add('active');
+        }
+        
+        function cerrarModalMentoria() {
+            document.getElementById('modalMentoria').classList.remove('active');
+        }
+        
+        function enviarSolicitudMentoria() {
+            const objetivo = document.getElementById('objetivo').value.trim();
+            const disponibilidad = document.getElementById('disponibilidad').value.trim();
+            const areaInteres = document.getElementById('areaInteres').value;
+            
+            if (!objetivo || !disponibilidad || !areaInteres) {
+                alert('Por favor, complete todos los campos obligatorios.');
+                return;
+            }
+            
+            const datosMentoria = {
+                mentorId: mentorActual.id,
+                objetivo: objetivo,
+                disponibilidad: disponibilidad,
+                areaInteres: areaInteres
+            };
+            
+            fetch('/solicitar_mentoria', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datosMentoria)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Solicitud de mentoría enviada con éxito. El mentor será notificado.');
+                    cerrarModalMentoria();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al enviar la solicitud. Por favor, intenta nuevamente.');
+            });
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('searchInput').addEventListener('input', filtrarMentores);
+            document.querySelectorAll('.filter-select').forEach(select => {
+                select.addEventListener('change', filtrarMentores);
+            });
+            
+            document.getElementById('modalMentoria').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    cerrarModalMentoria();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

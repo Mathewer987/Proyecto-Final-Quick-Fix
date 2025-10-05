@@ -395,3 +395,315 @@ body {
     }
 }
 
+/* Estilos para las secciones separadas */
+.seccion-solicitudes {
+    margin-bottom: 40px;
+}
+
+.seccion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #eaeaea;
+}
+
+.seccion-header h3 {
+    color: var(--dark-color);
+    font-size: 20px;
+    margin: 0;
+}
+
+.contador-solicitudes {
+    background: var(--primary-color);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.count-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.count-badge.contratacion {
+    background: #28a745;
+    color: white;
+}
+
+.count-badge.mentoria {
+    background: #667eea;
+    color: white;
+}
+
+/* Badges de tipo en las tarjetas */
+/* Badges de tipo en las tarjetas */
+/* Badges de tipo en las tarjetas */
+.tipo-badge {
+    position: absolute;
+    top: 15px;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tipo-contratacion {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    left: 15px;
+}
+
+.tipo-mentoria {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    right: 15px;
+}
+
+/* Ajustar el badge de urgente para que no se superponga */
+.job-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 15px;
+    font-size: 11px;
+    font-weight: 600;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+        /* MODAL DETALLES MENTORÍA */
+        .modal-detalles-mentoria-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1002;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+        
+        .modal-detalles-mentoria-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-detalles-mentoria-content {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transform: translateY(-50px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-detalles-mentoria-overlay.active .modal-detalles-mentoria-content {
+            transform: translateY(0);
+        }
+        
+        .modal-detalles-mentoria-header {
+            padding: 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .detalles-mentoria-info h2 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .detalles-mentoria-aprendiz {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .detalles-mentoria-estado {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .close-detalles-mentoria-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: white;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+            padding: 5px;
+        }
+        
+        .close-detalles-mentoria-modal:hover {
+            opacity: 1;
+        }
+        
+        .modal-detalles-mentoria-body {
+            padding: 30px;
+        }
+        
+        .detalles-mentoria-section {
+            margin-bottom: 25px;
+        }
+        
+        .detalles-mentoria-section h3 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .detalles-mentoria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .detalle-mentoria-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .detalle-mentoria-item i {
+            color: #667eea;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .detalle-mentoria-item .label {
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 140px;
+        }
+        
+        .detalle-mentoria-item .value {
+            color: #5a6c7d;
+            flex: 1;
+        }
+        
+        .objetivos-content, .disponibilidad-content {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            line-height: 1.6;
+            color: #5a6c7d;
+        }
+        
+        .disponibilidad-content {
+            border-left-color: #ff9800;
+        }
+        
+        .modal-detalles-mentoria-footer {
+            padding: 20px 30px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        
+        .btn-detalles-mentoria {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-aceptar-mentoria-detalles {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-aceptar-mentoria-detalles:hover {
+            background: #218838;
+        }
+        
+        .btn-rechazar-mentoria-detalles {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-rechazar-mentoria-detalles:hover {
+            background: #c82333;
+        }
+
+/* Para contrataciones, mover el badge urgente si hay badge de tipo */
+.job-card[data-tipo="contratacion"] .job-badge {
+    right: auto;
+    left: 120px; /* Ajusta según el ancho de tu badge de tipo */
+}
+
+/* Para mentorías, mover el badge urgente si hay badge de tipo */
+.job-card[data-tipo="mentoria"] .job-badge {
+    right: 120px; /* Ajusta según el ancho de tu badge de tipo */
+    left: auto;
+}
+
+.no-solicitudes {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-light);
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+    border: 2px dashed #dee2e6;
+}
+
+.no-solicitudes i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    color: #adb5bd;
+}
+
+.no-solicitudes h3 {
+    margin-bottom: 10px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.no-solicitudes p {
+    margin-bottom: 0;
+}
+

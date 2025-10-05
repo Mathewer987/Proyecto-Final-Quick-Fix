@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Capacitaciones - QuickFix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Capacitaciones.css') }}">
+</head>
+<body>
+    <div class="background-lines">
+        <div class="line line-1"></div>
+        <div class="line line-2"></div>
+        <div class="line line-3"></div>
+        <div class="line line-4"></div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <div class="logo-container">
+                <div class="logo">Quick<span>Fix</span></div>
+                <a href="{{ url_for('home') }}" class="back-button"><i class="fas fa-arrow-left"></i> Volver al Inicio</a>
+            </div>
+            <nav class="nav">
+                <a href="{{ url_for('home') }}" class="nav-item">Inicio</a>
+                <a href="/oportunidades" class="nav-item">Oportunidades</a>
+                <a href="/capacitaciones" class="nav-item active">Mis Capacitaciones</a>
+                <a href="#" class="nav-item">Mi Progreso</a>
+                <a class="nav-item" href="{{ url_for('logout') }}"><i class="fas fa-user"></i> Cerrar Sesión</a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Mis Capacitaciones</h1>
+                <p>Gestiona y realiza un seguimiento de tus mentorías activas y completadas.</p>
+            </div>
+
+            <!-- SECCIÓN MENTORÍAS ACTIVAS -->
+            <div class="seccion-capacitaciones">
+                <div class="seccion-header">
+                    <h2>Mentorías en proceso</h2>
+                    <span class="contador-badge">{{ mentorias_activas|length }} en progreso</span>
+                </div>
+                
+                {% if mentorias_activas %}
+                <div class="capacitaciones-grid">
+                    {% for mentoria in mentorias_activas %}
+                    <div class="capacitacion-card" data-tipo="activa">
+                        <div class="capacitacion-header">
+                            <h3>{{ mentoria.area_interes }}</h3>
+                            <span class="estado-badge estado-activa">En Progreso</span>
+                        </div>
+
+                        <div class="capacitacion-info">
+                            <div class="info-group">
+                                <h4>Información del Mentor</h4>
+                                <div class="info-item">
+                                    <span class="info-label">Mentor:</span>
+                                    <span class="info-value">{{ mentoria.mentor_nombre }}</span>
+                                </div>
+                            </div>
+
+                            <div class="info-group">
+                                <h4>Detalles de la Mentoría</h4>
+                                <div class="info-item">
+                                    <span class="info-label">Área:</span>
+                                    <span class="info-value">{{ mentoria.area_interes }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Iniciada:</span>
+                                    <span class="info-value">{{ mentoria.fecha_solicitud.strftime('%d/%m/%Y') }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Tu disponibilidad:</span>
+                                    <span class="info-value">{{ mentoria.disponibilidad }}</span>
+                                </div>
+                            </div>
+
+                            <div class="info-group">
+                                <h4>Tus Objetivos</h4>
+                                <p class="objetivos">{{ mentoria.objetivo }}</p>
+                            </div>
+
+                            {% if mentoria.progreso %}
+                            <div class="info-group">
+                                <h4>Progreso Actual</h4>
+                                <div class="progreso-container">
+                                    <div class="progreso-bar">
+                                        <div class="progreso-fill" style="width: {{ mentoria.progreso }}%"></div>
+                                    </div>
+                                    <span class="progreso-text">{{ mentoria.progreso }}% completado</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                                                <!-- Botones de acción para mentorías activas -->
+                        <div class="capacitacion-actions">
+                            <button class="btn btn-contact" onclick="contactarMentor('{{ mentoria.mentor_id }}')">
+                                <i class="fas fa-comments"></i> Contactar Mentor
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-section">
+                    <i class="fas fa-rocket"></i>
+                    <h3>No tienes mentorías activas</h3>
+                    <p>Cuando un mentor acepte tu solicitud, aparecerá aquí.</p>
+                    <a href="/oportunidades" class="btn btn-primary">Buscar Oportunidades</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- SECCIÓN MENTORÍAS COMPLETADAS -->
+            <div class="seccion-capacitaciones">
+                <div class="seccion-header">
+                    <h2> Mentorías Hechas</h2>
+                    <span class="contador-badge">{{ mentorias_completadas|length }} finalizadas</span>
+                </div>
+                
+                {% if mentorias_completadas %}
+                <div class="capacitaciones-grid">
+                    {% for mentoria in mentorias_completadas %}
+                    <div class="capacitacion-card" data-tipo="completada">
+                        <div class="capacitacion-header">
+                            <h3>{{ mentoria.area_interes }}</h3>
+                            <span class="estado-badge estado-completada">Completada</span>
+                        </div>
+
+                        <div class="capacitacion-info">
+                            <div class="info-group">
+                                <h4>Información del Mentor</h4>
+                                <div class="info-item">
+                                    <span class="info-label">Mentor:</span>
+                                    <span class="info-value">{{ mentoria.mentor_nombre }}</span>
+                                </div>
+                            </div>
+
+                            <div class="info-group">
+                                <h4>Detalles de la Mentoría</h4>
+                                <div class="info-item">
+                                    <span class="info-label">Área:</span>
+                                    <span class="info-value">{{ mentoria.area_interes }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Iniciada:</span>
+                                    <span class="info-value">{{ mentoria.fecha_solicitud.strftime('%d/%m/%Y') }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Completada:</span>
+                                    <span class="info-value">{{ mentoria.fecha_actualizacion.strftime('%d/%m/%Y') }}</span>
+                                </div>
+                            </div>
+
+                            <div class="info-group">
+                                <h4>Logros Obtenidos</h4>
+                                <p class="objetivos">{{ mentoria.objetivo }}</p>
+                            </div>
+
+                            {% if mentoria.calificacion %}
+                            <div class="info-group">
+                                <h4>Tu Calificación al Mentor</h4>
+                                <div class="calificacion">
+                                    {% for i in range(5) %}
+                                        {% if i < mentoria.calificacion %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="calificacion-text">({{ mentoria.calificacion }}/5)</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Botones de acción para mentorías completadas -->
+                                                <!-- Botones de acción para mentorías completadas -->
+                        <div class="capacitacion-actions">
+                            <button class="btn btn-contact" onclick="contactarMentor('{{ mentoria.mentor_id }}')">
+                                <i class="fas fa-comments"></i> Contactar Mentor
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-section">
+                    <i class="fas fa-trophy"></i>
+                    <h3>No tienes mentorías completadas</h3>
+                    <p>Cuando completes una mentoría, aparecerá aquí con tus logros.</p>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function contactarMentor(mentorId) {
+            alert('Funcionalidad de contacto con el mentor en desarrollo para ID: ' + mentorId);
+        }
+
+        function actualizarProgreso(mentoriaId) {
+            const nuevoProgreso = prompt('Ingresa tu progreso actual (0-100%):');
+            if (nuevoProgreso !== null && nuevoProgreso !== '') {
+                const progreso = parseInt(nuevoProgreso);
+                if (progreso >= 0 && progreso <= 100) {
+                    fetch(`/actualizar_progreso/${mentoriaId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ progreso: progreso })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Progreso actualizado correctamente');
+                            location.reload();
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al actualizar el progreso');
+                    });
+                } else {
+                    alert('Por favor ingresa un valor entre 0 y 100');
+                }
+            }
+        }
+
+        function finalizarMentoria(mentoriaId) {
+            if (confirm('¿Estás seguro de que deseas marcar esta mentoría como completada?')) {
+                fetch(`/finalizar_mentoria_desempleado/${mentoriaId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Mentoría marcada como completada');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al procesar la solicitud');
+                });
+            }
+        }
+
+        function calificarMentor(mentoriaId, mentorId) {
+            const calificacion = prompt('Califica al mentor (1-5 estrellas):');
+            if (calificacion !== null && calificacion !== '') {
+                const stars = parseInt(calificacion);
+                if (stars >= 1 && stars <= 5) {
+                    fetch(`/calificar_mentor/${mentoriaId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ calificacion: stars, mentorId: mentorId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Calificación enviada correctamente');
+                            location.reload();
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al enviar la calificación');
+                    });
+                } else {
+                    alert('Por favor ingresa un valor entre 1 y 5');
+                }
+            }
+        }
+
+        function generarCertificado(mentoriaId) {
+            alert('Funcionalidad de generación de certificado en desarrollo para mentoría ID: ' + mentoriaId);
+        }
+    </script>
+</body>
+</html>

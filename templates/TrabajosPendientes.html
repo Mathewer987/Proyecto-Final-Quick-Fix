@@ -51,87 +51,189 @@
             </nav>
         </header>
 
-        <main class="main-content">
+                <main class="main-content">
             <div class="page-header">
                 <h1>Trabajos Pendientes</h1>
-                <p>Estos son los trabajos que has aceptado y debes completar.</p>
+                <p>Gestiona tus contrataciones de clientes y mentorías activas.</p>
             </div>
 
-            {% if trabajos %}
-            <div class="trabajos-grid">
-                {% for trabajo in trabajos %}
-                <div class="trabajo-card">
-                    <div class="trabajo-header">
-                        <h3>{{ trabajo.especializacion }}</h3>
-                        <span class="estado-badge estado-pendiente">Pendiente</span>
-                    </div>
-
-                    <div class="trabajo-info">
-                        <div class="info-group">
-                            <h4>Información del Cliente</h4>
-                            <div class="info-item">
-                                <span class="info-label">Nombre:</span>
-                                <span class="info-value">{{ trabajo.cliente_nombre }}</span>
-                            </div>
-                        </div>
-
-                        <div class="info-group">
-                            <h4>Detalles del Trabajo</h4>
-                            <div class="info-item">
-                                <span class="info-label">Fecha acordada:</span>
-                                <span class="info-value">{{ trabajo.fecha_trabajo_propuesta }}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Ubicación:</span>
-                                <span class="info-value">{{ trabajo.ubicacion }}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Método de pago:</span>
-                                <span class="info-value">{{ trabajo.metodo_pago }}</span>
-                            </div>
-                        </div>
-
-                        <div class="info-group">
-                            <h4>Especificaciones</h4>
-                            <p class="especificaciones">{{ trabajo.especificaciones }}</p>
-                        </div>
-
-                        {% if trabajo.especificaciones_trabajador %}
-                        <div class="info-group">
-                            <h4>Tus comentarios anteriores</h4>
-                            <p class="comentarios-trabajador">{{ trabajo.especificaciones_trabajador }}</p>
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Botones de acción -->
-                    <div class="trabajo-actions">
-                        <button class="btn btn-complete" onclick="finalizarTrabajo('{{ trabajo.id }}')">
-                            <i class="fas fa-check-circle"></i> Finalizado
-                        </button>
-                        <button class="btn btn-contact" onclick="contactarCliente('{{ trabajo.cliente_id }}')">
-                            <i class="fas fa-envelope"></i> Contactar Cliente
-                        </button>
-                        <button class="btn btn-cancel-job" onclick="abrirModalCancelacion('{{ trabajo.id }}')">
-                            <i class="fas fa-times-circle"></i> Cancelar Trabajo
-                        </button>
-                    </div>
-
+            <!-- SECCIÓN CONTRATACIONES DE CLIENTES -->
+            <div class="seccion-trabajos">
+                <div class="seccion-header">
+                    <h2>Contrataciones de Clientes</h2>
+                    <span class="contador-badge">{{ trabajos_contrataciones|length }} pendientes</span>
                 </div>
-                {% endfor %}
+                
+                {% if trabajos_contrataciones %}
+                <div class="trabajos-grid">
+                    {% for trabajo in trabajos_contrataciones %}
+                    <div class="trabajo-card" data-tipo="contratacion">
+                        <div class="tipo-badge tipo-contratacion">💰 Contratación</div>
+                        
+                        <div class="trabajo-header">
+                            <h3>{{ trabajo.especializacion }}</h3>
+                            <span class="estado-badge estado-pendiente">Pendiente</span>
+                        </div>
+
+                        <div class="trabajo-info">
+                            <div class="info-group">
+                                <h4>Información del Cliente</h4>
+                                <div class="info-item">
+                                    <span class="info-label">Cliente:</span>
+                                    <span class="info-value">{{ trabajo.cliente_nombre }}</span>
+                                </div>
+                            </div>
+
+                            <div class="info-group">
+                                <h4>Detalles del Trabajo</h4>
+                                <div class="info-item">
+                                    <span class="info-label">Fecha acordada:</span>
+                                    <span class="info-value">{{ trabajo.fecha_trabajo_propuesta }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Ubicación:</span>
+                                    <span class="info-value">{{ trabajo.ubicacion }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Método de pago:</span>
+                                    <span class="info-value">{{ trabajo.metodo_pago }}</span>
+                                </div>
+                            </div>
+
+                            <div class="info-group">
+                                <h4>Especificaciones</h4>
+                                <p class="especificaciones">{{ trabajo.especificaciones }}</p>
+                            </div>
+
+                            {% if trabajo.especificaciones_trabajador %}
+                            <div class="info-group">
+                                <h4>Tus comentarios anteriores</h4>
+                                <p class="comentarios-trabajador">{{ trabajo.especificaciones_trabajador }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="trabajo-actions">
+                            <button class="btn btn-complete" onclick="finalizarTrabajo('{{ trabajo.id }}', 'contratacion')">
+                                <i class="fas fa-check-circle"></i> Finalizado
+                            </button>
+                            <button class="btn btn-contact" onclick="contactarCliente('{{ trabajo.cliente_id }}')">
+                                <i class="fas fa-envelope"></i> Contactar Cliente
+                            </button>
+                            <button class="btn btn-cancel-job" onclick="abrirModalCancelacion('{{ trabajo.id }}', 'contratacion')">
+                                <i class="fas fa-times-circle"></i> Cancelar Trabajo
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-section">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>No tienes contrataciones pendientes</h3>
+                    <p>Cuando aceptes trabajos de clientes, aparecerán aquí.</p>
+                </div>
+                {% endif %}
             </div>
-            {% else %}
-            <div class="empty-state">
-                <i class="fas fa-clipboard-check"></i>
-                <h3>No tienes trabajos pendientes</h3>
-                <p>Cuando aceptes trabajos, aparecerán aquí hasta que los marques como finalizados.</p>
-                <a href="/trabajos" class="btn btn-primary">Ver solicitudes disponibles</a>
+
+            <!-- SECCIÓN MENTORÍAS -->
+            <div class="seccion-trabajos">
+                <div class="seccion-header">
+                    <h2>Mentorías Activas</h2>
+                    <span class="contador-badge">{{ trabajos_mentorias|length }} activas</span>
+                </div>
+                
+                {% if trabajos_mentorias %}
+                <div class="trabajos-grid">
+                    {% for mentoria in trabajos_mentorias %}
+                    <div class="trabajo-card" data-tipo="mentoria">
+                        
+                        <div class="trabajo-header">
+                            <h3>Mentoría - {{ mentoria.area_interes }}</h3>
+                            <span class="estado-badge estado-mentoria">En Progreso</span>
+                        </div>
+
+                        <div class="trabajo-info">
+                            <div class="info-group">
+                                <h4>Información del Aprendiz</h4>
+                                <div class="info-item">
+                                    <span class="info-label">Aprendiz:</span>
+                                    <span class="info-value">{{ mentoria.desempleado_nombre }}</span>
+                                </div>
+                            </div>
+
+                            <div class="info-group">
+                                <h4>Detalles de la Mentoría</h4>
+                                <div class="info-item">
+                                    <span class="info-label">Área de interés:</span>
+                                    <span class="info-value">{{ mentoria.area_interes }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Disponibilidad:</span>
+                                    <span class="info-value">{{ mentoria.disponibilidad }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Iniciada el:</span>
+                                    <span class="info-value">{{ mentoria.fecha_solicitud.strftime('%d/%m/%Y') }}</span>
+                                </div>
+                            </div>
+
+                            <div class="info-group">
+                                <h4>Objetivos del Aprendiz</h4>
+                                <p class="especificaciones">{{ mentoria.objetivo }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Botones de acción para mentorías -->
+                        <div class="trabajo-actions">
+                            <button class="btn btn-complete" onclick="finalizarMentoriaTrabajador('{{ mentoria.id }}')">
+                                <i class="fas fa-graduation-cap"></i> Mentoría Completa
+                            </button>
+                            <button class="btn btn-contact" onclick="contactarAprendiz('{{ mentoria.desempleado_id }}')">
+                                <i class="fas fa-comments"></i> Contactar Aprendiz
+                            </button>
+                            <button class="btn btn-cancel-job" onclick="abrirModalCancelacionMentoria('{{ mentoria.id }}')">
+                                <i class="fas fa-times-circle"></i> Cancelar Mentoría
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-section">
+                    <i class="fas fa-users"></i>
+                    <h3>No tienes mentorías activas</h3>
+                    <p>Cuando aceptes solicitudes de mentoría, aparecerán aquí.</p>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
         </main>
     </div>
 
     <script>
+
+        function finalizarMentoriaTrabajador(mentoriaId) {
+    if (confirm('¿Estás seguro de que deseas marcar esta mentoría como completada?\n\nEl aprendiz recibirá una notificación.')) {
+        fetch(`/finalizar_mentoria/${mentoriaId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Mentoría marcada como completada. El aprendiz puede verla en sus capacitaciones completadas.');
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al procesar la solicitud');
+        });
+    }
+}
         function finalizarTrabajo(trabajoId) {
             if (confirm('¿Estás seguro de que deseas marcar este trabajo como finalizado?')) {
                 fetch(`/finalizar_trabajo/${trabajoId}`, {

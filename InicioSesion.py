@@ -87,10 +87,26 @@ def home():
     if session.get('user_type') == '2':
         try:
             trabajador_id = session.get('user_id')
+            
+            # Contar SOLICITUDES DE CLIENTES pendientes
             pendientes_ref = db.collection('PendClienteTrabajador')
-            query = pendientes_ref.where('profesional_id', '==', trabajador_id).where('estado', '==', 'pendiente')
-            docs = query.stream()
-            solicitudes_pendientes = sum(1 for _ in docs)
+            query_clientes = pendientes_ref.where('profesional_id', '==', trabajador_id).where('estado', '==', 'pendiente')
+            docs_clientes = query_clientes.stream()
+            count_clientes = sum(1 for _ in docs_clientes)
+            
+            # Contar SOLICITUDES DE MENTORÍA pendientes
+            mentorias_ref = db.collection('Mentorias')
+            query_mentorias = mentorias_ref.where('mentor_id', '==', trabajador_id).where('estado', '==', 'pendiente')
+            docs_mentorias = query_mentorias.stream()
+            count_mentorias = sum(1 for _ in docs_mentorias)
+            
+            # Sumar ambos tipos
+            solicitudes_pendientes = count_clientes + count_mentorias
+            
+            # (Opcional) Guardar los conteos separados si los necesitas después)
+            session['solicitudes_clientes'] = count_clientes
+            session['solicitudes_mentorias'] = count_mentorias
+            
         except Exception as e:
             print(f"Error al contar solicitudes pendientes: {str(e)}")
             solicitudes_pendientes = 0
@@ -163,6 +179,134 @@ def browser():
     
     return render_template('Browser.html', profesionales=profesionales)
 
+@app.route('/actualizar_progreso/<mentoria_id>', methods=['POST'])
+def actualizar_progreso(mentoria_id):
+    if not session.get('is_logged_in') or session.get('user_type') != '3':
+        return jsonify({'success': False, 'message': 'No autorizado'})
+    
+    try:
+        data = request.get_json()
+        progreso = data.get('progreso')
+        
+        if progreso is None or not (0 <= progreso <= 100):
+            return jsonify({'success': False, 'message': 'Progreso inválido'})
+        
+        mentoria_ref = db.collection('Mentorias').document(mentoria_id)
+        mentoria_ref.update({
+            'progreso': progreso,
+            'fecha_actualizacion': datetime.now()
+        })
+        
+        return jsonify({'success': True, 'message': 'Progreso actualizado correctamente'})
+        
+    except Exception as e:
+        print(f"Error al actualizar progreso: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error al actualizar el progreso'})
+
+@app.route('/finalizar_mentoria/<mentoria_id>', methods=['POST'])
+def finalizar_mentoria(mentoria_id):
+    if not session.get('is_logged_in') or session.get('user_type') != '2':
+        return jsonify({'success': False, 'message': 'No autorizado'})
+    
+    try:
+        mentoria_ref = db.collection('Mentorias').document(mentoria_id)
+        mentoria_ref.update({
+            'estado': 'completada',
+            'fecha_actualizacion': datetime.now(),
+            'completado_por': 'mentor',
+            'fecha_completacion': datetime.now()
+        })
+        
+        return jsonify({'success': True, 'message': 'Mentoría marcada como completada'})
+        
+    except Exception as e:
+        print(f"Error al finalizar mentoría: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error al procesar la solicitud'})
+
+@app.route('/calificar_mentor/<mentoria_id>', methods=['POST'])
+def calificar_mentor(mentoria_id):
+    if not session.get('is_logged_in') or session.get('user_type') != '3':
+        return jsonify({'success': False, 'message': 'No autorizado'})
+    
+    try:
+        data = request.get_json()
+        calificacion = data.get('calificacion')
+        mentor_id = data.get('mentorId')
+        
+        if not calificacion or not (1 <= calificacion <= 5):
+            return jsonify({'success': False, 'message': 'Calificación inválida'})
+        
+        # Actualizar la mentoría con la calificación
+        mentoria_ref = db.collection('Mentorias').document(mentoria_id)
+        mentoria_ref.update({
+            'calificacion': calificacion,
+            'fecha_calificacion': datetime.now()
+        })
+        
+        # Aquí podrías también actualizar el rating del mentor en su perfil
+        # trabajador_ref = db.collection('trabajadores').document(mentor_id)
+        # ... lógica para actualizar rating del mentor ...
+        
+        return jsonify({'success': True, 'message': 'Calificación enviada correctamente'})
+        
+    except Exception as e:
+        print(f"Error al calificar mentor: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error al enviar la calificación'})
+
+@app.route('/capacitaciones')
+def capacitaciones():
+    if not session.get('is_logged_in'):
+        flash('Debes iniciar sesión primero', 'warning')
+        return redirect(url_for('login'))
+    
+    if session.get('user_type') != '3':  # 3 = desempleado
+        flash('Solo los desempleados pueden acceder a capacitaciones', 'error')
+        return redirect(url_for('home'))
+    
+    try:
+        desempleado_id = session.get('user_id')
+        
+        # Obtener MENTORÍAS ACEPTADAS (activas)
+        mentorias_ref = db.collection('Mentorias')
+        query_activas = mentorias_ref.where('desempleado_id', '==', desempleado_id).where('estado', '==', 'aceptado')
+        docs_activas = query_activas.stream()
+        
+        mentorias_activas = []
+        for doc in docs_activas:
+            mentoria_data = doc.to_dict()
+            mentoria_data['id'] = doc.id
+            mentoria_data['tipo'] = 'activa'
+            mentorias_activas.append(mentoria_data)
+        
+        # Obtener MENTORÍAS COMPLETADAS (ya sea por mentor o por aprendiz)
+        query_completadas = mentorias_ref.where('desempleado_id', '==', desempleado_id).where('estado', '==', 'completada')
+        docs_completadas = query_completadas.stream()
+        
+        mentorias_completadas = []
+        for doc in docs_completadas:
+            mentoria_data = doc.to_dict()
+            mentoria_data['id'] = doc.id
+            mentoria_data['tipo'] = 'completada'
+            
+            # Agregar información sobre quién completó la mentoría
+            if 'completado_por' in mentoria_data:
+                mentoria_data['completado_por'] = mentoria_data['completado_por']
+            else:
+                mentoria_data['completado_por'] = 'sistema'
+                
+            mentorias_completadas.append(mentoria_data)
+        
+        return render_template('Capacitaciones.html', 
+                             mentorias_activas=mentorias_activas,
+                             mentorias_completadas=mentorias_completadas)
+        
+    except Exception as e:
+        print(f"Error al obtener capacitaciones: {str(e)}")
+        flash('Error al cargar las capacitaciones', 'error')
+        return render_template('Capacitaciones.html', 
+                             mentorias_activas=[],
+                             mentorias_completadas=[])
+
 @app.route('/trabajos')
 def trabajos():
     if not session.get('is_logged_in'):
@@ -175,22 +319,46 @@ def trabajos():
     
     try:
         trabajador_id = session.get('user_id')
+        
+        # SOLICITUDES DE TRABAJO PENDIENTES (clientes)
         pendientes_ref = db.collection('PendClienteTrabajador')
-        query = pendientes_ref.where('profesional_id', '==', trabajador_id).where('estado', '==', 'pendiente')
-        docs = query.stream()
+        query_trabajos = pendientes_ref.where('profesional_id', '==', trabajador_id).where('estado', '==', 'pendiente')
+        docs_trabajos = query_trabajos.stream()
         
         trabajos_pendientes = []
-        for doc in docs:
+        for doc in docs_trabajos:
             trabajo_data = doc.to_dict()
             trabajo_data['id'] = doc.id
+            trabajo_data['tipo'] = 'contratacion'
             trabajos_pendientes.append(trabajo_data)
+        
+        # SOLICITUDES DE MENTORÍA PENDIENTES (desempleados)
+        mentorias_ref = db.collection('Mentorias')
+        query_mentorias = mentorias_ref.where('mentor_id', '==', trabajador_id).where('estado', '==', 'pendiente')
+        docs_mentorias = query_mentorias.stream()
+        
+        mentorias_pendientes = []
+        for doc in docs_mentorias:
+            mentoria_data = doc.to_dict()
+            mentoria_data['id'] = doc.id
+            mentoria_data['tipo'] = 'mentoria'
+            mentorias_pendientes.append(mentoria_data)
+        
+        # Combinar ambas listas
+        todas_las_solicitudes = trabajos_pendientes + mentorias_pendientes
             
-        return render_template('AceptarTrabajos.html', trabajos=trabajos_pendientes)
+        return render_template('AceptarTrabajos.html', 
+                             trabajos=todas_las_solicitudes,
+                             trabajos_contrataciones=trabajos_pendientes,
+                             trabajos_mentorias=mentorias_pendientes)
         
     except Exception as e:
         print(f"Error al obtener trabajos pendientes: {str(e)}")
         flash('Error al cargar los trabajos pendientes', 'error')
-        return render_template('AceptarTrabajos.html', trabajos=[])
+        return render_template('AceptarTrabajos.html', 
+                             trabajos=[],
+                             trabajos_contrataciones=[],
+                             trabajos_mentorias=[])
 
 @app.route('/mis_solicitudes')
 def mis_solicitudes():
@@ -529,13 +697,13 @@ def trabajos_pendientes():
     try:
         trabajador_id = session.get('user_id')
         
-        # Obtener trabajos aceptados pero no finalizados
+        # Obtener TRABAJOS ACEPTADOS (contrataciones de clientes) - solo activos
         trabajos_ref = db.collection('PendClienteTrabajador')
-        query = trabajos_ref.where('profesional_id', '==', trabajador_id).where('estado', '==', 'aceptado')
-        docs = query.stream()
+        query_trabajos = trabajos_ref.where('profesional_id', '==', trabajador_id).where('estado', '==', 'aceptado')
+        docs_trabajos = query_trabajos.stream()
         
         trabajos_aceptados = []
-        for doc in docs:
+        for doc in docs_trabajos:
             trabajo_data = doc.to_dict()
             trabajo_data['id'] = doc.id
             
@@ -544,14 +712,212 @@ def trabajos_pendientes():
             finalizado_doc = finalizado_ref.get()
             
             if not finalizado_doc.exists:
+                trabajo_data['tipo'] = 'contratacion'
                 trabajos_aceptados.append(trabajo_data)
         
-        return render_template('TrabajosPendientes.html', trabajos=trabajos_aceptados)
+        # Obtener MENTORÍAS ACEPTADAS - solo las que están activas (no completadas)
+        mentorias_ref = db.collection('Mentorias')
+        query_mentorias = mentorias_ref.where('mentor_id', '==', trabajador_id).where('estado', '==', 'aceptado')
+        docs_mentorias = query_mentorias.stream()
+        
+        mentorias_activas = []
+        for doc in docs_mentorias:
+            mentoria_data = doc.to_dict()
+            mentoria_data['id'] = doc.id
+            mentoria_data['tipo'] = 'mentoria'
+            mentorias_activas.append(mentoria_data)
+        
+        # Combinar ambas listas
+        todos_los_trabajos = trabajos_aceptados + mentorias_activas
+        
+        return render_template('TrabajosPendientes.html', 
+                             trabajos=todos_los_trabajos,
+                             trabajos_contrataciones=trabajos_aceptados,
+                             trabajos_mentorias=mentorias_activas)
         
     except Exception as e:
         print(f"Error al obtener trabajos pendientes: {str(e)}")
         flash('Error al cargar los trabajos pendientes', 'error')
-        return render_template('TrabajosPendientes.html', trabajos=[])
+        return render_template('TrabajosPendientes.html', 
+                             trabajos=[],
+                             trabajos_contrataciones=[],
+                             trabajos_mentorias=[])
+
+@app.route('/historial_trabajos')
+def historial_trabajos():
+    if not session.get('is_logged_in'):
+        flash('Debes iniciar sesión primero', 'warning')
+        return redirect(url_for('login'))
+    
+    if session.get('user_type') != '2':
+        flash('Solo los trabajadores pueden acceder a esta página', 'error')
+        return redirect(url_for('home'))
+    
+    try:
+        trabajador_id = session.get('user_id')
+        
+        # Obtener TRABAJOS FINALIZADOS de clientes
+        trabajos_finalizados_ref = db.collection('TrabajosFinalizados')
+        query_trabajos = trabajos_finalizados_ref.where('profesional_id', '==', trabajador_id)
+        docs_trabajos = query_trabajos.stream()
+        
+        trabajos_completados = []
+        for doc in docs_trabajos:
+            trabajo_data = doc.to_dict()
+            trabajo_data['id'] = doc.id
+            trabajo_data['tipo'] = 'contratacion'
+            trabajos_completados.append(trabajo_data)
+        
+        # Obtener MENTORÍAS COMPLETADAS
+        mentorias_ref = db.collection('Mentorias')
+        query_mentorias = mentorias_ref.where('mentor_id', '==', trabajador_id).where('estado', '==', 'completada')
+        docs_mentorias = query_mentorias.stream()
+        
+        mentorias_completadas = []
+        for doc in docs_mentorias:
+            mentoria_data = doc.to_dict()
+            mentoria_data['id'] = doc.id
+            mentoria_data['tipo'] = 'mentoria'
+            mentorias_completadas.append(mentoria_data)
+        
+        return render_template('HistorialTrabajos.html', 
+                             trabajos_completados=trabajos_completados,
+                             mentorias_completadas=mentorias_completadas)
+        
+    except Exception as e:
+        print(f"Error al obtener historial de trabajos: {str(e)}")
+        flash('Error al cargar el historial de trabajos', 'error')
+        return render_template('HistorialTrabajos.html', 
+                             trabajos_completados=[],
+                             mentorias_completadas=[])
+
+@app.route('/oportunidades')
+def oportunidades():
+    if not session.get('is_logged_in'):
+        flash('Debes iniciar sesión primero', 'warning')
+        return redirect(url_for('login'))
+    
+    if session.get('user_type') != '3':  # 3 = desempleado
+        flash('Solo los desempleados pueden acceder a oportunidades', 'error')
+        return redirect(url_for('home'))
+    
+    try:
+        # Obtener trabajadores que son mentores
+        trabajadores_ref = db.collection('trabajadores')
+        query = trabajadores_ref.where('AyudarAOtros', '==', True)
+        docs = query.stream()
+        
+        mentores = []
+        for doc in docs:
+            trabajador_data = doc.to_dict()
+            trabajador_data['id'] = doc.id
+            
+            # Procesar especialidades (igual que en browser)
+            especialidades = []
+            campos_especialidad = [
+                'Albañil', 'Carpintero', 'Cerrajero', 'Electricista', 
+                'Fontanero_Plomero', 'Fumigador', 'Gasista_matriculado', 
+                'Herrero', 'InstaladorDeRedes_WiFi', 'Instalador_de_aires_acondicionados',
+                'Instalador_de_alarmas_cámaras_de_seguridad', 'Jardinero', 
+                'LavadoDeAlfombras_cortinas', 'Limpieza_de_tanques_de_agua',
+                'Limpieza_de_vidrios_en_altura', 'Mantenimiento_de_piletas',
+                'Paisajista', 'Personal_de_limpieza', 'Pintor', 
+                'Podador_de_árboles', 'Techista_Impermeabilizador',
+                'TécnicoDeComputadoras_laptops', 'TécnicoDeTelevisores_equiposelectrónicos',
+                'Técnico_de_celulares', 'Técnico_de_electrodomésticos', 'Técnico_de_impresoras'
+            ]
+            
+            for especialidad in campos_especialidad:
+                if trabajador_data.get(especialidad) == True:
+                    nombre_bonito = especialidad.replace('_', ' ').replace('De', ' de').title()
+                    especialidades.append(nombre_bonito)
+            
+            if not especialidades:
+                especialidades = ["Servicios generales"]
+            
+            trabajador_data['especialidades'] = especialidades
+            trabajador_data['especialidad_principal'] = especialidades[0] if especialidades else "Servicios generales"
+            
+            # Datos por defecto
+            if 'nombre' not in trabajador_data:
+                trabajador_data['nombre'] = 'Nombre no disponible'
+            if 'apellido' not in trabajador_data:
+                trabajador_data['apellido'] = ''
+            if 'rating' not in trabajador_data:
+                trabajador_data['rating'] = 0
+            if 'reseñas' not in trabajador_data:
+                trabajador_data['reseñas'] = 0
+            if 'ubicacion' not in trabajador_data:
+                trabajador_data['ubicacion'] = 'Ubicación no disponible'
+            if 'experiencia' not in trabajador_data:
+                trabajador_data['experiencia'] = 'Experiencia no especificada'
+            
+            mentores.append(trabajador_data)
+            
+    except Exception as e:
+        print(f"Error al obtener mentores: {str(e)}")
+        mentores = []
+        flash('Error al cargar las oportunidades de mentoría', 'error')
+    
+    return render_template('Oportunidades.html', mentores=mentores)
+
+@app.route('/solicitar_mentoria', methods=['POST'])
+def solicitar_mentoria():
+    if not session.get('is_logged_in') or session.get('user_type') != '3':
+        return jsonify({'success': False, 'message': 'No autorizado'})
+    
+    try:
+        data = request.get_json()
+        
+        mentor_id = data.get('mentorId')
+        objetivo = data.get('objetivo')
+        disponibilidad = data.get('disponibilidad')
+        area_interes = data.get('areaInteres')
+        
+        if not all([mentor_id, objetivo, disponibilidad, area_interes]):
+            return jsonify({'success': False, 'message': 'Faltan campos obligatorios'})
+        
+        desempleado_id = session.get('user_id')
+        desempleado_nombre = session.get('user_name', 'Desempleado')
+        
+        # Obtener datos del mentor
+        mentor_ref = db.collection('trabajadores').document(mentor_id)
+        mentor_doc = mentor_ref.get()
+        
+        if not mentor_doc.exists:
+            return jsonify({'success': False, 'message': 'Mentor no encontrado'})
+        
+        mentor_data = mentor_doc.to_dict()
+        mentor_nombre = f"{mentor_data.get('nombre', '')} {mentor_data.get('apellido', '')}".strip()
+        
+        # Crear solicitud de mentoría
+        mentoria_data = {
+            'desempleado_id': desempleado_id,
+            'desempleado_nombre': desempleado_nombre,
+            'mentor_id': mentor_id,
+            'mentor_nombre': mentor_nombre,
+            'area_interes': area_interes,
+            'objetivo': objetivo,
+            'disponibilidad': disponibilidad,
+            'estado': 'pendiente',
+            'fecha_solicitud': datetime.now(),
+            'fecha_actualizacion': datetime.now(),
+            'tipo': 'mentoria'
+        }
+        
+        # Guardar en colección de Mentorias
+        mentorias_ref = db.collection('Mentorias')
+        nueva_mentoria = mentorias_ref.add(mentoria_data)
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Solicitud de mentoría enviada con éxito',
+            'mentoria_id': nueva_mentoria[1].id
+        })
+        
+    except Exception as e:
+        print(f"Error al procesar solicitud de mentoría: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error al procesar la solicitud'})
 
 @app.route('/finalizar_trabajo/<trabajo_id>', methods=['POST'])
 def finalizar_trabajo(trabajo_id):
@@ -648,6 +1014,42 @@ def cancelar_trabajo(trabajo_id):
         
     except Exception as e:
         print(f"Error al cancelar trabajo: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error al procesar la solicitud'})
+
+@app.route('/aceptar_mentoria/<mentoria_id>', methods=['POST'])
+def aceptar_mentoria(mentoria_id):
+    if not session.get('is_logged_in') or session.get('user_type') != '2':
+        return jsonify({'success': False, 'message': 'No autorizado'})
+    
+    try:
+        mentoria_ref = db.collection('Mentorias').document(mentoria_id)
+        mentoria_ref.update({
+            'estado': 'aceptado',
+            'fecha_actualizacion': datetime.now()
+        })
+        
+        return jsonify({'success': True, 'message': 'Mentoría aceptada con éxito'})
+        
+    except Exception as e:
+        print(f"Error al aceptar mentoría: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error al procesar la solicitud'})
+
+@app.route('/rechazar_mentoria/<mentoria_id>', methods=['POST'])
+def rechazar_mentoria(mentoria_id):
+    if not session.get('is_logged_in') or session.get('user_type') != '2':
+        return jsonify({'success': False, 'message': 'No autorizado'})
+    
+    try:
+        mentoria_ref = db.collection('Mentorias').document(mentoria_id)
+        mentoria_ref.update({
+            'estado': 'rechazado',
+            'fecha_actualizacion': datetime.now()
+        })
+        
+        return jsonify({'success': True, 'message': 'Mentoría rechazada'})
+        
+    except Exception as e:
+        print(f"Error al rechazar mentoría: {str(e)}")
         return jsonify({'success': False, 'message': 'Error al procesar la solicitud'})
 
 if __name__ == '__main__':

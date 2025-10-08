@@ -42,6 +42,249 @@ ESPECIALIDADES_PREDEFINIDAS = [
 def index():
     return render_template('Inicio_de_Sesion.html')
 
+
+# ===== RUTAS DEL CHAT =====
+
+@app.route('/chat_home')
+def chat_home():
+    if not session.get('is_logged_in'):
+        flash('Debes iniciar sesión primero', 'warning')
+        return redirect(url_for('login'))
+    
+    try:
+        user_id = session.get('user_id')
+        user_name = session.get('user_name')
+        user_type = session.get('user_type')
+        
+        # Convertir user_type numérico a string para el chat
+        user_type_str = {
+            '1': 'cliente',
+            '2': 'trabajador', 
+            '3': 'desempleado'
+        }.get(user_type, 'usuario')
+        
+        # Obtener conversaciones REALES de la base de datos
+        conversaciones = obtener_conversaciones_reales(user_id)
+        total_no_leidos = sum(conv.get('no_leidos', 0) for conv in conversaciones)
+        
+        # Guardar en sesión para el badge del botón
+        session['total_mensajes_no_leidos'] = total_no_leidos
+        
+        return render_template('chat_home.html', 
+                             conversaciones=conversaciones,
+                             user_name=user_name,
+                             user_type=user_type_str,
+                             total_no_leidos=total_no_leidos)
+        
+    except Exception as e:
+        print(f"Error en chat_home: {str(e)}")
+        flash('Error al cargar los chats', 'error')
+        return render_template('chat_home.html', 
+                             conversaciones=[], 
+                             error=str(e))
+
+def obtener_conversaciones_reales(user_id):
+    """Obtener conversaciones reales de la base de datos"""
+    try:
+        conversaciones = []
+        
+        # Buscar conversaciones donde el usuario sea participante
+        conversaciones_ref = db.collection('conversaciones')
+        query = conversaciones_ref.where('participantes', 'array_contains', user_id)
+        docs = query.stream()
+        
+        for doc in docs:
+            conv_data = doc.to_dict()
+            conv_data['id'] = doc.id
+            
+            # Contar mensajes no leídos
+            no_leidos = contar_mensajes_no_leidos_reales(doc.id, user_id)
+            conv_data['no_leidos'] = no_leidos
+            
+            # Obtener info del otro usuario
+            otros_participantes = [p for p in conv_data.get('participantes', []) if p != user_id]
+            if otros_participantes:
+                otro_usuario_id = otros_participantes[0]
+                conv_data['otro_usuario_id'] = otro_usuario_id
+                
+                # Buscar en todas las colecciones de usuarios
+                otro_usuario_info = obtener_info_usuario(otro_usuario_id)
+                conv_data['otro_usuario_nombre'] = otro_usuario_info.get('nombre', 'Usuario')
+                conv_data['otro_usuario_tipo'] = otro_usuario_info.get('tipo', 'usuario')
+            else:
+                conv_data['otro_usuario_nombre'] = 'Usuario'
+                conv_data['otro_usuario_tipo'] = 'usuario'
+            
+            conversaciones.append(conv_data)
+        
+        # Ordenar por último mensaje (más reciente primero)
+        conversaciones.sort(key=lambda x: x.get('ultimo_timestamp', datetime.min), reverse=True)
+        
+        return conversaciones
+        
+    except Exception as e:
+        print(f"Error obteniendo conversaciones reales: {str(e)}")
+        return []
+
+def contar_mensajes_no_leidos_reales(conversacion_id, usuario_id):
+    """Contar mensajes no leídos reales"""
+    try:
+        mensajes_ref = db.collection('mensajes')
+        query = mensajes_ref.where('conversacion_id', '==', conversacion_id)
+        docs = query.stream()
+        
+        no_leidos = 0
+        for doc in docs:
+            mensaje_data = doc.to_dict()
+            if (mensaje_data.get('emisor_id') != usuario_id and 
+                not mensaje_data.get('leido', False)):
+                no_leidos += 1
+        
+        return no_leidos
+    except Exception as e:
+        print(f"Error contando mensajes no leídos: {str(e)}")
+        return 0
+
+def obtener_info_usuario(usuario_id):
+    """Obtener información de un usuario desde cualquier colección"""
+    try:
+        # Buscar en todas las colecciones posibles
+        colecciones = ['clientes', 'trabajadores', 'desempleados']
+        
+        for coleccion in colecciones:
+            usuario_ref = db.collection(coleccion).document(usuario_id)
+            usuario_doc = usuario_ref.get()
+            if usuario_doc.exists:
+                usuario_data = usuario_doc.to_dict()
+                return {
+                    'nombre': usuario_data.get('nombre', 'Usuario'),
+                    'tipo': coleccion[:-1]  # Remover la 's' final (clientes -> cliente)
+                }
+        
+        return {'nombre': 'Usuario', 'tipo': 'usuario'}
+    except Exception as e:
+        print(f"Error obteniendo info usuario: {str(e)}")
+        return {'nombre': 'Usuario', 'tipo': 'usuario'}
+
+# Función auxiliar para obtener usuarios
+def obtener_usuarios_para_chat(usuario_actual_id, usuario_actual_tipo):
+    """Obtener usuarios disponibles para chatear"""
+    try:
+        # Por ahora retornar lista vacía
+        return []
+    except Exception as e:
+        print(f"Error obteniendo usuarios: {str(e)}")
+        return []
+
+# Ruta simple para probar
+@app.route('/api/crear_conversacion', methods=['POST'])
+def crear_conversacion():
+    if not session.get('is_logged_in'):
+        return jsonify({'success': False, 'message': 'No autorizado'})
+    
+    try:
+        data = request.get_json()
+        otro_usuario_id = data.get('otro_usuario_id')
+        
+        # Por ahora, solo simular una respuesta
+        conversacion_id = f"chat_{session.get('user_id')}_{otro_usuario_id}"
+        
+        return jsonify({
+            'success': True, 
+            'conversacion_id': conversacion_id, 
+            'existe': False
+        })
+        
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error al crear conversación'})
+
+# Ruta para una conversación específica
+@app.route('/chat/<conversacion_id>')
+def chat_conversacion(conversacion_id):
+    if not session.get('is_logged_in'):
+        flash('Debes iniciar sesión primero', 'warning')
+        return redirect(url_for('login'))
+    
+    try:
+        user_id = session.get('user_id')
+        user_name = session.get('user_name')
+        user_type = session.get('user_type')
+        
+        # Verificar que el usuario tiene acceso a esta conversación
+        conversacion_ref = db.collection('conversaciones').document(conversacion_id)
+        conversacion_doc = conversacion_ref.get()
+        
+        if not conversacion_doc.exists:
+            flash('Conversación no encontrada', 'error')
+            return redirect(url_for('chat_home'))
+        
+        conversacion_data = conversacion_doc.to_dict()
+        
+        if user_id not in conversacion_data.get('participantes', []):
+            flash('No tienes acceso a esta conversación', 'error')
+            return redirect(url_for('chat_home'))
+        
+        # Obtener info del otro usuario
+        otros_participantes = [p for p in conversacion_data['participantes'] if p != user_id]
+        otro_usuario_id = otros_participantes[0] if otros_participantes else None
+        otro_usuario_nombre = "Usuario"
+        otro_usuario_tipo = "usuario"
+        
+        if otro_usuario_id:
+            otro_usuario_info = obtener_info_usuario(otro_usuario_id)
+            otro_usuario_nombre = otro_usuario_info.get('nombre', 'Usuario')
+            otro_usuario_tipo = otro_usuario_info.get('tipo', 'usuario')
+        
+        # Obtener mensajes de la conversación
+        mensajes = []
+        try:
+            mensajes_ref = db.collection('mensajes')
+            query = mensajes_ref.where('conversacion_id', '==', conversacion_id)
+            docs = query.stream()
+            
+            for doc in docs:
+                msg_data = doc.to_dict()
+                msg_data['id'] = doc.id
+                
+                # Formatear timestamp
+                if 'timestamp' in msg_data:
+                    if hasattr(msg_data['timestamp'], 'strftime'):
+                        msg_data['timestamp_str'] = msg_data['timestamp'].strftime('%H:%M')
+                    else:
+                        try:
+                            dt = datetime.fromisoformat(msg_data['timestamp'].replace('Z', '+00:00'))
+                            msg_data['timestamp_str'] = dt.strftime('%H:%M')
+                        except:
+                            msg_data['timestamp_str'] = '--:--'
+                else:
+                    msg_data['timestamp_str'] = '--:--'
+                
+                mensajes.append(msg_data)
+            
+            # Ordenar mensajes por timestamp
+            mensajes.sort(key=lambda x: x.get('timestamp', datetime.min))
+            
+        except Exception as e:
+            print(f"No se pudieron cargar los mensajes: {str(e)}")
+            mensajes = []
+        
+        # Renderizar la plantilla de chat individual
+        return render_template('chat.html',
+                             conversacion_id=conversacion_id,
+                             otro_usuario_nombre=otro_usuario_nombre,
+                             otro_usuario_tipo=otro_usuario_tipo,
+                             mensajes=mensajes,
+                             user_id=user_id,
+                             user_name=user_name,
+                             user_type=user_type,
+                             error=None)
+        
+    except Exception as e:
+        print(f"Error cargando conversación: {str(e)}")
+        flash('Error al cargar la conversación', 'error')
+        return redirect(url_for('chat_home'))
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -515,6 +758,96 @@ def devolver_trabajo(trabajo_id):
     except Exception as e:
         print(f"Error al devolver trabajo: {str(e)}")
         return jsonify({'success': False, 'message': 'Error al procesar la solicitud'})
+
+@app.route('/api/enviar_mensaje', methods=['POST'])
+def enviar_mensaje():
+    if not session.get('is_logged_in'):
+        return jsonify({'success': False, 'message': 'No autorizado'})
+    
+    try:
+        data = request.get_json()
+        conversacion_id = data.get('conversacion_id')
+        contenido = data.get('contenido')
+        
+        if not all([conversacion_id, contenido]):
+            return jsonify({'success': False, 'message': 'Faltan datos'})
+        
+        user_id = session.get('user_id')
+        user_name = session.get('user_name')
+        
+        # Crear mensaje
+        mensaje_data = {
+            'conversacion_id': conversacion_id,
+            'emisor_id': user_id,
+            'emisor_nombre': user_name,
+            'contenido': contenido.strip(),
+            'timestamp': datetime.now(),
+            'leido': False,
+            'tipo': 'texto'
+        }
+        
+        # Guardar en Firebase
+        mensajes_ref = db.collection('mensajes')
+        nuevo_mensaje = mensajes_ref.add(mensaje_data)
+        
+        # Actualizar conversación
+        conversacion_ref = db.collection('conversaciones').document(conversacion_id)
+        conversacion_ref.update({
+            'ultimo_mensaje': contenido[:50] + '...' if len(contenido) > 50 else contenido,
+            'ultimo_timestamp': datetime.now(),
+            'ultimo_emisor': user_name
+        })
+        
+        # Obtener timestamp formateado
+        now = datetime.now()
+        timestamp_str = now.strftime('%H:%M')
+        
+        return jsonify({
+            'success': True, 
+            'mensaje_id': nuevo_mensaje[1].id,
+            'timestamp': timestamp_str
+        })
+        
+    except Exception as e:
+        print(f"Error enviando mensaje: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error del servidor'})
+
+@app.route('/api/marcar_leidos', methods=['POST'])
+def marcar_mensajes_leidos():
+    if not session.get('is_logged_in'):
+        return jsonify({'success': False, 'message': 'No autorizado'})
+    
+    try:
+        data = request.get_json()
+        conversacion_id = data.get('conversacion_id')
+        user_id = session.get('user_id')
+        
+        # Marcar mensajes como leídos
+        mensajes_ref = db.collection('mensajes')
+        query = mensajes_ref.where('conversacion_id', '==', conversacion_id)\
+                          .where('leido', '==', False)\
+                          .where('emisor_id', '!=', user_id)
+        docs = query.stream()
+        
+        batch = db.batch()
+        mensajes_actualizados = 0
+        
+        for doc in docs:
+            mensaje_ref = mensajes_ref.document(doc.id)
+            batch.update(mensaje_ref, {'leido': True})
+            mensajes_actualizados += 1
+        
+        if mensajes_actualizados > 0:
+            batch.commit()
+        
+        return jsonify({
+            'success': True, 
+            'mensajes_actualizados': mensajes_actualizados
+        })
+        
+    except Exception as e:
+        print(f"Error marcando mensajes como leídos: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error del servidor'})
 
 @app.route('/reenviar_solicitud/<solicitud_id>', methods=['POST'])
 def reenviar_solicitud(solicitud_id):

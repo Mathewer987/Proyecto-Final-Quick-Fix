@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Quick Fix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Home.css') }}">
+</head>
+<body class="chat-web-page">
+    <div class="background-lines">
+        <div class="line line-1"></div>
+        <div class="line line-2"></div>
+        <div class="line line-3"></div>
+        <div class="line line-4"></div>
+    </div>
+
+    <div class="chat-web-container">
+        <!-- Panel izquierdo - Lista de chats -->
+        <div class="chat-web-sidebar">
+            <!-- Barra superior -->
+            <div class="chat-sidebar-header">
+                <div class="chat-user-avatar">
+                    {{ session.get('user_name', 'U')[0] }}
+                </div>
+                <div class="chat-sidebar-actions">
+                    <button class="chat-action-btn" title="Nuevo chat">
+                        <i class="fas fa-comment-medical"></i>
+                    </button>
+                    <button class="chat-action-btn" title="Menú">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Barra de búsqueda -->
+            <div class="chat-search-container">
+                <div class="chat-search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Buscar conversaciones..." class="chat-search-input">
+                </div>
+            </div>
+
+            <!-- Lista de chats -->
+            <div class="chat-web-list">
+                {% if conversaciones and conversaciones|length > 0 %}
+                    {% for conversacion in conversaciones %}
+                    <div class="chat-web-item {% if conversacion.no_leidos > 0 %}unread-chat{% endif %}" 
+                         onclick="abrirChat('{{ conversacion.id }}')">
+                        <div class="chat-web-avatar {{ conversacion.otro_usuario_tipo or 'usuario' }}">
+                            {{ conversacion.otro_usuario_nombre[0] if conversacion.otro_usuario_nombre else 'U' }}
+                        </div>
+                        <div class="chat-web-info">
+                            <div class="chat-web-header">
+                                <h3 class="chat-web-name">{{ conversacion.otro_usuario_nombre or 'Usuario' }}</h3>
+                                <span class="chat-web-time">
+                                    {% if conversacion.ultimo_timestamp %}
+                                        {{ conversacion.ultimo_timestamp.strftime('%H:%M') }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="chat-web-preview">
+                                <p class="chat-web-message">
+                                    {{ conversacion.ultimo_mensaje or 'Haz click para iniciar chat' }}
+                                </p>
+                                {% if conversacion.no_leidos > 0 %}
+                                <span class="chat-web-badge">
+                                    {{ conversacion.no_leidos if conversacion.no_leidos < 10 else '9+' }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="chat-web-empty">
+                        <i class="fas fa-comments"></i>
+                        <h3>No hay conversaciones</h3>
+                        <p>Inicia un nuevo chat para comenzar</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Panel derecho - Área principal -->
+        <div class="chat-web-main">
+            <!-- Pantalla de bienvenida -->
+            <div class="chat-welcome-screen">
+                <div class="chat-welcome-content">
+                    <div class="chat-welcome-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h1>Quick Fix</h1>
+                    <p class="chat-welcome-text">
+                        Selecciona una conversación para comenzar a chatear.
+                    </p>
+                    <div class="chat-features">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function abrirChat(conversacionId) {
+            window.location.href = `/chat/${conversacionId}`;
+        }
+
+        // Buscar conversaciones
+        document.querySelector('.chat-search-input').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const chatItems = document.querySelectorAll('.chat-web-item');
+            
+            chatItems.forEach(item => {
+                const chatName = item.querySelector('.chat-web-name').textContent.toLowerCase();
+                if (chatName.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

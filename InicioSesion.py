@@ -307,6 +307,8 @@ def capacitaciones():
                              mentorias_activas=[],
                              mentorias_completadas=[])
 
+
+
 @app.route('/trabajos')
 def trabajos():
     if not session.get('is_logged_in'):
@@ -1051,6 +1053,8 @@ def rechazar_mentoria(mentoria_id):
     except Exception as e:
         print(f"Error al rechazar mentoría: {str(e)}")
         return jsonify({'success': False, 'message': 'Error al procesar la solicitud'})
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

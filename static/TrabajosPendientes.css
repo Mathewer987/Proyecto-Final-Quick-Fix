@@ -186,3 +186,25 @@ body {
 .empty-section p {
     margin-bottom: 0;
 }
+/* Estados para trabajos completados */
+.estado-completado {
+    background: #d4edda;
+    color: #155724;
+}
+
+/* Calificación de estrellas */
+.calificacion {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.calificacion i {
+    color: #ffc107;
+}
+
+.calificacion-text {
+    margin-left: 8px;
+    color: var(--text-light);
+    font-size: 14px;
+}

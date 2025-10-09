@@ -45,6 +45,7 @@ def index():
 
 # ===== RUTAS DEL CHAT =====
 
+# ⚠️ REEMPLAZAR ESTA FUNCIÓN COMPLETA:
 @app.route('/chat_home')
 def chat_home():
     if not session.get('is_logged_in'):
@@ -70,11 +71,26 @@ def chat_home():
         # Guardar en sesión para el badge del botón
         session['total_mensajes_no_leidos'] = total_no_leidos
         
+        # Verificar si se solicita una conversación específica
+        conversacion_activa = request.args.get('conversacion')
+        es_ajax = request.args.get('ajax')
+        
+        if conversacion_activa:
+            # Cargar datos de la conversación activa
+            return cargar_conversacion_activa(conversacion_activa, user_id, user_name, 
+                                            user_type, conversaciones, user_type_str, es_ajax)
+        
+        # Si es AJAX sin conversación, retornar solo el panel de chat vacío
+        if es_ajax:
+            return render_template('chat_panel_empty.html')
+        
+        # Vista normal - lista de chats
         return render_template('chat_home.html', 
                              conversaciones=conversaciones,
                              user_name=user_name,
                              user_type=user_type_str,
-                             total_no_leidos=total_no_leidos)
+                             total_no_leidos=total_no_leidos,
+                             conversacion_activa=None)
         
     except Exception as e:
         print(f"Error en chat_home: {str(e)}")
@@ -199,29 +215,27 @@ def crear_conversacion():
         print(f"Error: {str(e)}")
         return jsonify({'success': False, 'message': 'Error al crear conversación'})
 
-# Ruta para una conversación específica
-@app.route('/chat/<conversacion_id>')
-def chat_conversacion(conversacion_id):
-    if not session.get('is_logged_in'):
-        flash('Debes iniciar sesión primero', 'warning')
-        return redirect(url_for('login'))
-    
+
+# ✅ AGREGAR ESTA FUNCIÓN NUEVA:
+def cargar_conversacion_activa(conversacion_id, user_id, user_name, user_type, 
+                              conversaciones, user_type_str, es_ajax):
+    """Cargar datos de una conversación específica"""
     try:
-        user_id = session.get('user_id')
-        user_name = session.get('user_name')
-        user_type = session.get('user_type')
-        
         # Verificar que el usuario tiene acceso a esta conversación
         conversacion_ref = db.collection('conversaciones').document(conversacion_id)
         conversacion_doc = conversacion_ref.get()
         
         if not conversacion_doc.exists:
+            if es_ajax:
+                return "<div class='error-message'>Conversación no encontrada</div>"
             flash('Conversación no encontrada', 'error')
             return redirect(url_for('chat_home'))
         
         conversacion_data = conversacion_doc.to_dict()
         
         if user_id not in conversacion_data.get('participantes', []):
+            if es_ajax:
+                return "<div class='error-message'>No tienes acceso a esta conversación</div>"
             flash('No tienes acceso a esta conversación', 'error')
             return redirect(url_for('chat_home'))
         
@@ -230,60 +244,112 @@ def chat_conversacion(conversacion_id):
         otro_usuario_id = otros_participantes[0] if otros_participantes else None
         otro_usuario_nombre = "Usuario"
         otro_usuario_tipo = "usuario"
+        otro_usuario_email = None
         
         if otro_usuario_id:
-            otro_usuario_info = obtener_info_usuario(otro_usuario_id)
+            otro_usuario_info = obtener_info_usuario_completa(otro_usuario_id)
             otro_usuario_nombre = otro_usuario_info.get('nombre', 'Usuario')
             otro_usuario_tipo = otro_usuario_info.get('tipo', 'usuario')
+            otro_usuario_email = otro_usuario_info.get('email')
         
         # Obtener mensajes de la conversación
-        mensajes = []
-        try:
-            mensajes_ref = db.collection('mensajes')
-            query = mensajes_ref.where('conversacion_id', '==', conversacion_id)
-            docs = query.stream()
-            
-            for doc in docs:
-                msg_data = doc.to_dict()
-                msg_data['id'] = doc.id
-                
-                # Formatear timestamp
-                if 'timestamp' in msg_data:
-                    if hasattr(msg_data['timestamp'], 'strftime'):
-                        msg_data['timestamp_str'] = msg_data['timestamp'].strftime('%H:%M')
-                    else:
-                        try:
-                            dt = datetime.fromisoformat(msg_data['timestamp'].replace('Z', '+00:00'))
-                            msg_data['timestamp_str'] = dt.strftime('%H:%M')
-                        except:
-                            msg_data['timestamp_str'] = '--:--'
-                else:
-                    msg_data['timestamp_str'] = '--:--'
-                
-                mensajes.append(msg_data)
-            
-            # Ordenar mensajes por timestamp
-            mensajes.sort(key=lambda x: x.get('timestamp', datetime.min))
-            
-        except Exception as e:
-            print(f"No se pudieron cargar los mensajes: {str(e)}")
-            mensajes = []
+        mensajes = obtener_mensajes_conversacion(conversacion_id)
         
-        # Renderizar la plantilla de chat individual
-        return render_template('chat.html',
-                             conversacion_id=conversacion_id,
+        # Si es AJAX, retornar solo el panel del chat
+        if es_ajax:
+            return render_template('chat_panel.html',
+                                 conversacion_activa=conversacion_id,
+                                 otro_usuario_nombre=otro_usuario_nombre,
+                                 otro_usuario_tipo=otro_usuario_tipo,
+                                 otro_usuario_email=otro_usuario_email,
+                                 mensajes=mensajes,
+                                 user_id=user_id,
+                                 user_name=user_name,
+                                 user_type=user_type)
+        
+        # Vista completa
+        return render_template('chat_home.html',
+                             conversaciones=conversaciones,
+                             user_name=user_name,
+                             user_type=user_type_str,
+                             conversacion_activa=conversacion_id,
                              otro_usuario_nombre=otro_usuario_nombre,
                              otro_usuario_tipo=otro_usuario_tipo,
+                             otro_usuario_email=otro_usuario_email,
                              mensajes=mensajes,
-                             user_id=user_id,
-                             user_name=user_name,
-                             user_type=user_type,
-                             error=None)
+                             user_id=user_id)
         
     except Exception as e:
-        print(f"Error cargando conversación: {str(e)}")
+        print(f"Error cargando conversación activa: {str(e)}")
+        if es_ajax:
+            return f"<div class='error-message'>Error: {str(e)}</div>"
         flash('Error al cargar la conversación', 'error')
         return redirect(url_for('chat_home'))
+    
+
+# ✅ AGREGAR ESTA FUNCIÓN NUEVA:
+def obtener_mensajes_conversacion(conversacion_id):
+    """Obtener mensajes de una conversación"""
+    try:
+        mensajes = []
+        mensajes_ref = db.collection('mensajes')
+        query = mensajes_ref.where('conversacion_id', '==', conversacion_id)
+        docs = query.stream()
+        
+        for doc in docs:
+            msg_data = doc.to_dict()
+            msg_data['id'] = doc.id
+            
+            # Formatear timestamp
+            if 'timestamp' in msg_data:
+                if hasattr(msg_data['timestamp'], 'strftime'):
+                    msg_data['timestamp_str'] = msg_data['timestamp'].strftime('%H:%M')
+                else:
+                    try:
+                        dt = datetime.fromisoformat(msg_data['timestamp'].replace('Z', '+00:00'))
+                        msg_data['timestamp_str'] = dt.strftime('%H:%M')
+                    except:
+                        msg_data['timestamp_str'] = '--:--'
+            else:
+                msg_data['timestamp_str'] = '--:--'
+            
+            mensajes.append(msg_data)
+        
+        # Ordenar mensajes por timestamp
+        mensajes.sort(key=lambda x: x.get('timestamp', datetime.min))
+        
+        return mensajes
+        
+    except Exception as e:
+        print(f"No se pudieron cargar los mensajes: {str(e)}")
+        return []
+# ✅ AGREGAR ESTA FUNCIÓN NUEVA:
+def obtener_info_usuario_completa(usuario_id):
+    """Obtener información completa de un usuario"""
+    try:
+        colecciones = ['clientes', 'trabajadores', 'desempleados']
+        
+        for coleccion in colecciones:
+            usuario_ref = db.collection(coleccion).document(usuario_id)
+            usuario_doc = usuario_ref.get()
+            if usuario_doc.exists:
+                usuario_data = usuario_doc.to_dict()
+                return {
+                    'nombre': usuario_data.get('nombre', 'Usuario'),
+                    'tipo': coleccion[:-1],  # Remover la 's' final
+                    'email': usuario_data.get('mail')
+                }
+        
+        return {'nombre': 'Usuario', 'tipo': 'usuario', 'email': None}
+    except Exception as e:
+        print(f"Error obteniendo info usuario completa: {str(e)}")
+        return {'nombre': 'Usuario', 'tipo': 'usuario', 'email': None}
+# Ruta para una conversación específica
+# ⚠️ REEMPLAZAR ESTA FUNCIÓN COMPLETA:
+@app.route('/chat/<conversacion_id>')
+def chat_conversacion(conversacion_id):
+    # Redirigir a la nueva versión unificada
+    return redirect(url_for('chat_home', conversacion=conversacion_id))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -1065,10 +1131,37 @@ def trabajos_pendientes():
         # Combinar ambas listas
         todos_los_trabajos = trabajos_aceptados + mentorias_activas
         
+        # ==== AGREGAR ESTA PARTE NUEVA ====
+        # Obtener TRABAJOS COMPLETADOS (historial)
+        trabajos_finalizados_ref = db.collection('TrabajosFinalizados')
+        query_completados = trabajos_finalizados_ref.where('profesional_id', '==', trabajador_id)
+        docs_completados = query_completados.stream()
+        
+        trabajos_completados = []
+        for doc in docs_completados:
+            trabajo_data = doc.to_dict()
+            trabajo_data['id'] = doc.id
+            trabajo_data['tipo'] = 'completado'
+            trabajos_completados.append(trabajo_data)
+
+        # Obtener MENTORÍAS COMPLETADAS
+        query_mentorias_completadas = mentorias_ref.where('mentor_id', '==', trabajador_id).where('estado', '==', 'completada')
+        docs_mentorias_completadas = query_mentorias_completadas.stream()
+        
+        mentorias_completadas = []
+        for doc in docs_mentorias_completadas:
+            mentoria_data = doc.to_dict()
+            mentoria_data['id'] = doc.id
+            mentoria_data['tipo'] = 'mentoria-completada'
+            mentorias_completadas.append(mentoria_data)
+        # ==== FIN DE LA PARTE NUEVA ====
+
         return render_template('TrabajosPendientes.html', 
                              trabajos=todos_los_trabajos,
                              trabajos_contrataciones=trabajos_aceptados,
-                             trabajos_mentorias=mentorias_activas)
+                             trabajos_mentorias=mentorias_activas,
+                             trabajos_completados=trabajos_completados,
+                             mentorias_completadas=mentorias_completadas)
         
     except Exception as e:
         print(f"Error al obtener trabajos pendientes: {str(e)}")
@@ -1076,7 +1169,9 @@ def trabajos_pendientes():
         return render_template('TrabajosPendientes.html', 
                              trabajos=[],
                              trabajos_contrataciones=[],
-                             trabajos_mentorias=[])
+                             trabajos_mentorias=[],
+                             trabajos_completados=[],
+                             mentorias_completadas=[])
 
 @app.route('/historial_trabajos')
 def historial_trabajos():

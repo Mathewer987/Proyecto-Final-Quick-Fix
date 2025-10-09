@@ -208,6 +208,144 @@
                 </div>
                 {% endif %}
             </div>
+
+                        <!-- SECCIÓN TRABAJOS COMPLETADOS A CLIENTES -->
+            <div class="seccion-trabajos">
+                <div class="seccion-header">
+                    <h2>Trabajos Realizados a Clientes</h2>
+                    <span class="contador-badge">{{ trabajos_completados|length }} finalizados</span>
+                </div>
+                
+                {% if trabajos_completados %}
+                <div class="trabajos-grid">
+                    {% for trabajo in trabajos_completados %}
+                    <div class="trabajo-card" data-tipo="completado">
+                        <div class="tipo-badge tipo-contratacion">✅ Completado</div>
+                        
+                        <div class="trabajo-header">
+                            <h3>{{ trabajo.especializacion }}</h3>
+                            <span class="estado-badge estado-completado">Finalizado</span>
+                        </div>
+
+                        <div class="trabajo-info">
+                            <div class="info-group">
+                                <h4>Información del Cliente</h4>
+                                <div class="info-item">
+                                    <span class="info-label">Cliente:</span>
+                                    <span class="info-value">{{ trabajo.cliente_nombre }}</span>
+                                </div>
+                            </div>
+
+                            <div class="info-group">
+                                <h4>Detalles del Trabajo</h4>
+                                <div class="info-item">
+                                    <span class="info-label">Fecha acordada:</span>
+                                    <span class="info-value">{{ trabajo.fecha_trabajo_propuesta }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Fecha finalización:</span>
+                                    <span class="info-value">{{ trabajo.fecha_finalizacion.strftime('%d/%m/%Y') if trabajo.fecha_finalizacion else 'No especificada' }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Ubicación:</span>
+                                    <span class="info-value">{{ trabajo.ubicacion }}</span>
+                                </div>
+                            </div>
+
+                            <div class="info-group">
+                                <h4>Especificaciones del Trabajo</h4>
+                                <p class="especificaciones">{{ trabajo.especificaciones }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-section">
+                    <i class="fas fa-clipboard-check"></i>
+                    <h3>No tienes trabajos completados</h3>
+                    <p>Cuando finalices trabajos con clientes, aparecerán aquí.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- SECCIÓN MENTORÍAS COMPLETADAS -->
+            <div class="seccion-trabajos">
+                <div class="seccion-header">
+                    <h2>Mentorías Realizadas</h2>
+                    <span class="contador-badge">{{ mentorias_completadas|length }} finalizadas</span>
+                </div>
+                
+                {% if mentorias_completadas %}
+                <div class="trabajos-grid">
+                    {% for mentoria in mentorias_completadas %}
+                    <div class="trabajo-card" data-tipo="mentoria-completada">
+                        <div class="tipo-badge tipo-mentoria">🎓 Mentoría Completada</div>
+                        
+                        <div class="trabajo-header">
+                            <h3>Mentoría - {{ mentoria.area_interes }}</h3>
+                            <span class="estado-badge estado-completado">Completada</span>
+                        </div>
+
+                        <div class="trabajo-info">
+                            <div class="info-group">
+                                <h4>Información del Aprendiz</h4>
+                                <div class="info-item">
+                                    <span class="info-label">Aprendiz:</span>
+                                    <span class="info-value">{{ mentoria.desempleado_nombre }}</span>
+                                </div>
+                            </div>
+
+                            <div class="info-group">
+                                <h4>Detalles de la Mentoría</h4>
+                                <div class="info-item">
+                                    <span class="info-label">Área:</span>
+                                    <span class="info-value">{{ mentoria.area_interes }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Iniciada:</span>
+                                    <span class="info-value">{{ mentoria.fecha_solicitud.strftime('%d/%m/%Y') }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Completada:</span>
+                                    <span class="info-value">{{ mentoria.fecha_actualizacion.strftime('%d/%m/%Y') if mentoria.fecha_actualizacion else mentoria.fecha_completacion.strftime('%d/%m/%Y') if mentoria.fecha_completacion else 'No especificada' }}</span>
+                                </div>
+                            </div>
+
+                            <div class="info-group">
+                                <h4>Objetivos Cumplidos</h4>
+                                <p class="especificaciones">{{ mentoria.objetivo }}</p>
+                            </div>
+
+                            {% if mentoria.calificacion %}
+                            <div class="info-group">
+                                <h4>Calificación del Aprendiz</h4>
+                                <div class="calificacion">
+                                    {% for i in range(5) %}
+                                        {% if i < mentoria.calificacion %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="calificacion-text">({{ mentoria.calificacion }}/5)</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-section">
+                    <i class="fas fa-user-graduate"></i>
+                    <h3>No tienes mentorías completadas</h3>
+                    <p>Cuando completes mentorías, aparecerán aquí con los logros.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            
         </main>
     </div>
 

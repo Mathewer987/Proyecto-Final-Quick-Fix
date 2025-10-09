@@ -1,0 +1,75 @@
+{% if error %}
+    <div class="error-message">
+        <h2>❌ Error</h2>
+        <p>{{ error }}</p>
+    </div>
+{% else %}
+    <!-- Chat activo -->
+    <div class="chat-header-active">
+        <div class="back-btn" onclick="volverALista()">
+            <i class="fas fa-arrow-left"></i>
+        </div>
+        <div class="contact-info">
+            <div class="chat-avatar avatar {{ otro_usuario_tipo }}">
+                {{ otro_usuario_nombre[0] if otro_usuario_nombre else 'U' }}
+            </div>
+            <div class="contact-details">
+                <h2>{{ otro_usuario_nombre or 'Usuario' }}</h2>
+                <span class="user-type {{ otro_usuario_tipo }}">
+                    {{ otro_usuario_tipo }}
+                </span>
+                {% if otro_usuario_email %}
+                <div class="user-email">{{ otro_usuario_email }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Área de mensajes -->
+    <div class="messages-container" id="messagesContainer">
+        {% if mensajes %}
+            {% for mensaje in mensajes %}
+                <div class="message {% if mensaje.emisor_id == user_id %}sent{% else %}received{% endif %}">
+                    <div class="message-content">
+                        <p>{{ mensaje.contenido }}</p>
+                        <span class="message-time">
+                            {{ mensaje.timestamp_str }}
+                            {% if mensaje.emisor_id == user_id %}
+                                <span class="message-status {% if mensaje.leido %}read{% else %}delivered{% endif %}">
+                                    <i class="fas fa-{% if mensaje.leido %}check-double{% else %}check{% endif %}"></i>
+                                </span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <!-- Conversación vacía -->
+            <div class="chats-empty">
+                <i class="fas fa-comments"></i>
+                <h3>Conversación vacía</h3>
+                <p>Envía el primer mensaje para comenzar</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Input de mensaje -->
+    <div class="message-input-container">
+        <form id="messageForm">
+            <input type="hidden" id="conversacionId" value="{{ conversacion_activa }}">
+            <input type="hidden" id="userId" value="{{ user_id }}">
+            <div class="input-group">
+                <textarea 
+                    id="messageInput" 
+                    placeholder="Escribe tu mensaje..." 
+                    maxlength="1000"
+                    autocomplete="off"
+                    rows="1"
+                ></textarea>
+                <button type="submit" id="sendButton">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+{% endif %}

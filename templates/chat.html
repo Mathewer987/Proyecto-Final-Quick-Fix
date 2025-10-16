@@ -7,158 +7,202 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100vh; display: flex; justify-content: center; align-items: center;
-            padding: 20px;
-        }
-        .chat-container {
-            width: 100%; max-width: 800px; height: 90vh; background: white;
-            border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            display: flex; flex-direction: column; overflow: hidden;
-        }
-        
-        /* Header */
-        .chat-header {
-            background: #2d3748; color: white; padding: 20px;
-            display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #4a5568;
-        }
-        .back-btn { 
-            color: white; text-decoration: none; font-size: 1.2rem; 
-            padding: 8px; border-radius: 50%; transition: background 0.3s;
-        }
-        .back-btn:hover { background: rgba(255, 255, 255, 0.1); }
-        .contact-info { display: flex; align-items: center; gap: 12px; flex: 1; }
-        .avatar {
-            width: 45px; height: 45px; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-weight: bold; font-size: 18px;
-        }
-        .avatar.cliente { background: #4299e1; }
-        .avatar.trabajador { background: #48bb78; }
-        .avatar.desempleado { background: #ed8936; }
-        .contact-details h2 { font-size: 1.2rem; margin-bottom: 2px; }
-        .user-type {
-            font-size: 0.8rem; padding: 2px 8px; border-radius: 12px; 
-            color: white; display: inline-block;
-        }
-        .user-type.cliente { background: #4299e1; }
-        .user-type.trabajador { background: #48bb78; }
-        .user-type.desempleado { background: #ed8936; }
-        .user-email { font-size: 0.8rem; opacity: 0.8; margin-top: 2px; }
-        
-        /* Área de mensajes */
-        .messages-container {
-            flex: 1; padding: 20px; overflow-y: auto; background: #f7fafc;
-            display: flex; flex-direction: column; gap: 15px;
-        }
-        
-        /* Mensajes */
-        .message { display: flex; max-width: 70%; animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .message.sent { align-self: flex-end; }
-        .message.received { align-self: flex-start; }
-        .message-content {
-            padding: 12px 16px; border-radius: 18px; position: relative;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .message.sent .message-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; border-bottom-right-radius: 5px;
-        }
-        .message.received .message-content {
-            background: white; color: #2d3748; border: 1px solid #e2e8f0;
-            border-bottom-left-radius: 5px;
-        }
-        .message-time {
-            font-size: 0.7rem; opacity: 0.7; margin-top: 5px; display: block;
-            text-align: right;
-        }
-        .message.received .message-time { text-align: left; }
-        
-        /* Estado de mensaje enviado */
-        .message-status { 
-            font-size: 0.6rem; margin-left: 5px; opacity: 0.7; 
-            display: inline-flex; align-items: center; gap: 2px;
-        }
-        .message-status.sent i { color: #a0aec0; }
-        .message-status.delivered i { color: #4299e1; }
-        .message-status.read i { color: #48bb78; }
-        
-        /* Conversación vacía */
-        .empty-conversation {
-            text-align: center; padding: 60px 20px; color: #718096;
-            flex: 1; display: flex; flex-direction: column; justify-content: center;
-            align-items: center;
-        }
-        .empty-conversation i { 
-            font-size: 4rem; margin-bottom: 20px; opacity: 0.3; 
-        }
-        .empty-conversation h3 { 
-            font-size: 1.3rem; margin-bottom: 10px; color: #4a5568; 
-        }
-        .empty-conversation p { 
-            font-size: 0.9rem; max-width: 300px; line-height: 1.5; 
-        }
-        
-        /* Input de mensaje */
-        .message-input-container {
-            border-top: 1px solid #e2e8f0; background: white; padding: 20px;
-        }
-        .input-group { display: flex; gap: 12px; align-items: center; }
-        #messageInput {
-            flex: 1; padding: 12px 20px; border: 2px solid #e2e8f0; border-radius: 25px;
-            font-family: inherit; font-size: 14px; outline: none;
-            transition: border-color 0.3s; resize: none; min-height: 50px;
-            max-height: 120px;
-        }
-        #messageInput:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
-        #sendButton {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none; border-radius: 50%; width: 50px; height: 50px;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: all 0.3s; color: white; flex-shrink: 0;
-        }
-        #sendButton:hover { transform: scale(1.05); }
-        #sendButton:active { transform: scale(0.95); }
-        #sendButton:disabled {
-            background: #a0aec0; cursor: not-allowed; transform: none;
-        }
-        
-        /* Error */
-        .error-message {
-            text-align: center; padding: 40px; color: #e53e3e;
-            flex: 1; display: flex; flex-direction: column; justify-content: center;
-            align-items: center;
-        }
-        .error-message h2 { margin-bottom: 15px; }
-        .error-message a {
-            margin-top: 15px; padding: 10px 20px; background: #667eea;
-            color: white; text-decoration: none; border-radius: 10px;
-        }
-        
-        /* Scrollbar personalizado */
-        .messages-container::-webkit-scrollbar { width: 6px; }
-        .messages-container::-webkit-scrollbar-track { background: #f1f1f1; }
-        .messages-container::-webkit-scrollbar-thumb { 
-            background: #cbd5e0; border-radius: 3px; 
-        }
-        .messages-container::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            body { padding: 10px; }
-            .chat-container { 
-                height: 95vh; border-radius: 15px; 
-                max-width: 100%; 
-            }
-            .chat-header { padding: 15px; }
-            .messages-container { padding: 15px; }
-            .message { max-width: 85%; }
-            .message-input-container { padding: 15px; }
-        }
+        /* === ESTILOS GENERALES DEL CHAT === */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #f7fafc;
+  color: #2d3748;
+}
+
+/* === CONTENEDOR PRINCIPAL === */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f7fafc;
+}
+
+/* === ENCABEZADO SUPERIOR DEL CHAT === */
+.chat-header {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  background: #2d3748;
+  color: white;
+  border-bottom: 2px solid #1a202c;
+}
+
+.chat-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* === ZONA DE CONTACTO (DATOS DEL OTRO USUARIO) === */
+.contact-header {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  margin-left: 12px;
+}
+
+/* === AVATAR (CÍRCULO CON INICIAL) === */
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+  text-transform: uppercase;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
+}
+
+/* COLORES DE AVATARES SEGÚN EL TIPO DE USUARIO */
+.avatar.cliente {
+  background: #4299e1 !important; /* Azul */
+}
+
+.avatar.trabajador {
+  background: #48bb78 !important; /* Verde */
+  box-shadow: 0 0 8px #48bb78cc; /* Resalta el verde */
+}
+
+.avatar.desempleado {
+  background: #ed8936 !important; /* Naranja */
+}
+
+/* === ETIQUETA DE TIPO DE USUARIO (SUBMARQUITA) === */
+.user-type {
+  margin-top: 3px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 8px;
+  display: inline-block;
+  color: white;
+  text-transform: capitalize;
+  align-self: flex-start;
+}
+
+/* Colores según tipo */
+.user-type.cliente {
+  background: #4299e1 !important; /* Azul */
+}
+
+.user-type.trabajador {
+  background: #48bb78 !important; /* Verde */
+  box-shadow: 0 0 4px #48bb78aa;
+}
+
+.user-type.desempleado {
+  background: #ed8936 !important; /* Naranja */
+}
+
+/* === MENSAJES DEL CHAT === */
+.chat-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  background: #f7fafc;
+}
+
+.chat-message {
+  max-width: 70%;
+  padding: 10px 15px;
+  margin: 8px 0;
+  border-radius: 15px;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+/* Mensajes enviados (usuario actual) */
+.chat-message.sent {
+  align-self: flex-end;
+  background: #3182ce;
+  color: white;
+  border-bottom-right-radius: 0;
+}
+
+/* Mensajes recibidos (otro usuario) */
+.chat-message.received {
+  align-self: flex-start;
+  background: #edf2f7;
+  color: #2d3748;
+  border-bottom-left-radius: 0;
+}
+
+/* === INPUT DEL MENSAJE === */
+.chat-input {
+  display: flex;
+  align-items: center;
+  border-top: 1px solid #e2e8f0;
+  background: white;
+  padding: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 10px;
+  font-size: 15px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #2d3748;
+}
+
+.chat-input button {
+  background: #3182ce;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-left: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
+
+.chat-input button:hover {
+  background: #2b6cb0;
+}
+
+/* === SCROLLBAR PERSONALIZADA === */
+.chat-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-body::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+/* === OPCIONAL: EFECTO AL PASAR SOBRE EL HEADER DE CONTACTO === */
+.contact-header:hover {
+  background: #f9fafb;
+  transition: background 0.2s ease;
+}
+
     </style>
 </head>
 <body>
@@ -181,9 +225,9 @@
                     </div>
                     <div class="contact-details">
                         <h2>{{ otro_usuario_nombre or 'Usuario' }}</h2>
-                        <span class="user-type {{ otro_usuario_tipo }}">
-                            {{ otro_usuario_tipo }}
-                        </span>
+                        <span class="user-type {{ otro_usuario_tipo|lower }}">
+    {{ otro_usuario_tipo }}
+</span>
                         {% if otro_usuario_email %}
                         <div class="user-email">{{ otro_usuario_email }}</div>
                         {% endif %}

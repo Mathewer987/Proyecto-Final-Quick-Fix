@@ -21,12 +21,23 @@
 
     <!-- Solo Botón de Chat Flotante -->
     {% if session.get('is_logged_in') %}
-    <div class="chat-icon" id="chatButton">
-        <i class="fas fa-comments"></i>
-        {% if session.get('total_mensajes_no_leidos', 0) > 0 %}
-        <span class="chat-notification-badge">{{ session.get('total_mensajes_no_leidos', 0) }}</span>
-        {% endif %}
+        <!-- Botones Flotantes -->
+    {% if session.get('is_logged_in') %}
+    <div class="floating-buttons">
+        <!-- Botón del Muro -->
+        <div class="chat-icon muro-icon" id="muroButton">
+            <i class="fas fa-newspaper"></i>
+        </div>
+        
+        <!-- Botón de Chat -->
+        <div class="chat-icon" id="chatButton">
+            <i class="fas fa-comments"></i>
+            {% if session.get('total_mensajes_no_leidos', 0) > 0 %}
+            <span class="chat-notification-badge">{{ session.get('total_mensajes_no_leidos', 0) }}</span>
+            {% endif %}
+        </div>
     </div>
+    {% endif %}
     {% endif %}
 
     <div class="container">
@@ -98,6 +109,7 @@
                             <a href="{{ url_for('browser') }}" class="cta-button primary">
                                 Buscar profesionales <i class="fas fa-arrow-right"></i>
                             </a>
+                            
                             <a href="{{ url_for('mis_solicitudes') }}" class="cta-button secondary">
                                 Mis solicitudes
                             </a>
@@ -135,6 +147,8 @@
     </div>
 
     <script>
+
+        
         // Menú móvil
         document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
             document.querySelector('.nav').classList.toggle('active');
@@ -151,6 +165,11 @@
         document.getElementById('chatButton').addEventListener('click', function() {
             window.location.href = "{{ url_for('chat_home') }}";
         });
+
+            // Muro button functionality
+    document.getElementById('muroButton').addEventListener('click', function() {
+        window.location.href = "{{ url_for('muro_publicaciones') }}";
+    });
     </script>
 </body>
 </html>

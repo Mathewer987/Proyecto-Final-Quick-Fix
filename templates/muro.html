@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muro de Trabajos - QuickFix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .logo span {
+            color: #4e73df;
+        }
+        
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-item {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background-color: #4e73df;
+            color: white;
+        }
+        
+        /* Botón publicar para clientes */
+        .btn-publicar {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+        
+        .btn-publicar:hover {
+            background: #218838;
+        }
+        
+        /* Modal publicar */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(-50px);
+            transition: transform 0.3s;
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .btn-cancel {
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .btn-submit {
+            background: #4e73df;
+            color: white;
+        }
+        
+        /* Publicaciones */
+        .publicaciones-container {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .publicacion-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #4e73df;
+        }
+        
+        .pub-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .pub-titulo {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .pub-cliente {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .pub-fecha {
+            color: #999;
+            font-size: 12px;
+        }
+        
+        .pub-descripcion {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .pub-detalles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .detalle-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .detalle-item i {
+            color: #4e73df;
+            width: 16px;
+        }
+        
+        .pub-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .pub-estado {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .estado-disponible {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .estado-proceso {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .btn-aceptar {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-aceptar:hover {
+            background: #218838;
+        }
+        
+        .btn-aceptar:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .no-publicaciones {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .no-publicaciones i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">Quick<span>Fix</span></div>
+            <nav class="nav">
+                <a href="/home" class="nav-item">Inicio</a>
+                <a href="/muro_publicaciones" class="nav-item active">Muro de Trabajos</a>
+                {% if user_type == '1' %}
+                <a href="/browser" class="nav-item">Buscar Profesionales</a>
+                {% elif user_type == '2' %}
+                <a href="/trabajos" class="nav-item">Solicitudes</a>
+                {% endif %}
+            </nav>
+            
+            {% if user_type == '1' %}
+            <button class="btn-publicar" onclick="abrirModalPublicar()">
+                <i class="fas fa-plus"></i> Publicar Trabajo
+            </button>
+            {% endif %}
+        </header>
+        
+        <main class="publicaciones-container">
+            {% if publicaciones %}
+                {% for publicacion in publicaciones %}
+                <div class="publicacion-card">
+                    <div class="pub-header">
+                        <div>
+                            <h3 class="pub-titulo">{{ publicacion.titulo }}</h3>
+                            <div class="pub-cliente">
+                                <i class="fas fa-user"></i> Publicado por: {{ publicacion.cliente_nombre }}
+                            </div>
+                        </div>
+                        <div class="pub-fecha">
+                            {{ publicacion.fecha_publicacion_str }}
+                        </div>
+                    </div>
+                    
+                    <div class="pub-descripcion">
+                        {{ publicacion.descripcion }}
+                    </div>
+                    
+                    <div class="pub-detalles">
+                        <div class="detalle-item">
+                            <i class="fas fa-tag"></i>
+                            <span><strong>Categoría:</strong> {{ publicacion.categoria }}</span>
+                        </div>
+                        <div class="detalle-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span><strong>Ubicación:</strong> {{ publicacion.ubicacion }}</span>
+                        </div>
+                        {% if publicacion.presupuesto %}
+                        <div class="detalle-item">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span><strong>Presupuesto:</strong> ${{ publicacion.presupuesto }}</span>
+                        </div>
+                        {% endif %}
+                        {% if publicacion.fecha_limite %}
+                        <div class="detalle-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span><strong>Fecha límite:</strong> {{ publicacion.fecha_limite }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="pub-footer">
+                        <div class="pub-estado {{ 'estado-proceso' if publicacion.estado == 'en_proceso' else 'estado-disponible' }}">
+                            {{ 'En proceso' if publicacion.estado == 'en_proceso' else 'Disponible' }}
+                        </div>
+                        
+                        {% if user_type == '2' and publicacion.estado == 'disponible' %}
+                        <button class="btn-aceptar" onclick="aceptarTrabajo('{{ publicacion.id }}')">
+                            <i class="fas fa-handshake"></i> Aceptar Trabajo
+                        </button>
+                        {% elif user_type == '2' and publicacion.estado == 'en_proceso' %}
+                        <button class="btn-aceptar" disabled>
+                            <i class="fas fa-clock"></i> En proceso
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-publicaciones">
+                    <i class="fas fa-newspaper"></i>
+                    <h3>No hay publicaciones en el muro</h3>
+                    <p>{% if user_type == '1' %}Sé el primero en publicar un trabajo{% else %}No hay trabajos disponibles en este momento{% endif %}</p>
+                </div>
+            {% endif %}
+        </main>
+    </div>
+    
+    <!-- Modal para publicar trabajo (solo clientes) -->
+    {% if user_type == '1' %}
+    <div class="modal-overlay" id="modalPublicar">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Publicar Trabajo en el Muro</h2>
+                <button class="close-modal" onclick="cerrarModalPublicar()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formPublicar">
+                    <div class="form-group">
+                        <label for="titulo">Título del trabajo</label>
+                        <input type="text" id="titulo" name="titulo" placeholder="Ej: Necesito plomero para reparar cañería" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="descripcion">Descripción detallada</label>
+                        <textarea id="descripcion" name="descripcion" placeholder="Describí el problema o trabajo a realizar..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="categoria">Categoría</label>
+                        <select id="categoria" name="categoria" required>
+                            <option value="">Selecciona una categoría</option>
+                            <option value="Plomería">Plomería</option>
+                            <option value="Electricidad">Electricidad</option>
+                            <option value="Albañilería">Albañilería</option>
+                            <option value="Pintura">Pintura</option>
+                            <option value="Carpintería">Carpintería</option>
+                            <option value="Limpieza">Limpieza</option>
+                            <option value="Jardinería">Jardinería</option>
+                            <option value="Otros">Otros</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ubicacion">Ubicación</label>
+                        <input type="text" id="ubicacion" name="ubicacion" placeholder="Dirección donde se realizará el trabajo" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="presupuesto">Presupuesto estimado (opcional)</label>
+                        <input type="number" id="presupuesto" name="presupuesto" placeholder="Monto en pesos">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fecha_limite">Fecha límite (opcional)</label>
+                        <input type="date" id="fecha_limite" name="fecha_limite">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="cerrarModalPublicar()">Cancelar</button>
+                <button class="btn btn-submit" onclick="publicarTrabajo()">Publicar</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <script>
+        {% if user_type == '1' %}
+        function abrirModalPublicar() {
+            document.getElementById('modalPublicar').classList.add('active');
+        }
+        
+        function cerrarModalPublicar() {
+            document.getElementById('modalPublicar').classList.remove('active');
+        }
+        
+        function publicarTrabajo() {
+            const formData = {
+                titulo: document.getElementById('titulo').value,
+                descripcion: document.getElementById('descripcion').value,
+                categoria: document.getElementById('categoria').value,
+                ubicacion: document.getElementById('ubicacion').value,
+                presupuesto: document.getElementById('presupuesto').value,
+                fecha_limite: document.getElementById('fecha_limite').value
+            };
+            
+            if (!formData.titulo || !formData.descripcion || !formData.categoria || !formData.ubicacion) {
+                alert('Por favor, completa todos los campos obligatorios.');
+                return;
+            }
+            
+            fetch('/publicar_trabajo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    cerrarModalPublicar();
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al publicar el trabajo');
+            });
+        }
+        {% endif %}
+        
+        {% if user_type == '2' %}
+        function aceptarTrabajo(publicacionId) {
+            if (!confirm('¿Estás seguro de que quieres aceptar este trabajo?')) {
+                return;
+            }
+            
+            fetch(`/aceptar_trabajo_muro/${publicacionId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al aceptar el trabajo');
+            });
+        }
+        {% endif %}
+        
+        // Cerrar modal al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                {% if user_type == '1' %}
+                cerrarModalPublicar();
+                {% endif %}
+            }
+        });
+    </script>
+</body>
+</html>

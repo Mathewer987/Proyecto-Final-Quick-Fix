@@ -182,6 +182,139 @@ def obtener_info_usuario(usuario_id):
         print(f"Error obteniendo info usuario: {str(e)}")
         return {'nombre': 'Usuario', 'tipo': 'usuario'}
 
+@app.route('/muro_publicaciones')
+def muro_publicaciones():
+    if not session.get('is_logged_in'):
+        flash('Debes iniciar sesión primero', 'warning')
+        return redirect(url_for('login'))
+    
+    try:
+        user_type = session.get('user_type')
+        
+        # Obtener todas las publicaciones del muro
+        muro_ref = db.collection('MuroPublicaciones')
+        docs = muro_ref.stream()
+        
+        publicaciones = []
+        for doc in docs:
+            pub_data = doc.to_dict()
+            pub_data['id'] = doc.id
+            pub_data['fecha_publicacion_str'] = pub_data.get('fecha_publicacion').strftime('%d/%m/%Y %H:%M') if pub_data.get('fecha_publicacion') else 'Fecha no disponible'
+            publicaciones.append(pub_data)
+        
+        # Ordenar por fecha más reciente
+        publicaciones.sort(key=lambda x: x.get('fecha_publicacion', datetime.min), reverse=True)
+        
+        return render_template('muro.html', 
+                             publicaciones=publicaciones,
+                             user_type=user_type,
+                             user_id=session.get('user_id'))
+        
+    except Exception as e:
+        print(f"Error al cargar el muro: {str(e)}")
+        flash('Error al cargar el muro de publicaciones', 'error')
+        return render_template('muro.html', publicaciones=[], user_type=session.get('user_type'))
+
+@app.route('/publicar_trabajo', methods=['POST'])
+def publicar_trabajo():
+    if not session.get('is_logged_in') or session.get('user_type') != '1':
+        return jsonify({'success': False, 'message': 'Solo los clientes pueden publicar trabajos'})
+    
+    try:
+        data = request.get_json()
+        
+        titulo = data.get('titulo')
+        descripcion = data.get('descripcion')
+        categoria = data.get('categoria')
+        ubicacion = data.get('ubicacion')
+        presupuesto = data.get('presupuesto')
+        fecha_limite = data.get('fecha_limite')
+        
+        if not all([titulo, descripcion, categoria, ubicacion]):
+            return jsonify({'success': False, 'message': 'Todos los campos son obligatorios'})
+        
+        # Crear publicación
+        publicacion_data = {
+            'cliente_id': session.get('user_id'),
+            'cliente_nombre': session.get('user_name', 'Cliente'),
+            'titulo': titulo,
+            'descripcion': descripcion,
+            'categoria': categoria,
+            'ubicacion': ubicacion,
+            'presupuesto': presupuesto,
+            'fecha_limite': fecha_limite,
+            'fecha_publicacion': datetime.now(),
+            'estado': 'disponible',
+            'tipo': 'publicacion_muro'
+        }
+        
+        muro_ref = db.collection('MuroPublicaciones')
+        nueva_publicacion = muro_ref.add(publicacion_data)
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Trabajo publicado exitosamente en el muro',
+            'publicacion_id': nueva_publicacion[1].id
+        })
+        
+    except Exception as e:
+        print(f"Error al publicar trabajo: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error al publicar el trabajo'})
+
+@app.route('/aceptar_trabajo_muro/<publicacion_id>', methods=['POST'])
+def aceptar_trabajo_muro(publicacion_id):
+    if not session.get('is_logged_in') or session.get('user_type') != '2':
+        return jsonify({'success': False, 'message': 'Solo los trabajadores pueden aceptar trabajos'})
+    
+    try:
+        # Obtener datos de la publicación
+        pub_ref = db.collection('MuroPublicaciones').document(publicacion_id)
+        publicacion = pub_ref.get()
+        
+        if not publicacion.exists:
+            return jsonify({'success': False, 'message': 'Publicación no encontrada'})
+        
+        publicacion_data = publicacion.to_dict()
+        
+        # Crear solicitud de trabajo
+        trabajo_data = {
+            'cliente_id': publicacion_data.get('cliente_id'),
+            'cliente_nombre': publicacion_data.get('cliente_nombre'),
+            'trabajador_id': session.get('user_id'),
+            'trabajador_nombre': session.get('user_name', 'Trabajador'),
+            'titulo': publicacion_data.get('titulo'),
+            'descripcion': publicacion_data.get('descripcion'),
+            'categoria': publicacion_data.get('categoria'),
+            'ubicacion': publicacion_data.get('ubicacion'),
+            'presupuesto': publicacion_data.get('presupuesto'),
+            'fecha_limite': publicacion_data.get('fecha_limite'),
+            'estado': 'pendiente',
+            'fecha_solicitud': datetime.now(),
+            'origen': 'muro'
+        }
+        
+        # Guardar en PendClienteTrabajador
+        pendientes_ref = db.collection('PendClienteTrabajador')
+        nuevo_trabajo = pendientes_ref.add(trabajo_data)
+        
+        # Marcar publicación como "en proceso"
+        pub_ref.update({
+            'estado': 'en_proceso',
+            'trabajador_asignado_id': session.get('user_id'),
+            'trabajador_asignado_nombre': session.get('user_name', 'Trabajador'),
+            'fecha_asignacion': datetime.now()
+        })
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Trabajo aceptado exitosamente. Se ha enviado una solicitud al cliente.',
+            'trabajo_id': nuevo_trabajo[1].id
+        })
+        
+    except Exception as e:
+        print(f"Error al aceptar trabajo del muro: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error al aceptar el trabajo'})
+    
 # Función auxiliar para obtener usuarios
 def obtener_usuarios_para_chat(usuario_actual_id, usuario_actual_tipo):
     """Obtener usuarios disponibles para chatear"""

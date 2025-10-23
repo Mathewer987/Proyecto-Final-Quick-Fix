@@ -17,6 +17,51 @@
     font-family: 'Poppins', sans-serif;
 }
 
+/* ===== BOTONES FLOTANTES ===== */
+.floating-buttons {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 1000;
+}
+
+/* Botón del Muro - Mismo estilo que chat pero diferente color */
+.muro-icon {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+}
+
+.muro-icon:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+}
+
+/* Ajustar posición individual de los botones cuando están en el grupo */
+.floating-buttons .chat-icon {
+    position: relative;
+    bottom: auto;
+    right: auto;
+    margin: 0;
+}
+
+/* Responsive para botones flotantes */
+@media (max-width: 768px) {
+    .floating-buttons {
+        bottom: 20px;
+        right: 20px;
+        gap: 12px;
+    }
+    
+    .floating-buttons .chat-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+    }
+}
+
 /* Líneas de fondo abstractas */
 .background-lines {
     position: fixed;

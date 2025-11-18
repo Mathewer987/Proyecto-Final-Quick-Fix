@@ -4,13 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Inicio de Sesión - QuickFix</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
     rel="stylesheet"
   />
+  <!-- CDN CORREGIDO de FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <div class="background-lines">
@@ -94,12 +96,13 @@
       </div>
 
       <div class="footer">
-        ¿No tenés cuenta? <a href="Registro.html">¡Registrate ya!</a>
+        ¿No tenés cuenta? <a href="/registro">¡Registrate ya!</a>  <!-- ENLACE CORREGIDO -->
       </div>
     </form>
   </div>
 
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <!-- ELIMINA esta línea problemática -->
+  <!-- <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> -->
 
   <script>
     document.getElementById("loginForm").addEventListener("submit", function (e) {
@@ -115,7 +118,6 @@
           "Por favor, completá todos los campos y seleccioná un rol.";
         return;
       }
-
     });
   </script>
 </body>

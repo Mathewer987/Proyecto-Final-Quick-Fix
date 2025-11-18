@@ -27,7 +27,7 @@
       "dest": "/templates/$1"
     },
     {
-      "src": "/(.*\.(html|css|js|png|jpg|ico))",
+      "src": "/(.*\\.(html|css|js|png|jpg|ico))",
       "dest": "/static/$1"
     },
     {

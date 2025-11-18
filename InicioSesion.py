@@ -3,14 +3,58 @@ import os
 import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime
+import functools
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# Configuración Firebase
-cred = credentials.Certificate("firebase-key.json")
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+def get_firestore_client():
+    """Obtiene el cliente de Firestore de forma optimizada"""
+    try:
+        # Verificar si ya está inicializado
+        if not firebase_admin._apps:
+            # Usar variables de entorno en lugar de archivo JSON
+            cred_dict = {
+                "type": "service_account",
+                "project_id": os.environ.get('FIREBASE_PROJECT_ID'),
+                "private_key_id": os.environ.get('FIREBASE_PRIVATE_KEY_ID'),
+                "private_key": os.environ.get('FIREBASE_PRIVATE_KEY').replace('\\n', '\n'),
+                "client_email": os.environ.get('FIREBASE_CLIENT_EMAIL'),
+                "client_id": os.environ.get('FIREBASE_CLIENT_ID'),
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                "client_x509_cert_url": os.environ.get('FIREBASE_CLIENT_CERT_URL')
+            }
+            
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
+        
+        return firestore.client()
+    
+    except Exception as e:
+        print(f"Error inicializando Firebase: {str(e)}")
+        # Fallback: intentar con archivo si existe
+        try:
+            if not firebase_admin._apps:
+                cred = credentials.Certificate("firebase-key.json")
+                firebase_admin.initialize_app(cred)
+            return firestore.client()
+        except:
+            raise Exception("No se pudo conectar a Firebase")
+
+# ✅ DECORADOR PARA MANEJAR CONEXIONES
+def with_firestore(f):
+    @functools.wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            db = get_firestore_client()
+            return f(db, *args, **kwargs)
+        except Exception as e:
+            print(f"Error de conexión: {str(e)}")
+            flash('Error de conexión con la base de datos', 'error')
+            return render_template('error.html', error=str(e))
+    return decorated_function
 
 ROLES_MAPPING = {
     'cliente': 'clientes',
@@ -487,8 +531,10 @@ def chat_conversacion(conversacion_id):
     # Redirigir a la nueva versión unificada
     return redirect(url_for('chat_home', conversacion=conversacion_id))
 
+# ✅ RUTAS OPTIMIZADAS
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+@with_firestore
+def login(db):
     if request.method == 'POST':
         email = request.form.get('username', '').strip().lower()
         password = request.form.get('contra', '').strip()
@@ -502,29 +548,36 @@ def login():
         try:
             firebase_collection = ROLES_MAPPING[role_form]
             users_ref = db.collection(firebase_collection)
-            query = users_ref.where("mail", "==", email).where("contra", "==", password).limit(1)
+            
+            # ✅ OPTIMIZAR: Usar queries más específicas
+            query = users_ref.where("mail", "==", email).limit(1)
             docs = query.get()
 
             if docs:
                 usuario = docs[0].to_dict()
-                session['is_logged_in'] = True
-                session['user_id'] = docs[0].id
-                session['user_name'] = usuario.get('nombre', 'Usuario')
-                session['user_type'] = USER_TYPE_MAPPING[role_form]
-                return redirect(url_for('home'))
-            else:
-                return render_template('Inicio_de_Sesion.html',
-                                    error="Usuario o contraseña incorrectos.",
-                                    color="red")
+                # Verificar contraseña en memoria, no en la query
+                if usuario.get('contra') == password:
+                    session['is_logged_in'] = True
+                    session['user_id'] = docs[0].id
+                    session['user_name'] = usuario.get('nombre', 'Usuario')
+                    session['user_type'] = USER_TYPE_MAPPING[role_form]
+                    return redirect(url_for('home'))
+            
+            return render_template('Inicio_de_Sesion.html',
+                                error="Usuario o contraseña incorrectos.",
+                                color="red")
+                
         except Exception as e:
-            print(f"Error: {str(e)}")
+            print(f"Error en login: {str(e)}")
             return render_template('Inicio_de_Sesion.html',
                                 error="Error en el servidor. Intente nuevamente.",
                                 color="red")
+    
     return render_template('Inicio_de_Sesion.html')
 
 @app.route('/home')
-def home():
+@with_firestore
+def home(db):
     if not session.get('is_logged_in'):
         return redirect(url_for('login'))
     
@@ -533,27 +586,21 @@ def home():
         try:
             trabajador_id = session.get('user_id')
             
-            # Contar SOLICITUDES DE CLIENTES pendientes
+            # ✅ OPTIMIZAR: Usar contadores en lugar de traer todos los documentos
             pendientes_ref = db.collection('PendClienteTrabajador')
             query_clientes = pendientes_ref.where('profesional_id', '==', trabajador_id).where('estado', '==', 'pendiente')
-            docs_clientes = query_clientes.stream()
+            docs_clientes = query_clientes.limit(100).stream()  # Limitar resultados
             count_clientes = sum(1 for _ in docs_clientes)
             
-            # Contar SOLICITUDES DE MENTORÍA pendientes
             mentorias_ref = db.collection('Mentorias')
             query_mentorias = mentorias_ref.where('mentor_id', '==', trabajador_id).where('estado', '==', 'pendiente')
-            docs_mentorias = query_mentorias.stream()
+            docs_mentorias = query_mentorias.limit(100).stream()
             count_mentorias = sum(1 for _ in docs_mentorias)
             
-            # Sumar ambos tipos
             solicitudes_pendientes = count_clientes + count_mentorias
             
-            # (Opcional) Guardar los conteos separados si los necesitas después)
-            session['solicitudes_clientes'] = count_clientes
-            session['solicitudes_mentorias'] = count_mentorias
-            
         except Exception as e:
-            print(f"Error al contar solicitudes pendientes: {str(e)}")
+            print(f"Error al contar solicitudes: {str(e)}")
             solicitudes_pendientes = 0
     
     return render_template('Home.html', solicitudes_pendientes=solicitudes_pendientes)

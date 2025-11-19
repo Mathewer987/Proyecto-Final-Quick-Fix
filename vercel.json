@@ -5,8 +5,7 @@
       "src": "InicioSesion.py",
       "use": "@vercel/python",
       "config": {
-        "maxLambdaSize": "15mb",
-        "runtime": "python3.9"
+        "maxLambdaSize": "15mb"
       }
     },
     {
@@ -28,16 +27,12 @@
       "dest": "/templates/$1"
     },
     {
-      "src": "/(.*\\.(html|css|js|png|jpg|jpeg|gif|ico))",
+      "src": "/(.*\\.(html|css|js|png|jpg|jpeg|gif|ico|svg))",
       "dest": "/static/$1"
     },
     {
       "src": "/(.*)",
       "dest": "InicioSesion.py"
     }
-  ],
-  "env": {
-    "PYTHONPATH": "@",
-    "FLASK_ENV": "production"
-  }
+  ]
 }

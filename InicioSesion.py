@@ -2,15 +2,42 @@ from flask import Flask, render_template, redirect, url_for, session, flash, req
 import os
 import firebase_admin
 from firebase_admin import credentials, firestore
+import json
 from datetime import datetime
 import functools
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = os.environ.get('SECRET_KEY', 'fallback-secret-key-for-development')
 
-cred = credentials.Certificate("firebase-key.json") #problema aca con el env y las credenciales (ademas esta medio rara la firebase-key)
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+try:
+    # Opción 1: Usar variable de entorno con las credenciales JSON
+    if os.environ.get('FIREBASE_CREDENTIALS'):
+        firebase_creds = json.loads(os.environ.get('FIREBASE_CREDENTIALS'))
+        cred = credentials.Certificate(firebase_creds)
+    # Opción 2: Archivo en el sistema (para desarrollo local)
+    elif os.path.exists("firebase-key.json"):
+        cred = credentials.Certificate("firebase-key.json")
+    # Opción 3: Inicialización automática (si ya está configurado en el entorno)
+    else:
+        cred = credentials.ApplicationDefault()
+    
+    firebase_admin.initialize_app(cred)
+    db = firestore.client()
+    print("✅ Firebase inicializado correctamente")
+    
+except Exception as e:
+    print(f"❌ Error inicializando Firebase: {str(e)}")
+    # Crear un cliente mock para desarrollo o mostrar error claro
+    db = None
+
+# Agrega esta ruta de health check
+@app.route('/health')
+def health_check():
+    if db is None:
+        return "Firebase no configurado", 500
+    return "OK", 200
+
+
 
 ROLES_MAPPING = {
     'cliente': 'clientes',
@@ -40,6 +67,10 @@ ESPECIALIDADES_PREDEFINIDAS = [
 
 @app.route('/')
 def index():
+    if db is None:
+        return "Error: Firebase no configurado. Por favor, verifica las credenciales.", 500
+    return render_template('Inicio_de_Sesion.html')
+
     return render_template('Inicio_de_Sesion.html')
 
 @app.route('/chat_home')
@@ -1628,7 +1659,12 @@ def rechazar_mentoria(mentoria_id):
 def registro():
     return render_template('Registro.html')
 
+# Handler para Vercel
+def handler(request):
+    return app(request)
 
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug = True)

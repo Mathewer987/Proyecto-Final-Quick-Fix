@@ -8,7 +8,7 @@ import functools
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-cred = credentials.Certificate("firebase-key.env")
+cred = credentials.Certificate("firebase-key.json") #problema aca con el env y las credenciales (ademas esta medio rara la firebase-key)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 

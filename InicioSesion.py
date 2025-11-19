@@ -489,8 +489,7 @@ def chat_conversacion(conversacion_id):
 
 # ✅ RUTAS OPTIMIZADAS
 @app.route('/login', methods=['GET', 'POST'])
-@with_firestore
-def login(db):
+def login():
     if request.method == 'POST':
         email = request.form.get('username', '').strip().lower()
         password = request.form.get('contra', '').strip()
@@ -504,36 +503,29 @@ def login(db):
         try:
             firebase_collection = ROLES_MAPPING[role_form]
             users_ref = db.collection(firebase_collection)
-            
-            # ✅ OPTIMIZAR: Usar queries más específicas
-            query = users_ref.where("mail", "==", email).limit(1)
+            query = users_ref.where("mail", "==", email).where("contra", "==", password).limit(1)
             docs = query.get()
 
             if docs:
                 usuario = docs[0].to_dict()
-                # Verificar contraseña en memoria, no en la query
-                if usuario.get('contra') == password:
-                    session['is_logged_in'] = True
-                    session['user_id'] = docs[0].id
-                    session['user_name'] = usuario.get('nombre', 'Usuario')
-                    session['user_type'] = USER_TYPE_MAPPING[role_form]
-                    return redirect(url_for('home'))
-            
-            return render_template('Inicio_de_Sesion.html',
-                                error="Usuario o contraseña incorrectos.",
-                                color="red")
-                
+                session['is_logged_in'] = True
+                session['user_id'] = docs[0].id
+                session['user_name'] = usuario.get('nombre', 'Usuario')
+                session['user_type'] = USER_TYPE_MAPPING[role_form]
+                return redirect(url_for('home'))
+            else:
+                return render_template('Inicio_de_Sesion.html',
+                                    error="Usuario o contraseña incorrectos.",
+                                    color="red")
         except Exception as e:
-            print(f"Error en login: {str(e)}")
+            print(f"Error: {str(e)}")
             return render_template('Inicio_de_Sesion.html',
                                 error="Error en el servidor. Intente nuevamente.",
                                 color="red")
-    
     return render_template('Inicio_de_Sesion.html')
 
 @app.route('/home')
-@with_firestore
-def home(db):
+def home():
     if not session.get('is_logged_in'):
         return redirect(url_for('login'))
     
@@ -542,21 +534,27 @@ def home(db):
         try:
             trabajador_id = session.get('user_id')
             
-            # ✅ OPTIMIZAR: Usar contadores en lugar de traer todos los documentos
+            # Contar SOLICITUDES DE CLIENTES pendientes
             pendientes_ref = db.collection('PendClienteTrabajador')
             query_clientes = pendientes_ref.where('profesional_id', '==', trabajador_id).where('estado', '==', 'pendiente')
-            docs_clientes = query_clientes.limit(100).stream()  # Limitar resultados
+            docs_clientes = query_clientes.stream()
             count_clientes = sum(1 for _ in docs_clientes)
             
+            # Contar SOLICITUDES DE MENTORÍA pendientes
             mentorias_ref = db.collection('Mentorias')
             query_mentorias = mentorias_ref.where('mentor_id', '==', trabajador_id).where('estado', '==', 'pendiente')
-            docs_mentorias = query_mentorias.limit(100).stream()
+            docs_mentorias = query_mentorias.stream()
             count_mentorias = sum(1 for _ in docs_mentorias)
             
+            # Sumar ambos tipos
             solicitudes_pendientes = count_clientes + count_mentorias
             
+            # (Opcional) Guardar los conteos separados si los necesitas después)
+            session['solicitudes_clientes'] = count_clientes
+            session['solicitudes_mentorias'] = count_mentorias
+            
         except Exception as e:
-            print(f"Error al contar solicitudes: {str(e)}")
+            print(f"Error al contar solicitudes pendientes: {str(e)}")
             solicitudes_pendientes = 0
     
     return render_template('Home.html', solicitudes_pendientes=solicitudes_pendientes)

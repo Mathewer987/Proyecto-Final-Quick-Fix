@@ -542,6 +542,17 @@ def login():
             return render_template('Inicio_de_Sesion.html',
                                 error="Error en el servidor. Intente nuevamente.",
                                 color="red")
+        
+        except Exception as e:
+            import traceback
+
+            print("\n🔥🔥 ERROR EN /login 🔥🔥")
+            traceback.print_exc()  # imprime el error real en la consola de Vercel
+
+            return jsonify({
+                "mensaje": f"Error interno del servidor: {str(e)}"
+            }), 500
+
     return render_template('Inicio_de_Sesion.html')
 
 @app.route('/home')

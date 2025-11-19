@@ -4,13 +4,33 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime
 import functools
+import json
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))
 
-cred = credentials.Certificate("firebase-key.json") #problema aca con el env y las credenciales (ademas esta medio rara la firebase-key)
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+# CONFIGURACIÓN FIREBASE CORREGIDA
+try:
+    # Para Vercel - usar variable de entorno
+    if 'FIREBASE_CREDENTIALS' in os.environ:
+        cred_dict = json.loads(os.environ['FIREBASE_CREDENTIALS'])
+        cred = credentials.Certificate(cred_dict)
+        firebase_admin.initialize_app(cred)
+        db = firestore.client()
+        print("✅ Firebase inicializado correctamente en Vercel")
+    # Para desarrollo local
+    elif os.path.exists('firebase-key.json'):
+        cred = credentials.Certificate('firebase-key.json')
+        firebase_admin.initialize_app(cred)
+        db = firestore.client()
+        print("✅ Firebase inicializado correctamente en local")
+    else:
+        print("❌ No se encontraron credenciales de Firebase")
+        db = None
+        
+except Exception as e:
+    print(f"❌ Error inicializando Firebase: {str(e)}")
+    db = None
 
 ROLES_MAPPING = {
     'cliente': 'clientes',

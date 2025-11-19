@@ -18,6 +18,8 @@ try:
         firebase_admin.initialize_app(cred)
         db = firestore.client()
         print("✅ Firebase inicializado correctamente en Vercel")
+        print("PROYECTO:", firebase_admin.get_app().project_id)
+
     # Para desarrollo local
     elif os.path.exists('firebase-key.json'):
         cred = credentials.Certificate('firebase-key.json')

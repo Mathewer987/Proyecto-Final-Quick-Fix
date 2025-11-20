@@ -15,6 +15,8 @@ try:
     # Para Vercel - usar variable de entorno
     if 'FIREBASE_CREDENTIALS' in os.environ:
         cred_dict = json.loads(os.environ['FIREBASE_CREDENTIALS'])
+        cred_dict['private_key'] = cred_dict['private_key'].replace('\\n', '\n')
+
         cred = credentials.Certificate(cred_dict)
         firebase_admin.initialize_app(cred)
         db = firestore.client()
@@ -526,6 +528,7 @@ def login():
         try:
             firebase_collection = ROLES_MAPPING[role_form]
             users_ref = db.collection(firebase_collection)
+            print(users_ref)
             query = users_ref.where("mail", "==", email).where("contra", "==", password).limit(1)
             docs = query.get()
 

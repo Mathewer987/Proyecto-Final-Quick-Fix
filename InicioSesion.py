@@ -14,19 +14,8 @@ app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))
 try:
     # Para Vercel - usar variable de entorno
     if 'FIREBASE_CREDENTIALS' in os.environ:
-        raw = os.environ['FIREBASE_CREDENTIALS']
-        cred_dict = json.loads(raw)
-
-        # DEBUG: mostrar cómo llega la private_key desde Vercel
-        print("PRIVATE KEY RECIBIDA (primeros 200 chars):")
-        print(cred_dict['private_key'][:200])
-
-        # Arreglar saltos de línea
+        cred_dict = json.loads(os.environ['FIREBASE_CREDENTIALS'])
         cred_dict['private_key'] = cred_dict['private_key'].replace('\\n', '\n')
-
-        # DEBUG: mostrar cómo queda después de corregir
-        print("PRIVATE KEY ARREGLADA (primeros 200 chars):")
-        print(cred_dict['private_key'][:200])
 
         cred = credentials.Certificate(cred_dict)
         firebase_admin.initialize_app(cred)
@@ -40,14 +29,9 @@ try:
         firebase_admin.initialize_app(cred)
         db = firestore.client()
         print("✅ Firebase inicializado correctamente en local")
-
     else:
         print("❌ No se encontraron credenciales de Firebase")
         db = None
-
-except Exception as e:
-    print("❌ ERROR INICIALIZANDO FIREBASE:", str(e))
-
         
 except Exception as e:
     print(f"❌ Error inicializando Firebase: {str(e)}")

@@ -5,27 +5,35 @@ from firebase_admin import credentials, firestore
 from datetime import datetime
 import functools
 import json
+from dotenv import load_dotenv  # ← Agregar esta línea
+
+
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))
 
-# CONFIGURACIÓN FIREBASE CORREGIDA
+# CONFIGURACIÓN FIREBASE MEJORADA
 try:
-    # Para Vercel - usar variable de entorno
+    # Para desarrollo local con .env
     if 'FIREBASE_CREDENTIALS' in os.environ:
         cred_dict = json.loads(os.environ['FIREBASE_CREDENTIALS'])
+        
+        # Asegurarse de que los \n en private_key se mantengan
+        if 'private_key' in cred_dict:
+            cred_dict['private_key'] = cred_dict['private_key'].replace('\\n', '\n')
+        
         cred = credentials.Certificate(cred_dict)
         firebase_admin.initialize_app(cred)
         db = firestore.client()
-        print("✅ Firebase inicializado correctamente en Vercel")
-        print("PROYECTO:", firebase_admin.get_app().project_id)
-
-    # Para desarrollo local
+        print("✅ Firebase inicializado correctamente con variables de entorno")
+        
+    # Para desarrollo local con archivo JSON
     elif os.path.exists('firebase-key.json'):
         cred = credentials.Certificate('firebase-key.json')
         firebase_admin.initialize_app(cred)
         db = firestore.client()
-        print("✅ Firebase inicializado correctamente en local")
+        print("✅ Firebase inicializado correctamente con archivo JSON")
     else:
         print("❌ No se encontraron credenciales de Firebase")
         db = None

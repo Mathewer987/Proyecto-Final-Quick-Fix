@@ -7,35 +7,51 @@ import functools
 import json
 
 
+def init_firebase():
+    if not firebase_admin._apps:
+        try:
+            print("🔧 Inicializando Firebase con variables separadas...")
+            
+            # Verificar que tenemos todas las variables necesarias
+            required_vars = ['FIREBASE_TYPE', 'FIREBASE_PROJECT_ID', 'FIREBASE_PRIVATE_KEY', 'FIREBASE_CLIENT_EMAIL']
+            missing_vars = [var for var in required_vars if var not in os.environ]
+            
+            if missing_vars:
+                raise Exception(f"Faltan variables de entorno: {missing_vars}")
+            
+            # Crear diccionario de credenciales
+            cred_dict = {
+                "type": os.environ["FIREBASE_TYPE"],
+                "project_id": os.environ["FIREBASE_PROJECT_ID"],
+                "private_key_id": os.environ.get("FIREBASE_PRIVATE_KEY_ID", ""),
+                "private_key": os.environ["FIREBASE_PRIVATE_KEY"].replace("\\n", "\n"),
+                "client_email": os.environ["FIREBASE_CLIENT_EMAIL"],
+                "client_id": os.environ.get("FIREBASE_CLIENT_ID", ""),
+                "auth_uri": os.environ.get("FIREBASE_AUTH_URI", "https://accounts.google.com/o/oauth2/auth"),
+                "token_uri": os.environ.get("FIREBASE_TOKEN_URI", "https://oauth2.googleapis.com/token"),
+                "auth_provider_x509_cert_url": os.environ.get("FIREBASE_AUTH_PROVIDER_CERT_URL", "https://www.googleapis.com/oauth2/v1/certs"),
+                "client_x509_cert_url": os.environ.get("FIREBASE_CLIENT_CERT_URL", ""),
+                "universe_domain": os.environ.get("FIREBASE_UNIVERSE_DOMAIN", "googleapis.com")
+            }
+            
+            # Limpiar campos vacíos
+            cred_dict = {k: v for k, v in cred_dict.items() if v}
+            
+            print(f"✅ Credenciales preparadas para: {cred_dict['client_email']}")
+            
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
+            print("✅ Firebase inicializado correctamente")
+            
+        except Exception as e:
+            print(f"❌ Error inicializando Firebase: {e}")
+            raise
+
+init_firebase()
+db = firestore.client()
+
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))
-
-# CONFIGURACIÓN FIREBASE CORREGIDA
-try:
-    # Para Vercel - usar variable de entorno
-    if 'FIREBASE_CREDENTIALS' in os.environ:
-        cred_dict = json.loads(os.environ['FIREBASE_CREDENTIALS'])
-        cred_dict['private_key'] = cred_dict['private_key'].replace('\\n', '\n')
-
-        cred = credentials.Certificate(cred_dict)
-        firebase_admin.initialize_app(cred)
-        db = firestore.client()
-        print("✅ Firebase inicializado correctamente en Vercel")
-        print("PROYECTO:", firebase_admin.get_app().project_id)
-
-    # Para desarrollo local
-    elif os.path.exists('firebase-key.json'):
-        cred = credentials.Certificate('firebase-key.json')
-        firebase_admin.initialize_app(cred)
-        db = firestore.client()
-        print("✅ Firebase inicializado correctamente en local")
-    else:
-        print("❌ No se encontraron credenciales de Firebase")
-        db = None
-        
-except Exception as e:
-    print(f"❌ Error inicializando Firebase: {str(e)}")
-    db = None
+app.secret_key = os.environ.get("SECRET_KEY", "default-secret")
 
 ROLES_MAPPING = {
     'cliente': 'clientes',
@@ -548,17 +564,6 @@ def login():
             return render_template('Inicio_de_Sesion.html',
                                 error="Error en el servidor. Intente nuevamente.",
                                 color="red")
-        
-        except Exception as e:
-            import traceback
-
-            print("\n🔥🔥 ERROR EN /login 🔥🔥")
-            traceback.print_exc()  # imprime el error real en la consola de Vercel
-
-            return jsonify({
-                "mensaje": f"Error interno del servidor: {str(e)}"
-            }), 500
-
     return render_template('Inicio_de_Sesion.html')
 
 @app.route('/home')

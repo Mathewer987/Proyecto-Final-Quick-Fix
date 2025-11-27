@@ -691,6 +691,7 @@ def actualizar_progreso(mentoria_id):
         print(f"Error al actualizar progreso: {str(e)}")
         return jsonify({'success': False, 'message': 'Error al actualizar el progreso'})
 
+# 🔄 ACTUALIZAR ESTA RUTA EXISTENTE
 @app.route('/finalizar_mentoria/<mentoria_id>', methods=['POST'])
 def finalizar_mentoria(mentoria_id):
     if not session.get('is_logged_in') or session.get('user_type') != '2':
@@ -698,11 +699,19 @@ def finalizar_mentoria(mentoria_id):
     
     try:
         mentoria_ref = db.collection('Mentorias').document(mentoria_id)
+        
+        # ✅ NUEVO: Actualizar con campos de calificación pendiente
         mentoria_ref.update({
             'estado': 'completada',
             'fecha_actualizacion': datetime.now(),
             'completado_por': 'mentor',
-            'fecha_completacion': datetime.now()
+            'fecha_completacion': datetime.now(),
+            # ✅ NUEVOS CAMPOS PARA CALIFICACIÓN
+            'pendiente_calificacion': True,
+            'calificacion': None,
+            'comentario_aprendiz': None,
+            'fecha_calificacion': None,
+            'calificado_por': None
         })
         
         return jsonify({'success': True, 'message': 'Mentoría marcada como completada'})
@@ -1533,6 +1542,7 @@ def solicitar_mentoria():
         print(f"Error al procesar solicitud de mentoría: {str(e)}")
         return jsonify({'success': False, 'message': 'Error al procesar la solicitud'})
 
+# 🔄 ACTUALIZAR ESTA RUTA EXISTENTE
 @app.route('/finalizar_trabajo/<trabajo_id>', methods=['POST'])
 def finalizar_trabajo(trabajo_id):
     if not session.get('is_logged_in') or session.get('user_type') != '2':
@@ -1544,11 +1554,11 @@ def finalizar_trabajo(trabajo_id):
         trabajo = trabajo_ref.get()
         
         if not trabajo.exists:
-            return jsonify({'success': False, 'message': 'Trabajo no encontrado'})
+            return jsonify({'success': False, 'message': 'Trabajo no encontrada'})
         
         trabajo_data = trabajo.to_dict()
         
-        # Crear registro en TrabajosFinalizados
+        # ✅ NUEVO: Crear registro en TrabajosFinalizados con campo de calificación pendiente
         finalizado_data = {
             'trabajo_id': trabajo_id,
             'cliente_id': trabajo_data.get('cliente_id'),
@@ -1561,7 +1571,13 @@ def finalizar_trabajo(trabajo_id):
             'especificaciones': trabajo_data.get('especificaciones'),
             'metodo_pago': trabajo_data.get('metodo_pago'),
             'ubicacion': trabajo_data.get('ubicacion'),
-            'estado': 'finalizado'
+            'estado': 'finalizado',
+            # ✅ NUEVOS CAMPOS PARA CALIFICACIÓN
+            'pendiente_calificacion': True,
+            'calificacion': None,
+            'comentario_cliente': None,
+            'fecha_calificacion': None,
+            'calificado_por': None
         }
         
         db.collection('TrabajosFinalizados').document(trabajo_id).set(finalizado_data)
@@ -1670,7 +1686,130 @@ def rechazar_mentoria(mentoria_id):
 def registro():
     return render_template('Registro.html')
 
+# 🆕 RUTA NUEVA - AGREGAR COMPLETA
+@app.route('/calificar_trabajo/<trabajo_id>', methods=['POST'])
+def calificar_trabajo(trabajo_id):
+    if not session.get('is_logged_in') or session.get('user_type') != '1':
+        return jsonify({'success': False, 'message': 'No autorizado'})
+    
+    try:
+        data = request.get_json()
+        calificacion = data.get('calificacion')
+        comentario = data.get('comentario', '')
+        trabajador_id = data.get('trabajadorId')
+        
+        if not calificacion or not (1 <= calificacion <= 5):
+            return jsonify({'success': False, 'message': 'Calificación inválida'})
+        
+        # Actualizar el trabajo finalizado con la calificación
+        trabajo_ref = db.collection('TrabajosFinalizados').document(trabajo_id)
+        trabajo_ref.update({
+            'calificacion': calificacion,
+            'comentario_cliente': comentario,
+            'fecha_calificacion': datetime.now(),
+            'calificado_por': 'cliente',
+            'pendiente_calificacion': False  # ✅ Ya no está pendiente
+        })
+        
+        # Actualizar el rating del trabajador
+        if trabajador_id:
+            actualizar_rating_trabajador(trabajador_id, calificacion)
+        
+        return jsonify({'success': True, 'message': 'Calificación enviada correctamente'})
+        
+    except Exception as e:
+        print(f"Error al calificar trabajo: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error al enviar la calificación'})
+    
+# 🆕 RUTA NUEVA - AGREGAR COMPLETA
+@app.route('/calificar_mentoria_desempleado/<mentoria_id>', methods=['POST'])
+def calificar_mentoria_desempleado(mentoria_id):
+    if not session.get('is_logged_in') or session.get('user_type') != '3':
+        return jsonify({'success': False, 'message': 'No autorizado'})
+    
+    try:
+        data = request.get_json()
+        calificacion = data.get('calificacion')
+        comentario = data.get('comentario', '')
+        mentor_id = data.get('mentorId')
+        
+        if not calificacion or not (1 <= calificacion <= 5):
+            return jsonify({'success': False, 'message': 'Calificación inválida'})
+        
+        # Actualizar la mentoría con la calificación
+        mentoria_ref = db.collection('Mentorias').document(mentoria_id)
+        mentoria_ref.update({
+            'calificacion': calificacion,
+            'comentario_aprendiz': comentario,
+            'fecha_calificacion': datetime.now(),
+            'calificado_por': 'aprendiz',
+            'pendiente_calificacion': False  # ✅ Ya no está pendiente
+        })
+        
+        # Actualizar el rating del mentor
+        if mentor_id:
+            actualizar_rating_mentor(mentor_id, calificacion)
+        
+        return jsonify({'success': True, 'message': 'Calificación enviada correctamente'})
+        
+    except Exception as e:
+        print(f"Error al calificar mentoría: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error al enviar la calificación'})
 
+# 🆕 FUNCIONES NUEVAS - AGREGAR COMPLETAS
+def actualizar_rating_trabajador(trabajador_id, nueva_calificacion):
+    """Actualizar el rating promedio del trabajador"""
+    try:
+        trabajador_ref = db.collection('trabajadores').document(trabajador_id)
+        trabajador_doc = trabajador_ref.get()
+        
+        if trabajador_doc.exists:
+            trabajador_data = trabajador_doc.to_dict()
+            
+            # Obtener calificaciones existentes
+            calificaciones = trabajador_data.get('calificaciones', [])
+            calificaciones.append(nueva_calificacion)
+            
+            # Calcular nuevo promedio
+            rating_promedio = sum(calificaciones) / len(calificaciones)
+            
+            # Actualizar en Firestore
+            trabajador_ref.update({
+                'calificaciones': calificaciones,
+                'rating': round(rating_promedio, 1),
+                'total_calificaciones': len(calificaciones)
+            })
+            print(f"✅ Rating actualizado para trabajador {trabajador_id}: {rating_promedio}")
+            
+    except Exception as e:
+        print(f"❌ Error actualizando rating del trabajador: {str(e)}")
+
+def actualizar_rating_mentor(mentor_id, nueva_calificacion):
+    """Actualizar el rating promedio del mentor"""
+    try:
+        mentor_ref = db.collection('trabajadores').document(mentor_id)
+        mentor_doc = mentor_ref.get()
+        
+        if mentor_doc.exists:
+            mentor_data = mentor_doc.to_dict()
+            
+            # Obtener calificaciones de mentoría existentes
+            calificaciones_mentoria = mentor_data.get('calificaciones_mentoria', [])
+            calificaciones_mentoria.append(nueva_calificacion)
+            
+            # Calcular nuevo promedio de mentoría
+            rating_mentoria = sum(calificaciones_mentoria) / len(calificaciones_mentoria)
+            
+            # Actualizar en Firestore
+            mentor_ref.update({
+                'calificaciones_mentoria': calificaciones_mentoria,
+                'rating_mentoria': round(rating_mentoria, 1),
+                'total_mentorias_calificadas': len(calificaciones_mentoria)
+            })
+            print(f"✅ Rating de mentoría actualizado para {mentor_id}: {rating_mentoria}")
+            
+    except Exception as e:
+        print(f"❌ Error actualizando rating del mentor: {str(e)}")
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug = True)

@@ -130,7 +130,7 @@
 
     <!-- Botones de acción (se mantienen igual) -->
     <div class="trabajo-actions">
-        <button class="btn btn-complete" onclick="finalizarTrabajo('{{ trabajo.id }}', 'contratacion')">
+        <button class="btn btn-complete" onclick="finalizarTrabajo('{{ trabajo.id }}')">
             <i class="fas fa-check-circle"></i> Finalizado
         </button>
         <button class="btn btn-contact" onclick="contactarCliente('{{ trabajo.cliente_id }}')">
@@ -202,7 +202,7 @@
 
                         <!-- Botones de acción para mentorías -->
                         <div class="trabajo-actions">
-                            <button class="btn btn-complete" onclick="finalizarMentoriaTrabajador('{{ mentoria.id }}')">
+                            <button class="btn btn-complete" onclick="finalizarMentoriaTrabajador('{{ mentoria.id }}', '{{ mentoria.desempleado_nombre }}')">
                                 <i class="fas fa-graduation-cap"></i> Mentoría Completa
                             </button>
                             <button class="btn btn-contact" onclick="contactarAprendiz('{{ mentoria.desempleado_id }}')">
@@ -462,6 +462,65 @@
         // Evitar submit con Enter dentro del textarea
         document.getElementById('formCancelacion').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') e.preventDefault();
+
+            // ✅ AGREGAR ESTAS FUNCIONES NUEVAS:
+
+function finalizarTrabajo(trabajoId) {
+    if (confirm('¿Estás seguro de que deseas marcar este trabajo como finalizado?\n\nEl cliente recibirá una solicitud para calificar tu servicio.')) {
+        fetch(`/finalizar_trabajo/${trabajoId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Trabajo marcado como finalizado. El cliente podrá calificar tu servicio.');
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al procesar la solicitud');
+        });
+    }
+}
+
+function finalizarMentoriaTrabajador(mentoriaId, aprendizNombre) {
+    if (confirm(`¿Estás seguro de que deseas marcar esta mentoría como completada?\n\nEl aprendiz ${aprendizNombre} recibirá una solicitud para calificar tu mentoría.`)) {
+        fetch(`/finalizar_mentoria/${mentoriaId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('🎓 Mentoría marcada como completada. El aprendiz podrá calificar tu enseñanza.');
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al procesar la solicitud');
+        });
+    }
+}
+
+// ✅ AGREGAR FUNCIÓN PARA CONTACTAR APRENDIZ (si no existe)
+function contactarAprendiz(aprendizId) {
+    alert('Funcionalidad de contacto con el aprendiz en desarrollo para ID: ' + aprendizId);
+}
+
+// ✅ AGREGAR FUNCIÓN PARA CANCELAR MENTORÍA (si no existe)
+function abrirModalCancelacionMentoria(mentoriaId) {
+    if (confirm('¿Estás seguro de que deseas cancelar esta mentoría?')) {
+        // Aquí podrías implementar una función específica para cancelar mentorías
+        alert('Funcionalidad de cancelación de mentoría en desarrollo para ID: ' + mentoriaId);
+    }
+}
         });
     </script>
 </body>

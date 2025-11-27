@@ -149,8 +149,53 @@
         </main>
     </div>
 
+    <div class="modal-overlay" id="modalCalificacion">
+    <div class="modal-content calificacion-modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Calificar Servicio</h3>
+            <button class="close-modal" onclick="cerrarModalCalificacion()">&times;</button>
+        </div>
+        <form id="formCalificacion">
+            <input type="hidden" id="tipoServicio" value="">
+            <input type="hidden" id="servicioId" value="">
+            <input type="hidden" id="profesionalId" value="">
+            
+            <div class="calificacion-section">
+                <label>¿Cómo calificarías el servicio?</label>
+                <div class="estrellas-calificacion">
+                    <span class="estrella" data-value="1">★</span>
+                    <span class="estrella" data-value="2">★</span>
+                    <span class="estrella" data-value="3">★</span>
+                    <span class="estrella" data-value="4">★</span>
+                    <span class="estrella" data-value="5">★</span>
+                </div>
+                <div class="calificacion-texto">
+                    <span id="textoCalificacion">Selecciona una calificación</span>
+                </div>
+                <input type="hidden" id="valorCalificacion" value="0">
+            </div>
+
+            <div class="comentario-section">
+                <label for="comentarioCalificacion">Comentario (opcional):</label>
+                <textarea id="comentarioCalificacion" placeholder="Comparte tu experiencia con este servicio..."></textarea>
+                <button type="button" class="btn-toggle-comentario" onclick="toggleComentario()">
+                    <i class="fas fa-comment"></i> Agregar comentario
+                </button>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-cancel" onclick="cerrarModalCalificacion()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="enviarCalificacion()">Enviar Calificación</button>
+            </div>
+        </form>
+    </div>
+</div>
+
     <script>
 
+document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+        document.querySelector('.nav').classList.toggle('active');
+    });
         
         // Menú móvil
         document.querySelector('.mobile-menu-btn').addEventListener('click', function() {

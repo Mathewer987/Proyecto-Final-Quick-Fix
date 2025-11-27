@@ -1811,5 +1811,60 @@ def actualizar_rating_mentor(mentor_id, nueva_calificacion):
     except Exception as e:
         print(f"❌ Error actualizando rating del mentor: {str(e)}")
 
+@app.route('/api/calificaciones_pendientes')
+def obtener_calificaciones_pendientes():
+    if not session.get('is_logged_in'):
+        return jsonify({'success': False, 'message': 'No autorizado'})
+    
+    try:
+        user_id = session.get('user_id')
+        user_type = session.get('user_type')
+        calificaciones_pendientes = []
+
+        # Para CLIENTES - Verificar trabajos finalizados pendientes de calificar
+        if user_type == '1':
+            # Buscar en TrabajosFinalizados
+            trabajos_ref = db.collection('TrabajosFinalizados')
+            query_trabajos = trabajos_ref.where('cliente_id', '==', user_id).where('pendiente_calificacion', '==', True)
+            docs_trabajos = query_trabajos.stream()
+            
+            for doc in docs_trabajos:
+                trabajo_data = doc.to_dict()
+                calificaciones_pendientes.append({
+                    'id': doc.id,
+                    'tipo': 'trabajo',
+                    'titulo': trabajo_data.get('especializacion', 'Trabajo completado'),
+                    'profesional_nombre': trabajo_data.get('profesional_nombre', 'Profesional'),
+                    'profesional_id': trabajo_data.get('profesional_id'),
+                    'fecha_finalizacion': trabajo_data.get('fecha_finalizacion')
+                })
+
+        # Para DESEMPLEADOS - Verificar mentorías completadas pendientes de calificar
+        elif user_type == '3':
+            # Buscar en Mentorias
+            mentorias_ref = db.collection('Mentorias')
+            query_mentorias = mentorias_ref.where('desempleado_id', '==', user_id).where('pendiente_calificacion', '==', True)
+            docs_mentorias = query_mentorias.stream()
+            
+            for doc in docs_mentorias:
+                mentoria_data = doc.to_dict()
+                calificaciones_pendientes.append({
+                    'id': doc.id,
+                    'tipo': 'mentoria',
+                    'titulo': f"Mentoría - {mentoria_data.get('area_interes', 'Capacitación')}",
+                    'profesional_nombre': mentoria_data.get('mentor_nombre', 'Mentor'),
+                    'profesional_id': mentoria_data.get('mentor_id'),
+                    'fecha_completacion': mentoria_data.get('fecha_completacion')
+                })
+
+        return jsonify({
+            'success': True,
+            'calificaciones_pendientes': calificaciones_pendientes
+        })
+        
+    except Exception as e:
+        print(f"Error obteniendo calificaciones pendientes: {str(e)}")
+        return jsonify({'success': False, 'calificaciones_pendientes': []})
+    
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug = True)

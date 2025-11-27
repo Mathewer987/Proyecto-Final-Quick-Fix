@@ -192,32 +192,140 @@
 </div>
 
     <script>
+// Detectar calificaciones pendientes al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar si el usuario está logueado y es cliente (tipo 1)
+    const userType = "{{ session.get('user_type', '') }}";
+    const isLoggedIn = "{{ session.get('is_logged_in', False) }}" === "True";
+    
+    if (isLoggedIn && userType === '1') {
+        verificarCalificacionesPendientes();
+    }
+});
 
-document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
-        document.querySelector('.nav').classList.toggle('active');
+function verificarCalificacionesPendientes() {
+    fetch('/api/calificaciones_pendientes')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.calificaciones_pendientes.length > 0) {
+                // Mostrar el primer trabajo/mentoría pendiente de calificar
+                const primeraCalificacion = data.calificaciones_pendientes[0];
+                mostrarModalCalificacion(primeraCalificacion);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function mostrarModalCalificacion(calificacion) {
+    document.getElementById('tipoServicio').value = calificacion.tipo;
+    document.getElementById('servicioId').value = calificacion.id;
+    document.getElementById('profesionalId').value = calificacion.profesional_id;
+    
+    // Configurar título según el tipo
+    const titulo = calificacion.tipo === 'trabajo' ? 'Calificar Trabajo' : 'Calificar Mentoría';
+    document.querySelector('.modal-title').textContent = titulo;
+    
+    // Mostrar modal
+    document.getElementById('modalCalificacion').style.display = 'flex';
+}
+
+// Función para enviar calificación
+function enviarCalificacion() {
+    const tipo = document.getElementById('tipoServicio').value;
+    const servicioId = document.getElementById('servicioId').value;
+    const profesionalId = document.getElementById('profesionalId').value;
+    const calificacion = document.getElementById('valorCalificacion').value;
+    const comentario = document.getElementById('comentarioCalificacion').value;
+
+    if (calificacion === '0') {
+        alert('Por favor selecciona una calificación');
+        return;
+    }
+
+    const url = tipo === 'trabajo' ? '/calificar_trabajo/' : '/calificar_mentoria_desempleado/';
+    
+    fetch(url + servicioId, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            calificacion: parseInt(calificacion),
+            comentario: comentario,
+            trabajadorId: profesionalId,
+            mentorId: profesionalId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('¡Gracias por tu calificación!');
+            cerrarModalCalificacion();
+            // Verificar si hay más calificaciones pendientes
+            verificarCalificacionesPendientes();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al enviar la calificación');
     });
+}
+
+function cerrarModalCalificacion() {
+    document.getElementById('modalCalificacion').style.display = 'none';
+    // Limpiar formulario
+    document.getElementById('valorCalificacion').value = '0';
+    document.getElementById('comentarioCalificacion').value = '';
+    // Resetear estrellas
+    document.querySelectorAll('.estrella').forEach(star => {
+        star.classList.remove('active');
+    });
+    document.getElementById('textoCalificacion').textContent = 'Selecciona una calificación';
+}
+
+// Sistema de estrellas
+document.querySelectorAll('.estrella').forEach(star => {
+    star.addEventListener('click', function() {
+        const value = this.getAttribute('data-value');
+        document.getElementById('valorCalificacion').value = value;
         
-        // Menú móvil
-        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
-            document.querySelector('.nav').classList.toggle('active');
+        // Actualizar visualización de estrellas
+        document.querySelectorAll('.estrella').forEach(s => {
+            s.classList.remove('active');
+            if (s.getAttribute('data-value') <= value) {
+                s.classList.add('active');
+            }
         });
-
-        // Cerrar menú al seleccionar opción (para móviles)
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', function() {
-                document.querySelector('.nav').classList.remove('active');
-            });
-        });
-
-        // Chat button functionality
-        document.getElementById('chatButton').addEventListener('click', function() {
-            window.location.href = "{{ url_for('chat_home') }}";
-        });
-
-            // Muro button functionality
-    document.getElementById('muroButton').addEventListener('click', function() {
-        window.location.href = "{{ url_for('muro_publicaciones') }}";
+        
+        // Actualizar texto
+        const textos = {
+            '1': 'Muy malo',
+            '2': 'Malo', 
+            '3': 'Regular',
+            '4': 'Bueno',
+            '5': 'Excelente'
+        };
+        document.getElementById('textoCalificacion').textContent = textos[value];
     });
-    </script>
+});
+
+// Cerrar modal al hacer click fuera
+document.getElementById('modalCalificacion').addEventListener('click', function(e) {
+    if (e.target === this) cerrarModalCalificacion();
+});
+
+function toggleComentario() {
+    const textarea = document.getElementById('comentarioCalificacion');
+    const button = document.querySelector('.btn-toggle-comentario');
+    
+    if (textarea.style.display === 'none' || textarea.style.display === '') {
+        textarea.style.display = 'block';
+        button.innerHTML = '<i class="fas fa-times"></i> Ocultar comentario';
+    } else {
+        textarea.style.display = 'none';
+        button.innerHTML = '<i class="fas fa-comment"></i> Agregar comentario';
+    }
+}
+</script>
 </body>
 </html>

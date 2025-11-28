@@ -1865,6 +1865,7 @@ def obtener_calificaciones_pendientes():
     except Exception as e:
         print(f"Error obteniendo calificaciones pendientes: {str(e)}")
         return jsonify({'success': False, 'calificaciones_pendientes': []})
-    
+
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug = True)

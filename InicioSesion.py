@@ -1686,8 +1686,8 @@ def rechazar_mentoria(mentoria_id):
 def registro():
     return render_template('Registro.html')
 
-@app.route('/InicioDeSesion')
-def InicioDeSesion():
+@app.route('/Inicio_de_Sesion')
+def Inicio_de_Sesion():
     return render_template('Inicio_de_sesion.html')
 
 # 🆕 RUTA NUEVA - AGREGAR COMPLETA

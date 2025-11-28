@@ -59,22 +59,22 @@
       if (rol === 'cliente') {
         html = `
           <div class="cajita">
-            <label for="zona">Zona en la que vivís</label>
-            <input type="text" id="zona" name="zona" placeholder="Ej. Palermo, La Boca, etc." />
+            <label for="email">Zona en la que vivís</label>
+            <input type="email" id="zona" name="zona" placeholder="Ej. Palermo, La Boca, etc." />
           </div>
         `;
       } else if (rol === 'trabajador') {
         html = `
           <div class="cajita">
-            <label for="especialidad">Especialidad</label>
-            <input type="text" id="especialidad" name="especialidad" placeholder="Ej. Electricista, Plomero..." />
+            <label for="email">Especialidad</label>
+            <input type="email" id="especialidad" name="especialidad" placeholder="Ej. Electricista, Plomero..." />
           </div>
         `;
       } else if (rol === 'desempleado') {
         html = `
           <div class="cajita">
-            <label for="educacion">Nivel de educación</label>
-            <input type="text" id="educacion" name="educacion" placeholder="Ej. Secundario completo, Terciario..." />
+            <label for="email">Nivel de educación</label>
+            <input type="email" id="educacion" name="educacion" placeholder="Ej. Secundario completo, Terciario..." />
           </div>
         `;
       }

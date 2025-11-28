@@ -22,8 +22,8 @@
 
     <form>
       <div class="cajita">
-        <label for="nombre">Nombre de usuario</label>
-        <input type="text" id="nombre" name="nombre" placeholder="Elegí un nombre de usuario" />
+        <label for="email">Nombre de usuario</label>
+        <input type="email" id="nombre" name="nombre" placeholder="Elegí un nombre de usuario" />
       </div>
 
       <div class="cajita">
@@ -48,7 +48,7 @@
   </div>
 
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-  <!-- 
+  
   <script>
     const rolInputs = document.querySelectorAll('input[name="rol"]');
     const extraFieldsContainer = document.getElementById('extra-fields');
@@ -59,22 +59,22 @@
       if (rol === 'cliente') {
         html = `
           <div class="cajita">
-            <label for="zona">Zona en la que vivís</label>
-            <input type="text" id="zona" name="zona" placeholder="Ej. Palermo, La Boca, etc." />
+            <label for="email">Zona en la que vivís</label>
+            <input type="email" id="zona" name="zona" placeholder="Ej. Palermo, La Boca, etc." />
           </div>
         `;
       } else if (rol === 'trabajador') {
         html = `
           <div class="cajita">
-            <label for="especialidad">Especialidad</label>
-            <input type="text" id="especialidad" name="especialidad" placeholder="Ej. Electricista, Plomero..." />
+            <label for="email">Especialidad</label>
+            <input type="email" id="especialidad" name="especialidad" placeholder="Ej. Electricista, Plomero..." />
           </div>
         `;
       } else if (rol === 'desempleado') {
         html = `
           <div class="cajita">
-            <label for="educacion">Nivel de educación</label>
-            <input type="text" id="educacion" name="educacion" placeholder="Ej. Secundario completo, Terciario..." />
+            <label for="email">Nivel de educación</label>
+            <input type="email" id="educacion" name="educacion" placeholder="Ej. Secundario completo, Terciario..." />
           </div>
         `;
       }
@@ -90,7 +90,7 @@
   
     updateExtraFields(document.querySelector('input[name="rol"]:checked').value);
   </script>
-  -->
+  
    
   <script>
 document.querySelector('.btn-register').addEventListener('click', function() {

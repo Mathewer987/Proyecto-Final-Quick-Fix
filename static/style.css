@@ -147,6 +147,36 @@ body {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
+
+.cajitan {
+  margin-bottom: 1.5rem;
+}
+
+.cajitan label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--dark-color);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.cajitan input[type="email"],
+.cajitan input[type="password"] {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: var(--light-color);
+}
+
+.cajitan input[type="email"]:focus,
+.cajitan input[type="password"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
 .opciones {
   margin: 1.5rem 0;
   display: flex;

@@ -1686,6 +1686,10 @@ def rechazar_mentoria(mentoria_id):
 def registro():
     return render_template('Registro.html')
 
+@app.route('/InicioDeSesion')
+def InicioDeSesion():
+    return render_template('Inicio_de_sesion.html')
+
 # 🆕 RUTA NUEVA - AGREGAR COMPLETA
 @app.route('/calificar_trabajo/<trabajo_id>', methods=['POST'])
 def calificar_trabajo(trabajo_id):

@@ -709,12 +709,37 @@
                 <div class="perfil-info">
                     <h2 id="perfilNombre">Nombre del Profesional</h2>
                     <div class="perfil-especialidad" id="perfilEspecialidad">Especialidad Principal</div>
-                    <div class="perfil-rating">
-                        <div class="stars" id="perfilRating">
-                            <!-- Estrellas se generan dinámicamente -->
-                        </div>
-                        <span class="reviews" id="perfilReviews">(0 reseñas)</span>
-                    </div>
+                    <!-- 🔄 ACTUALIZAR ESTA SECCIÓN EN EL MODAL DE PERFIL -->
+<div class="perfil-rating">
+    <div class="stars" id="perfilRating">
+        {% if profesional.rating > 0 %}
+            {% for i in range(5) %}
+                {% if i < profesional.rating %}
+                    <i class="fas fa-star"></i>
+                {% else %}
+                    {% if (i - 0.5) < profesional.rating %}
+                        <i class="fas fa-star-half-alt"></i>
+                    {% else %}
+                        <i class="far fa-star"></i>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <i class="far fa-star"></i>
+            <i class="far fa-star"></i>
+            <i class="far fa-star"></i>
+            <i class="far fa-star"></i>
+            <i class="far fa-star"></i>
+        {% endif %}
+    </div>
+    <span class="reviews" id="perfilReviews">
+        {% if profesional.reseñas > 0 %}
+            ({{ profesional.reseñas }} reseña{% if profesional.reseñas != 1 %}s{% endif %})
+        {% else %}
+            (Sin reseñas)
+        {% endif %}
+    </span>
+</div>
                 </div>
                 <button class="close-perfil-modal" onclick="cerrarModalPerfil()">&times;</button>
             </div>
@@ -843,20 +868,30 @@
                         </div>
                         <div class="card-content">
                             <h3>{{ profesional.nombre }} {{ profesional.apellido }}</h3>
-                            <div class="card-rating">
-                                {% for i in range(5) %}
-                                    {% if i < profesional.rating|int %}
-                                        <i class="fas fa-star"></i>
-                                    {% else %}
-                                        {% if i < profesional.rating %}
-                                            <i class="fas fa-star-half-alt"></i>
-                                        {% else %}
-                                            <i class="far fa-star"></i>
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                                <span>({{ profesional.reseñas }} reseñas)</span>
-                            </div>
+                            <!-- 🔄 ACTUALIZAR ESTA SECCIÓN EN Browser.html -->
+<div class="card-rating">
+    {% if profesional.rating > 0 %}
+        {% for i in range(5) %}
+            {% if i < profesional.rating %}
+                <i class="fas fa-star"></i>
+            {% else %}
+                {% if (i - 0.5) < profesional.rating %}
+                    <i class="fas fa-star-half-alt"></i>
+                {% else %}
+                    <i class="far fa-star"></i>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        <span>({{ profesional.reseñas }} reseña{% if profesional.reseñas != 1 %}s{% endif %})</span>
+    {% else %}
+        <i class="far fa-star"></i>
+        <i class="far fa-star"></i>
+        <i class="far fa-star"></i>
+        <i class="far fa-star"></i>
+        <i class="far fa-star"></i>
+        <span>(Sin reseñas)</span>
+    {% endif %}
+</div>
                             <div class="card-specialty">
                                 <i class="fas fa-wrench"></i> {{ profesional.especialidad_principal }}
                                 {% if profesional.especialidades|length > 1 %}
@@ -900,6 +935,8 @@
             </div>
         </main>
     </div>
+
+    
 
     <!-- FORMULARIO FLOTANTE DE CONTRATACIÓN -->
     <div class="modal-overlay" id="modalContratacion">
@@ -982,12 +1019,12 @@
         
         function verPerfil(profesionalId) {
     // Buscar los datos del profesional en la lista actual
-    const profesionalCard = document.querySelector(`[onclick*="${profesionalId}"]`).closest('.professional-card');
+    const profesionalCard = document.querySelector(`button[onclick*="verPerfil('${profesionalId}')"]`).closest('.professional-card');
     
     if (profesionalCard) {
         const nombre = profesionalCard.querySelector('h3').textContent;
         const especialidadPrincipal = profesionalCard.querySelector('.card-specialty').textContent.trim();
-        const rating = profesionalCard.querySelector('.card-rating');
+        const ratingHTML = profesionalCard.querySelector('.card-rating').innerHTML;
         const ubicacion = profesionalCard.querySelector('.card-location').textContent.trim();
         const precio = profesionalCard.querySelector('.card-price span').textContent;
         
@@ -1000,9 +1037,12 @@
         document.getElementById('perfilUbicacion').textContent = ubicacion.replace('📍 ', '');
         document.getElementById('perfilPrecio').textContent = `$${precio}`;
         
-        // Generar estrellas de rating
-        const ratingStars = rating.innerHTML;
-        document.getElementById('perfilRating').innerHTML = ratingStars;
+        // Usar el rating HTML directamente desde la tarjeta
+        document.getElementById('perfilRating').innerHTML = ratingHTML;
+        
+        // Actualizar el texto de reseñas
+        const reviewsText = profesionalCard.querySelector('.card-rating span').textContent;
+        document.getElementById('perfilReviews').textContent = reviewsText;
         
         // Generar lista de especialidades
         const especialidadesContainer = document.getElementById('perfilEspecialidades');
@@ -1023,6 +1063,7 @@
         document.getElementById('modalPerfil').dataset.profesionalId = profesionalId;
     }
 }
+
 
 function cerrarModalPerfil() {
     document.getElementById('modalPerfil').classList.remove('active');

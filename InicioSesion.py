@@ -601,6 +601,7 @@ def home():
     
     return render_template('Home.html', solicitudes_pendientes=solicitudes_pendientes)
 
+# 🔄 ACTUALIZAR LA RUTA EXISTENTE /browser
 @app.route('/browser')
 def browser():
     if not session.get('is_logged_in'):
@@ -620,6 +621,12 @@ def browser():
             trabajador_data = doc.to_dict()
             trabajador_data['id'] = doc.id
             
+            # ✅ NUEVO: Obtener calificaciones REALES
+            calificaciones_info = obtener_calificaciones_trabajador(doc.id)
+            trabajador_data['rating'] = calificaciones_info['rating']
+            trabajador_data['reseñas'] = calificaciones_info['total_resenas']
+            
+            # Procesar especialidades (código existente)
             especialidades = []
             campos_especialidad = [
                 'Albañil', 'Carpintero', 'Cerrajero', 'Electricista', 
@@ -645,14 +652,11 @@ def browser():
             trabajador_data['especialidades'] = especialidades
             trabajador_data['especialidad_principal'] = especialidades[0] if especialidades else "Servicios generales"
             
+            # Datos por defecto
             if 'nombre' not in trabajador_data:
                 trabajador_data['nombre'] = 'Nombre no disponible'
             if 'apellido' not in trabajador_data:
                 trabajador_data['apellido'] = ''
-            if 'rating' not in trabajador_data:
-                trabajador_data['rating'] = 0
-            if 'reseñas' not in trabajador_data:
-                trabajador_data['reseñas'] = 0
             if 'ubicacion' not in trabajador_data:
                 trabajador_data['ubicacion'] = 'Ubicación no disponible'
             if 'precio' not in trabajador_data:
@@ -1865,6 +1869,41 @@ def obtener_calificaciones_pendientes():
     except Exception as e:
         print(f"Error obteniendo calificaciones pendientes: {str(e)}")
         return jsonify({'success': False, 'calificaciones_pendientes': []})
+
+# 🆕 AGREGAR ESTA FUNCIÓN NUEVA EN InicioSesion.py
+def obtener_calificaciones_trabajador(trabajador_id):
+    """Obtener calificaciones reales de un trabajador desde TrabajosFinalizados"""
+    try:
+        # Buscar trabajos finalizados de este trabajador
+        trabajos_ref = db.collection('TrabajosFinalizados')
+        query = trabajos_ref.where('profesional_id', '==', trabajador_id)
+        docs = query.stream()
+        
+        calificaciones = []
+        total_resenas = 0
+        
+        for doc in docs:
+            trabajo_data = doc.to_dict()
+            # Solo contar trabajos que tengan calificación
+            if trabajo_data.get('calificacion') is not None:
+                calificaciones.append(trabajo_data.get('calificacion'))
+                total_resenas += 1
+        
+        # Calcular promedio
+        if calificaciones:
+            rating_promedio = sum(calificaciones) / len(calificaciones)
+        else:
+            rating_promedio = 0
+            
+        return {
+            'rating': round(rating_promedio, 1),
+            'total_resenas': total_resenas,
+            'calificaciones': calificaciones
+        }
+        
+    except Exception as e:
+        print(f"Error obteniendo calificaciones del trabajador {trabajador_id}: {str(e)}")
+        return {'rating': 0, 'total_resenas': 0, 'calificaciones': []}
     
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug = True)

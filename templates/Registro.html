@@ -10,7 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    /* ESTILOS PARA SCROLLABLE */
+
+
     body {
       min-height: 100vh;
       display: flex;
@@ -102,6 +103,150 @@
       color: #666;
       margin-bottom: 10px;
     }
+
+    /* Modal para mapa */
+.modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #e1e1e1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.close {
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.close:hover {
+  color: #333;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+/* Mapa más grande */
+.map-container-large {
+  height: 500px;
+  border: 2px solid #e1e1e1;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 15px 0;
+}
+
+/* Botones del mapa */
+.btn-map-open {
+  width: 100%;
+  padding: 12px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.btn-map-open:hover {
+  background: #357abd;
+  transform: translateY(-1px);
+}
+
+.btn-map-confirm {
+  width: 100%;
+  padding: 12px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 15px;
+  transition: all 0.3s;
+}
+
+.btn-map-confirm:hover {
+  background: #218838;
+}
+
+.btn-map-confirm:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Resumen de ubicación */
+.location-selector {
+  margin-bottom: 10px;
+}
+
+.location-summary {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.location-summary.has-location {
+  background: #e8f4fd;
+  color: #155724;
+}
+
+.map-instructions {
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.map-coordinates {
+  background: #e8f4fd;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+  font-family: monospace;
+  font-size: 14px;
+  display: none;
+}
+
+
+
   </style>
 </head>
 
@@ -290,264 +435,268 @@
 
   
   <script>
-// Variables para el mapa
-let map;
-let marcador = null;
-let coordenadasSeleccionadas = null;
+    // TODO EL CÓDIGO JAVASCRIPT AQUÍ DENTRO
+    // Variables para el mapa
+    let map;
+    let marcador = null;
+    let coordenadasSeleccionadas = null;
 
-// Inicializar mapa
-function initMap() {
-    const defaultCenter = { lat: -34.6037, lng: -58.3816 };
-    
-    map = new google.maps.Map(document.getElementById("map"), {
-        center: defaultCenter,
-        zoom: 14,
-        styles: [
-            {
-                "featureType": "all",
-                "elementType": "geometry",
-                "stylers": [{ "color": "#f5f5f5" }]
-            }
-        ]
-    });
-
-    // Intentar geolocalización
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const ubicacionActual = {
-                    lat: pos.coords.latitude,
-                    lng: pos.coords.longitude
-                };
-                map.setCenter(ubicacionActual);
-            },
-            () => {
-                console.log("Geolocalización no permitida.");
-            }
-        );
-    }
-
-    // Click en el mapa
-    map.addListener("click", function(event) {
-        const latLng = event.latLng;
+    // Inicializar mapa
+    function initMap() {
+        const defaultCenter = { lat: -34.6037, lng: -58.3816 };
         
-        if (!marcador) {
-            marcador = new google.maps.Marker({
-                position: latLng,
-                map: map,
-                draggable: true
-            });
-        } else {
-            marcador.setPosition(latLng);
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: defaultCenter,
+            zoom: 14,
+            styles: [
+                {
+                    "featureType": "all",
+                    "elementType": "geometry",
+                    "stylers": [{ "color": "#f5f5f5" }]
+                }
+            ]
+        });
+
+        // Intentar geolocalización
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const ubicacionActual = {
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude
+                    };
+                    map.setCenter(ubicacionActual);
+                },
+                () => {
+                    console.log("Geolocalización no permitida.");
+                }
+            );
         }
 
-        coordenadasSeleccionadas = {
-            lat: latLng.lat(),
-            lng: latLng.lng()
-        };
+        // Click en el mapa
+        map.addListener("click", function(event) {
+            const latLng = event.latLng;
+            
+            if (!marcador) {
+                marcador = new google.maps.Marker({
+                    position: latLng,
+                    map: map,
+                    draggable: true
+                });
+            } else {
+                marcador.setPosition(latLng);
+            }
 
-        // Actualizar display
-        document.getElementById('lat-display').textContent = coordenadasSeleccionadas.lat.toFixed(6);
-        document.getElementById('lng-display').textContent = coordenadasSeleccionadas.lng.toFixed(6);
-        document.getElementById('coordinates-display').style.display = 'block';
-        document.getElementById('confirmLocation').disabled = false;
-    });
-}
+            coordenadasSeleccionadas = {
+                lat: latLng.lat(),
+                lng: latLng.lng()
+            };
 
-// Modal functions
-function openMapModal() {
-    document.getElementById('mapModal').classList.remove('hidden');
-}
-
-function closeMapModal() {
-    document.getElementById('mapModal').classList.add('hidden');
-}
-
-function confirmLocation() {
-    if (coordenadasSeleccionadas) {
-        // Guardar en campos hidden
-        document.getElementById('latitud').value = coordenadasSeleccionadas.lat;
-        document.getElementById('longitud').value = coordenadasSeleccionadas.lng;
-        
-        // Actualizar resumen
-        const summary = document.getElementById('locationSummary');
-        summary.innerHTML = `
-            <i class="fas fa-check-circle"></i> 
-            Ubicación seleccionada: ${coordenadasSeleccionadas.lat.toFixed(6)}, ${coordenadasSeleccionadas.lng.toFixed(6)}
-        `;
-        summary.classList.add('has-location');
-        
-        closeMapModal();
+            // Actualizar display
+            document.getElementById('lat-display').textContent = coordenadasSeleccionadas.lat.toFixed(6);
+            document.getElementById('lng-display').textContent = coordenadasSeleccionadas.lng.toFixed(6);
+            document.getElementById('coordinates-display').style.display = 'block';
+            document.getElementById('confirmLocation').disabled = false;
+        });
     }
-}
 
-// Event Listeners para el mapa
-document.getElementById('openMapBtn').addEventListener('click', openMapModal);
-document.querySelector('.close').addEventListener('click', closeMapModal);
-document.getElementById('confirmLocation').addEventListener('click', confirmLocation);
-
-// Cerrar modal al hacer click fuera
-window.addEventListener('click', function(event) {
-    const modal = document.getElementById('mapModal');
-    if (event.target === modal) {
-        closeMapModal();
+    // Modal functions
+    function openMapModal() {
+        document.getElementById('mapModal').classList.remove('hidden');
     }
-});    const especializaciones = {
-      1: "Fontanero_Plomero",
-      2: "Electricista", 
-      3: "Gasista_matriculado",
-      4: "Albañil",
-      5: "Carpintero",
-      6: "Pintor",
-      7: "Herrero",
-      8: "Techista_Impermeabilizador",
-      9: "Cerrajero",
-      10: "Instalador_de_aires_acondicionados",
-      11: "Instalador_de_alarmas_camaras_de_seguridad",
-      12: "Personal_de_limpieza",
-      13: "Limpieza_de_tanques_de_agua",
-      14: "Limpieza_de_vidrios_en_altura",
-      15: "LavadoDeAlfombras_cortinas",
-      16: "Fumigador",
-      17: "Jardinero",
-      18: "Podador_de_arboles",
-      19: "Mantenimiento_de_piletas",
-      20: "Paisajista",
-      21: "Tecnico_de_electrodomesticos",
-      22: "Tecnico_de_celulares",
-      23: "TecnicoDeComputadoras_laptops",
-      24: "TecnicoDeTelevisores_equiposelectronicos",
-      25: "Tecnico_de_impresoras",
-      26: "InstaladorDeRedes_WiFi"
+
+    function closeMapModal() {
+        document.getElementById('mapModal').classList.add('hidden');
+    }
+
+    function confirmLocation() {
+        if (coordenadasSeleccionadas) {
+            // Guardar en campos hidden
+            document.getElementById('latitud').value = coordenadasSeleccionadas.lat;
+            document.getElementById('longitud').value = coordenadasSeleccionadas.lng;
+            
+            // Actualizar resumen
+            const summary = document.getElementById('locationSummary');
+            summary.innerHTML = `
+                <i class="fas fa-check-circle"></i> 
+                Ubicación seleccionada: ${coordenadasSeleccionadas.lat.toFixed(6)}, ${coordenadasSeleccionadas.lng.toFixed(6)}
+            `;
+            summary.classList.add('has-location');
+            
+            closeMapModal();
+        }
+    }
+
+    // Datos de especializaciones
+    const especializaciones = {
+        1: "Fontanero_Plomero",
+        2: "Electricista", 
+        3: "Gasista_matriculado",
+        4: "Albañil",
+        5: "Carpintero",
+        6: "Pintor",
+        7: "Herrero",
+        8: "Techista_Impermeabilizador",
+        9: "Cerrajero",
+        10: "Instalador_de_aires_acondicionados",
+        11: "Instalador_de_alarmas_camaras_de_seguridad",
+        12: "Personal_de_limpieza",
+        13: "Limpieza_de_tanques_de_agua",
+        14: "Limpieza_de_vidrios_en_altura",
+        15: "LavadoDeAlfombras_cortinas",
+        16: "Fumigador",
+        17: "Jardinero",
+        18: "Podador_de_arboles",
+        19: "Mantenimiento_de_piletas",
+        20: "Paisajista",
+        21: "Tecnico_de_electrodomesticos",
+        22: "Tecnico_de_celulares",
+        23: "TecnicoDeComputadoras_laptops",
+        24: "TecnicoDeTelevisores_equiposelectronicos",
+        25: "Tecnico_de_impresoras",
+        26: "InstaladorDeRedes_WiFi"
     };
 
     // Mapeo para mostrar nombres amigables al usuario
     const nombresAmigables = {
-      "Fontanero_Plomero": "Fontanero/Plomero",
-      "Gasista_matriculado": "Gasista matriculado",
-      "Techista_Impermeabilizador": "Techista/Impermeabilizador",
-      "Instalador_de_aires_acondicionados": "Instalador de aires acondicionados",
-      "Instalador_de_alarmas_camaras_de_seguridad": "Instalador de alarmas/cámaras de seguridad",
-      "Personal_de_limpieza": "Personal de limpieza",
-      "Limpieza_de_tanques_de_agua": "Limpieza de tanques de agua",
-      "Limpieza_de_vidrios_en_altura": "Limpieza de vidrios en altura",
-      "LavadoDeAlfombras_cortinas": "Lavado de alfombras/cortinas",
-      "Podador_de_arboles": "Podador de árboles",
-      "Mantenimiento_de_piletas": "Mantenimiento de piletas",
-      "Tecnico_de_electrodomesticos": "Técnico de electrodomésticos",
-      "Tecnico_de_celulares": "Técnico de celulares",
-      "TecnicoDeComputadoras_laptops": "Técnico de computadoras/laptops",
-      "TecnicoDeTelevisores_equiposelectronicos": "Técnico de televisores/equipos electrónicos",
-      "Tecnico_de_impresoras": "Técnico de impresoras",
-      "InstaladorDeRedes_WiFi": "Instalador de redes/WiFi"
+        "Fontanero_Plomero": "Fontanero/Plomero",
+        "Gasista_matriculado": "Gasista matriculado",
+        "Techista_Impermeabilizador": "Techista/Impermeabilizador",
+        "Instalador_de_aires_acondicionados": "Instalador de aires acondicionados",
+        "Instalador_de_alarmas_camaras_de_seguridad": "Instalador de alarmas/cámaras de seguridad",
+        "Personal_de_limpieza": "Personal de limpieza",
+        "Limpieza_de_tanques_de_agua": "Limpieza de tanques de agua",
+        "Limpieza_de_vidrios_en_altura": "Limpieza de vidrios en altura",
+        "LavadoDeAlfombras_cortinas": "Lavado de alfombras/cortinas",
+        "Podador_de_arboles": "Podador de árboles",
+        "Mantenimiento_de_piletas": "Mantenimiento de piletas",
+        "Tecnico_de_electrodomesticos": "Técnico de electrodomésticos",
+        "Tecnico_de_celulares": "Técnico de celulares",
+        "TecnicoDeComputadoras_laptops": "Técnico de computadoras/laptops",
+        "TecnicoDeTelevisores_equiposelectronicos": "Técnico de televisores/equipos electrónicos",
+        "Tecnico_de_impresoras": "Técnico de impresoras",
+        "InstaladorDeRedes_WiFi": "Instalador de redes/WiFi"
     };
 
     // Inicializar especializaciones
     function inicializarEspecializaciones() {
-      const container = document.getElementById('especializaciones-container');
-      container.innerHTML = '';
-      
-      for (const [key, value] of Object.entries(especializaciones)) {
-        const div = document.createElement('div');
-        div.className = 'especializacion-item';
+        const container = document.getElementById('especializaciones-container');
+        container.innerHTML = '';
         
-        // Mostrar nombre amigable al usuario, pero guardar el valor técnico
-        const nombreMostrar = nombresAmigables[value] || value;
-        
-        div.innerHTML = `
-          <input type="checkbox" id="esp_${key}" name="especialidades" value="${value}" class="hidden">
-          <span>${nombreMostrar}</span>
-        `;
-        div.addEventListener('click', function() {
-          const checkbox = this.querySelector('input');
-          checkbox.checked = !checkbox.checked;
-          this.classList.toggle('selected', checkbox.checked);
-        });
-        container.appendChild(div);
-      }
+        for (const [key, value] of Object.entries(especializaciones)) {
+            const div = document.createElement('div');
+            div.className = 'especializacion-item';
+            
+            // Mostrar nombre amigable al usuario, pero guardar el valor técnico
+            const nombreMostrar = nombresAmigables[value] || value;
+            
+            div.innerHTML = `
+                <input type="checkbox" id="esp_${key}" name="especialidades" value="${value}" class="hidden">
+                <span>${nombreMostrar}</span>
+            `;
+            div.addEventListener('click', function() {
+                const checkbox = this.querySelector('input');
+                checkbox.checked = !checkbox.checked;
+                this.classList.toggle('selected', checkbox.checked);
+            });
+            container.appendChild(div);
+        }
     }
 
     // Mostrar/ocultar campos según el rol
     function actualizarCamposPorRol() {
-      const rol = document.querySelector('input[name="rol"]:checked').value;
-      
-      // Ocultar todos los campos específicos
-      document.getElementById('cliente-fields').classList.add('hidden');
-      document.getElementById('trabajador-fields').classList.add('hidden');
-      document.getElementById('desempleado-fields').classList.add('hidden');
-      
-      // Mostrar campos del rol seleccionado
-      document.getElementById(`${rol}-fields`).classList.remove('hidden');
+        const rol = document.querySelector('input[name="rol"]:checked').value;
+        
+        // Ocultar todos los campos específicos
+        document.getElementById('cliente-fields').classList.add('hidden');
+        document.getElementById('trabajador-fields').classList.add('hidden');
+        document.getElementById('desempleado-fields').classList.add('hidden');
+        
+        // Mostrar campos del rol seleccionado
+        document.getElementById(`${rol}-fields`).classList.remove('hidden');
     }
 
     // Manejar subida de archivos
-    document.getElementById('cv_trabajador').addEventListener('change', function(e) {
-      const fileName = e.target.files[0]?.name || 'Ningún archivo seleccionado';
-      document.getElementById('cv-file-name').textContent = fileName;
+    document.getElementById('cv_trabajador')?.addEventListener('change', function(e) {
+        const fileName = e.target.files[0]?.name || 'Ningún archivo seleccionado';
+        document.getElementById('cv-file-name').textContent = fileName;
     });
 
-    document.getElementById('cv_desempleado').addEventListener('change', function(e) {
-      const fileName = e.target.files[0]?.name || 'Ningún archivo seleccionado';
-      document.getElementById('cv-file-name-desempleado').textContent = fileName;
+    document.getElementById('cv_desempleado')?.addEventListener('change', function(e) {
+        const fileName = e.target.files[0]?.name || 'Ningún archivo seleccionado';
+        document.getElementById('cv-file-name-desempleado').textContent = fileName;
     });
 
     // Validación de formulario
     document.getElementById('registroForm').addEventListener('submit', function(e) {
-      const password = document.getElementById('contra').value;
-      const confirmPassword = document.getElementById('confirmar_contra').value;
-      
-      if (password !== confirmPassword) {
-        e.preventDefault();
-        alert('❌ Las contraseñas no coinciden');
-        return false;
-      }
-      
-      // Validar campos requeridos según el rol
-      const rol = document.querySelector('input[name="rol"]:checked').value;
-      
-      if (rol === 'trabajador') {
-        const especialidadesSeleccionadas = document.querySelectorAll('input[name="especialidades"]:checked');
-        if (especialidadesSeleccionadas.length === 0) {
-          e.preventDefault();
-          alert('❌ Por favor selecciona al menos una especialidad');
-          return false;
+        const password = document.getElementById('contra').value;
+        const confirmPassword = document.getElementById('confirmar_contra').value;
+        
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            alert('❌ Las contraseñas no coinciden');
+            return false;
         }
         
-        const cv = document.getElementById('cv_trabajador').files[0];
-        if (!cv) {
-          e.preventDefault();
-          alert('❌ Por favor sube tu CV');
-          return false;
+        // Validar campos requeridos según el rol
+        const rol = document.querySelector('input[name="rol"]:checked').value;
+        
+        if (rol === 'trabajador') {
+            const especialidadesSeleccionadas = document.querySelectorAll('input[name="especialidades"]:checked');
+            if (especialidadesSeleccionadas.length === 0) {
+                e.preventDefault();
+                alert('❌ Por favor selecciona al menos una especialidad');
+                return false;
+            }
+            
+            const cv = document.getElementById('cv_trabajador').files[0];
+            if (!cv) {
+                e.preventDefault();
+                alert('❌ Por favor sube tu CV');
+                return false;
+            }
         }
-      }
-      
-      if (rol === 'desempleado') {
-        const cv = document.getElementById('cv_desempleado').files[0];
-        if (!cv) {
-          e.preventDefault();
-          alert('❌ Por favor sube tu CV');
-          return false;
+        
+        if (rol === 'desempleado') {
+            const cv = document.getElementById('cv_desempleado').files[0];
+            if (!cv) {
+                e.preventDefault();
+                alert('❌ Por favor sube tu CV');
+                return false;
+            }
         }
-      }
-      
-      return true;
+        
+        return true;
     });
 
     // Event listeners
     document.querySelectorAll('input[name="rol"]').forEach(radio => {
-      radio.addEventListener('change', actualizarCamposPorRol);
+        radio.addEventListener('change', actualizarCamposPorRol);
     });
 
     // Inicialización
     document.addEventListener('DOMContentLoaded', function() {
-      inicializarEspecializaciones();
-      actualizarCamposPorRol();
+        inicializarEspecializaciones();
+        actualizarCamposPorRol();
+        
+        // Event listeners del mapa
+        document.getElementById('openMapBtn')?.addEventListener('click', openMapModal);
+        document.querySelector('.close')?.addEventListener('click', closeMapModal);
+        document.getElementById('confirmLocation')?.addEventListener('click', confirmLocation);
+
+        // Cerrar modal al hacer click fuera
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('mapModal');
+            if (event.target === modal) {
+                closeMapModal();
+            }
+        });
     });
   </script>
 
   <script async defer
-  src="https://maps.googleapis.com/maps/api/js?key=TU_API_KEY&callback=initMap">
-</script>
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQcLrAtTG5MLlmC_qQNv_I7Yf8FYFJXI8&callback=initMap">
+  </script>
 
 </body>
 </html>

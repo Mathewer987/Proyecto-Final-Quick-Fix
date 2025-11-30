@@ -192,28 +192,33 @@
   </div>
 
   <!-- AGREGAR ESTO: Modal para el mapa DENTRO del formulario -->
-  <div id="mapModal" class="modal hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>Seleccioná tu ubicación</h3>
-        <span class="close">&times;</span>
+  <!-- Modal para el mapa DENTRO del formulario -->
+<div id="mapModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>🗺️ Seleccioná tu ubicación en el mapa</h3>
+      <span class="close">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="map-instructions">
+        <i class="fas fa-info-circle"></i> Hacé click en el mapa para seleccionar tu ubicación exacta
       </div>
-      <div class="modal-body">
-        <div class="map-instructions">
-          <i class="fas fa-info-circle"></i> Hacé click en el mapa para seleccionar tu ubicación exacta
-        </div>
-        <div class="map-container-large">
-          <div id="map"></div>
-        </div>
+      <div class="map-container-large">
+        <div id="map"></div>
+      </div>
+      <div class="map-controls">
         <div class="map-coordinates" id="coordinates-display">
-          <strong>Ubicación seleccionada:</strong><br>
+          <strong>📍 Ubicación seleccionada:</strong><br>
           Latitud: <span id="lat-display">-</span><br>
           Longitud: <span id="lng-display">-</span>
         </div>
-        <button id="confirmLocation" class="btn-map-confirm">Confirmar Ubicación</button>
+        <button id="confirmLocation" class="btn-map-confirm" disabled>
+          ✅ Confirmar Ubicación Seleccionada
+        </button>
       </div>
     </div>
   </div>
+</div>
 
   <!-- Botón para abrir el mapa DENTRO del formulario -->
   <div class="cajita">
@@ -369,22 +374,22 @@
     }
 
     function confirmLocation() {
-        if (coordenadasSeleccionadas) {
-            // Guardar en campos hidden
-            document.getElementById('latitud').value = coordenadasSeleccionadas.lat;
-            document.getElementById('longitud').value = coordenadasSeleccionadas.lng;
-            
-            // Actualizar resumen
-            const summary = document.getElementById('locationSummary');
-            summary.innerHTML = `
-                <i class="fas fa-check-circle"></i> 
-                Ubicación seleccionada: ${coordenadasSeleccionadas.lat.toFixed(6)}, ${coordenadasSeleccionadas.lng.toFixed(6)}
-            `;
-            summary.classList.add('has-location');
-            
-            closeMapModal();
-        }
+    if (coordenadasSeleccionadas) {
+        // Guardar en campos hidden
+        document.getElementById('latitud').value = coordenadasSeleccionadas.lat;
+        document.getElementById('longitud').value = coordenadasSeleccionadas.lng;
+        
+        // Actualizar resumen
+        const summary = document.getElementById('locationSummary');
+        summary.innerHTML = `
+            <i class="fas fa-check-circle"></i> 
+            📍 Ubicación confirmada: ${coordenadasSeleccionadas.lat.toFixed(6)}, ${coordenadasSeleccionadas.lng.toFixed(6)}
+        `;
+        summary.classList.add('has-location');
+        
+        closeMapModal();
     }
+}
 
     // Datos de especializaciones
     const especializaciones = {

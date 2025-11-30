@@ -303,7 +303,9 @@
     </div>
   </div>
 
-  // Variables para el mapa
+  
+  <script>
+// Variables para el mapa
 let map;
 let marcador = null;
 let coordenadasSeleccionadas = null;
@@ -405,10 +407,7 @@ window.addEventListener('click', function(event) {
     if (event.target === modal) {
         closeMapModal();
     }
-});
-  <script>
-    // Datos de especializaciones - NOMBRES EXACTOS como los espera el backend
-    const especializaciones = {
+});    const especializaciones = {
       1: "Fontanero_Plomero",
       2: "Electricista", 
       3: "Gasista_matriculado",

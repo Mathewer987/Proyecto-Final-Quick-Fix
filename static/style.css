@@ -347,37 +347,7 @@ body {
   }
 }
 
-/* Estilos para el mapa */
-.map-container {
-  margin: 15px 0;
-  border: 2px solid #e1e1e1;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-#map {
-  height: 300px;
-  width: 100%;
-}
-
-.map-instructions {
-  background: #f8f9fa;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 10px;
-  font-size: 14px;
-  color: #666;
-}
-
-.map-coordinates {
-  background: #e8f4fd;
-  padding: 10px;
-  border-radius: 5px;
-  margin-top: 10px;
-  font-family: monospace;
-  font-size: 14px;
-  display: none;
-}
+/* ========== ESTILOS DEL MODAL Y MAPA ========== */
 
 /* Modal para mapa */
 .modal {
@@ -391,6 +361,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.modal.hidden {
+  display: none;
 }
 
 .modal-content {
@@ -500,4 +474,23 @@ body {
 .location-summary.has-location {
   background: #e8f4fd;
   color: #155724;
+}
+
+.map-instructions {
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.map-coordinates {
+  background: #e8f4fd;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+  font-family: monospace;
+  font-size: 14px;
+  display: none;
 }

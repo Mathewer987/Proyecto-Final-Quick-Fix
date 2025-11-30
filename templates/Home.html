@@ -150,92 +150,91 @@
     </div>
 
     <!-- MODAL DE CALIFICACIÓN MEJORADO -->
-<div class="modal-overlay" id="modalCalificacion">
-    <div class="modal-content calificacion-modal">
-        <div class="modal-header">
-            <div class="header-icon">
-                <i class="fas fa-star"></i>
+<!-- MODAL DE CALIFICACIÓN - ESTILO BROWSER -->
+<div class="modal-perfil-overlay" id="modalCalificacion">
+    <div class="modal-perfil-content">
+        <div class="modal-perfil-header">
+            <div class="perfil-info">
+                <h2 id="calificacionTitulo">Calificar Servicio</h2>
+                <div class="perfil-especialidad" id="calificacionSubtitulo">Tu opinión ayuda a mejorar nuestra comunidad</div>
             </div>
-            <div class="header-text">
-                <h3 class="modal-title">Calificar Servicio</h3>
-                <p class="modal-subtitle">Tu opinión ayuda a mejorar nuestra comunidad</p>
-            </div>
-            <button class="close-modal" onclick="cerrarModalCalificacion()">&times;</button>
+            <button class="close-perfil-modal" onclick="cerrarModalCalificacion()">&times;</button>
         </div>
         
-        <form id="formCalificacion">
-            <input type="hidden" id="tipoServicio" value="">
-            <input type="hidden" id="servicioId" value="">
-            <input type="hidden" id="profesionalId" value="">
-            
-            <div class="calificacion-section">
-                <div class="calificacion-pregunta">
-                    <h4>¿Cómo calificarías el servicio recibido?</h4>
-                </div>
+        <div class="modal-perfil-body">
+            <form id="formCalificacion">
+                <input type="hidden" id="tipoServicio" value="">
+                <input type="hidden" id="servicioId" value="">
+                <input type="hidden" id="profesionalId" value="">
                 
-                <div class="estrellas-container">
-                    <div class="estrellas-calificacion">
-                        <span class="estrella" data-value="1">
-                            <i class="far fa-star"></i>
-                        </span>
-                        <span class="estrella" data-value="2">
-                            <i class="far fa-star"></i>
-                        </span>
-                        <span class="estrella" data-value="3">
-                            <i class="far fa-star"></i>
-                        </span>
-                        <span class="estrella" data-value="4">
-                            <i class="far fa-star"></i>
-                        </span>
-                        <span class="estrella" data-value="5">
-                            <i class="far fa-star"></i>
-                        </span>
+                <div class="perfil-section">
+                    <h3>¿Cómo calificarías el servicio recibido?</h3>
+                    <div class="estrellas-container-perfil">
+                        <div class="estrellas-calificacion-perfil">
+                            <span class="estrella-perfil" data-value="1">
+                                <i class="far fa-star"></i>
+                            </span>
+                            <span class="estrella-perfil" data-value="2">
+                                <i class="far fa-star"></i>
+                            </span>
+                            <span class="estrella-perfil" data-value="3">
+                                <i class="far fa-star"></i>
+                            </span>
+                            <span class="estrella-perfil" data-value="4">
+                                <i class="far fa-star"></i>
+                            </span>
+                            <span class="estrella-perfil" data-value="5">
+                                <i class="far fa-star"></i>
+                            </span>
+                        </div>
+                        <div class="calificacion-texto-perfil">
+                            <span id="textoCalificacion">Selecciona una calificación</span>
+                        </div>
                     </div>
-                    <div class="calificacion-texto">
-                        <span id="textoCalificacion">Selecciona una calificación</span>
-                    </div>
+                    <input type="hidden" id="valorCalificacion" value="0">
                 </div>
-                <input type="hidden" id="valorCalificacion" value="0">
-            </div>
 
-            <div class="comentario-section">
-                <div class="comentario-header">
-                    <h4>Comparte tu experiencia (opcional)</h4>
-                    <button type="button" class="btn-toggle-comentario" onclick="toggleComentario()">
-                        <i class="fas fa-edit"></i> 
-                        <span class="btn-text">Agregar comentario</span>
-                    </button>
-                </div>
-                <div class="comentario-input-container" id="comentarioContainer" style="display: none;">
-                    <textarea id="comentarioCalificacion" placeholder="¿Qué te pareció el servicio? ¿Algo que destacar o mejorar?"></textarea>
-                    <div class="contador-caracteres">
-                        <span id="contadorCaracteres">0</span>/500
+                <div class="perfil-section">
+                    <h3>Comparte tu experiencia</h3>
+                    <div class="comentario-section-perfil">
+                        <div class="detail-item">
+                            <i class="fas fa-edit"></i>
+                            <div class="comentario-input-full">
+                                <textarea id="comentarioCalificacion" placeholder="¿Qué te pareció el servicio? ¿Algo que destacar o mejorar? (opcional)" rows="4"></textarea>
+                                <div class="contador-caracteres-perfil">
+                                    <span id="contadorCaracteres">0</span>/500 caracteres
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" onclick="cerrarModalCalificacion()">
-                    <i class="fas fa-times"></i> Cancelar
-                </button>
-                <button type="button" class="btn btn-primary" onclick="enviarCalificacion()">
-                    <i class="fas fa-paper-plane"></i> Enviar Calificación
-                </button>
-            </div>
-        </form>
+            </form>
+        </div>
+        
+        <div class="modal-perfil-footer">
+            <button class="btn-perfil btn-cancelar-perfil" onclick="cerrarModalCalificacion()">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button class="btn-perfil btn-contratar" onclick="enviarCalificacion()">
+                <i class="fas fa-paper-plane"></i> Enviar Calificación
+            </button>
+        </div>
     </div>
 </div>
 
     <script>
 // Detectar calificaciones pendientes al cargar la página
 document.addEventListener('DOMContentLoaded', function() {
-    // Verificar si el usuario está logueado y es cliente (tipo 1)
+    // Verificar si el usuario está logueado y es cliente (tipo 1) o desempleado (tipo 3)
     const userType = "{{ session.get('user_type', '') }}";
     const isLoggedIn = "{{ session.get('is_logged_in', False) }}" === "True";
     
-    if (isLoggedIn && userType === '1') {
+    if (isLoggedIn && (userType === '1' || userType === '3')) {
         verificarCalificacionesPendientes();
     }
+
+    // Inicializar botones flotantes
+    inicializarBotonesFlotantes();
 });
 
 function verificarCalificacionesPendientes() {
@@ -258,10 +257,15 @@ function mostrarModalCalificacion(calificacion) {
     
     // Configurar título según el tipo
     const titulo = calificacion.tipo === 'trabajo' ? 'Calificar Trabajo' : 'Calificar Mentoría';
-    document.querySelector('.modal-title').textContent = titulo;
+    const subtitulo = calificacion.tipo === 'trabajo' 
+        ? `Servicio: ${calificacion.titulo}` 
+        : `Mentoría: ${calificacion.titulo}`;
+    
+    document.getElementById('calificacionTitulo').textContent = titulo;
+    document.getElementById('calificacionSubtitulo').textContent = subtitulo;
     
     // Mostrar modal
-    document.getElementById('modalCalificacion').style.display = 'flex';
+    document.getElementById('modalCalificacion').classList.add('active');
 }
 
 // Función para enviar calificación
@@ -307,25 +311,26 @@ function enviarCalificacion() {
 }
 
 function cerrarModalCalificacion() {
-    document.getElementById('modalCalificacion').style.display = 'none';
+    document.getElementById('modalCalificacion').classList.remove('active');
     // Limpiar formulario
     document.getElementById('valorCalificacion').value = '0';
     document.getElementById('comentarioCalificacion').value = '';
     // Resetear estrellas
-    document.querySelectorAll('.estrella').forEach(star => {
+    document.querySelectorAll('.estrella-perfil').forEach(star => {
         star.classList.remove('active');
     });
     document.getElementById('textoCalificacion').textContent = 'Selecciona una calificación';
+    document.getElementById('contadorCaracteres').textContent = '0';
 }
 
-// Sistema de estrellas
-document.querySelectorAll('.estrella').forEach(star => {
+// Sistema de estrellas NUEVO
+document.querySelectorAll('.estrella-perfil').forEach(star => {
     star.addEventListener('click', function() {
         const value = this.getAttribute('data-value');
         document.getElementById('valorCalificacion').value = value;
         
         // Actualizar visualización de estrellas
-        document.querySelectorAll('.estrella').forEach(s => {
+        document.querySelectorAll('.estrella-perfil').forEach(s => {
             s.classList.remove('active');
             if (s.getAttribute('data-value') <= value) {
                 s.classList.add('active');
@@ -334,21 +339,59 @@ document.querySelectorAll('.estrella').forEach(star => {
         
         // Actualizar texto
         const textos = {
-            '1': 'Muy malo',
-            '2': 'Malo', 
-            '3': 'Regular',
-            '4': 'Bueno',
-            '5': 'Excelente'
+            '1': 'Muy malo - No cumplió con las expectativas',
+            '2': 'Malo - Hubo varios problemas', 
+            '3': 'Regular - Cumplió lo básico',
+            '4': 'Bueno - Satisfactorio con algunos aspectos destacados',
+            '5': 'Excelente - Superó todas las expectativas'
         };
         document.getElementById('textoCalificacion').textContent = textos[value];
     });
 });
 
-// Cerrar modal al hacer click fuera
+// Cerrar modal al hacer click fuera (nuevo)
 document.getElementById('modalCalificacion').addEventListener('click', function(e) {
-    if (e.target === this) cerrarModalCalificacion();
+    if (e.target === this) {
+        cerrarModalCalificacion();
+    }
 });
 
+// Contador de caracteres para comentario
+document.getElementById('comentarioCalificacion')?.addEventListener('input', function() {
+    const contador = document.getElementById('contadorCaracteres');
+    if (contador) {
+        contador.textContent = this.value.length;
+    }
+});
+
+// Botones flotantes
+function inicializarBotonesFlotantes() {
+    console.log('DOM cargado - inicializando botones flotantes');
+    
+    // Botón del Muro
+    const muroButton = document.getElementById('muroButton');
+    console.log('Botón muro encontrado:', muroButton);
+    
+    if (muroButton) {
+        muroButton.addEventListener('click', function() {
+            console.log('Clic en muro - redirigiendo...');
+            window.location.href = '/muro_publicaciones';
+        });
+    }
+
+    // Botón del Chat
+    const chatButton = document.getElementById('chatButton');
+    console.log('Botón chat encontrado:', chatButton);
+    
+    if (chatButton) {
+        chatButton.addEventListener('click', function() {
+            console.log('Clic en chat - redirigiendo...');
+            window.location.href = '/chat_home';
+        });
+    }
+}
+
+// Función toggleComentario (si aún la necesitas, aunque ahora el comentario siempre está visible)
 function toggleComentario() {
     const textarea = document.getElementById('comentarioCalificacion');
     const button = document.querySelector('.btn-toggle-comentario');
@@ -361,39 +404,6 @@ function toggleComentario() {
         button.innerHTML = '<i class="fas fa-comment"></i> Agregar comentario';
     }
 }
-
- document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM cargado - inicializando botones flotantes');
-        
-        // Botón del Muro
-        const muroButton = document.getElementById('muroButton');
-        console.log('Botón muro encontrado:', muroButton);
-        
-        if (muroButton) {
-            muroButton.addEventListener('click', function() {
-                console.log('Clic en muro - redirigiendo...');
-                window.location.href = '/muro_publicaciones';
-            });
-        }
-
-        // Botón del Chat
-        const chatButton = document.getElementById('chatButton');
-        console.log('Botón chat encontrado:', chatButton);
-        
-        if (chatButton) {
-            chatButton.addEventListener('click', function() {
-                console.log('Clic en chat - redirigiendo...');
-                window.location.href = '/chat_home';
-            });
-        }
-    });
-// Contador de caracteres para comentario
-document.getElementById('comentarioCalificacion')?.addEventListener('input', function() {
-    const contador = document.getElementById('contadorCaracteres');
-    if (contador) {
-        contador.textContent = this.value.length;
-    }
-});
 </script>
 
 

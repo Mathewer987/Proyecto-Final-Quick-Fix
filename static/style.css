@@ -796,3 +796,113 @@ body {
     box-shadow: 0 5px 15px rgba(78, 115, 223, 0.3);
 }
 
+/* ESTILOS MEJORADOS PARA MODAL DE CALIFICACIÓN - ESTILO BROWSER */
+.estrellas-container-perfil {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.estrellas-calificacion-perfil {
+    display: inline-flex;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.estrella-perfil {
+    font-size: 2.8rem;
+    color: #e0e0e0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.estrella-perfil:hover {
+    transform: scale(1.2);
+    color: #ffd700;
+}
+
+.estrella-perfil.active {
+    color: #ffd700;
+    transform: scale(1.2);
+}
+
+.estrella-perfil.active ~ .estrella-perfil {
+    color: #e0e0e0;
+}
+
+.estrella-perfil:hover ~ .estrella-perfil {
+    color: #e0e0e0;
+}
+
+.calificacion-texto-perfil {
+    margin-top: 15px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #4e73df;
+}
+
+#textoCalificacion {
+    font-size: 1.1rem;
+    color: #2c3e50;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.comentario-section-perfil {
+    margin-top: 10px;
+}
+
+.comentario-input-full {
+    width: 100%;
+    margin-left: 10px;
+}
+
+#comentarioCalificacion {
+    width: 100%;
+    min-height: 120px;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    resize: vertical;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    font-family: inherit;
+    background: #f8f9fa;
+}
+
+#comentarioCalificacion:focus {
+    outline: none;
+    border-color: #4e73df;
+    background: white;
+}
+
+.contador-caracteres-perfil {
+    text-align: right;
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 8px;
+    font-style: italic;
+}
+
+.btn-cancelar-perfil {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-cancelar-perfil:hover {
+    background: #5a6268;
+}
+
+/* Ajustes específicos para el modal de calificación */
+#calificacionTitulo {
+    margin: 0 0 10px 0;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+#calificacionSubtitulo {
+    font-size: 16px;
+    opacity: 0.9;
+}
+

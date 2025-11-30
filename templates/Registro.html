@@ -182,6 +182,24 @@
             <label for="zona">Zona en la que vivís</label>
             <input type="text" id="zona" name="zona" placeholder="Ej. Palermo, La Boca, etc.">
           </div>
+
+           <div class="cajita">
+    <label>Seleccioná tu ubicación en el mapa</label>
+    <div class="map-instructions">
+      <i class="fas fa-info-circle"></i> Hacé click en el mapa para seleccionar tu ubicación exacta
+    </div>
+    <div class="map-container">
+      <div id="map"></div>
+    </div>
+    <div class="map-coordinates" id="coordinates-display">
+      <strong>Ubicación seleccionada:</strong><br>
+      Latitud: <span id="lat-display">-</span><br>
+      Longitud: <span id="lng-display">-</span>
+    </div>
+    <!-- Campos ocultos para las coordenadas -->
+    <input type="hidden" id="latitud" name="latitud">
+    <input type="hidden" id="longitud" name="longitud">
+  </div>
         </div>
 
         <!-- Campos para trabajador -->
@@ -398,5 +416,10 @@
       actualizarCamposPorRol();
     });
   </script>
+
+  <script async defer
+  src="https://maps.googleapis.com/maps/api/js?key=TU_API_KEY&callback=initMap">
+</script>
+
 </body>
 </html>

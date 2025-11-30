@@ -1739,8 +1739,7 @@ def registrate():
 
             # Procesar según el tipo de usuario
             if rol == 'cliente':
-                return registrar_cliente(nombre, apellido, mail, tel, birth, contra, request.form.get('zona', ''))
-            
+                return registrar_cliente(nombre, apellido, mail, tel, birth, contra, request.form.get('zona', ''), request)
             elif rol == 'trabajador':
                 return registrar_trabajador(nombre, apellido, mail, tel, birth, contra, request)
             
@@ -1761,11 +1760,24 @@ def registrate():
     # Si es GET, mostrar el formulario
     return render_template('registro.html')
 
-def registrar_cliente(nombre, apellido, mail, tel, birth, contra, zona):
+def registrar_cliente(nombre, apellido, mail, tel, birth, contra, zona, request):
     try:
-        # Coordenadas por defecto (Buenos Aires)
-        latitud = -34.6037
-        longitud = -58.3816
+        # Obtener coordenadas del formulario
+        latitud = request.form.get('latitud')
+        longitud = request.form.get('longitud')
+        
+        # Validar que se seleccionaron coordenadas
+        if not latitud or not longitud:
+            flash('❌ Por favor seleccioná tu ubicación en el mapa', 'error')
+            return render_template('registro.html')
+        
+        # Convertir a float
+        try:
+            latitud = float(latitud)
+            longitud = float(longitud)
+        except (ValueError, TypeError):
+            flash('❌ Las coordenadas seleccionadas no son válidas', 'error')
+            return render_template('registro.html')
 
         cliente_data = {
             "nombre": nombre,
@@ -1780,13 +1792,14 @@ def registrar_cliente(nombre, apellido, mail, tel, birth, contra, zona):
             "fecha_registro": datetime.now()
         }
 
-        db.collection("clientes").document(mail).set(cliente_data)
-        flash('✅ ¡Registro exitoso! Cliente creado correctamente', 'success')
-        return redirect(url_for('login'))
-
     except Exception as e:
         flash(f'❌ Error al registrar cliente: {str(e)}', 'error')
         return render_template('registro.html')
+    
+    
+
+    
+
 
 def registrar_trabajador(nombre, apellido, mail, tel, birth, contra, request):
     try:

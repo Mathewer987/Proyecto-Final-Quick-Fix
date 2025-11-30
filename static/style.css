@@ -50,8 +50,6 @@ body {
   animation: float 15s infinite linear;
 }
 
-
-
 .line-1 {
   width: 150%;
   height: 2px;
@@ -107,6 +105,30 @@ body {
   backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   animation: fadeIn 0.5s ease-out;
+  /* SCROLLABLE */
+  max-height: 85vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) #f1f1f1;
+}
+
+/* Personalizar scrollbar para Webkit */
+.contenedordelogin::-webkit-scrollbar {
+  width: 8px;
+}
+
+.contenedordelogin::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.contenedordelogin::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 10px;
+}
+
+.contenedordelogin::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
 }
 
 .contenedordelogin h2 {
@@ -129,8 +151,11 @@ body {
   font-size: 0.95rem;
 }
 
+.cajita input[type="text"],
 .cajita input[type="email"],
-.cajita input[type="password"] {
+.cajita input[type="password"],
+.cajita input[type="tel"],
+.cajita input[type="date"] {
   width: 100%;
   padding: 0.9rem 1rem;
   border: 1px solid #e2e8f0;
@@ -140,8 +165,11 @@ body {
   background-color: var(--light-color);
 }
 
+.cajita input[type="text"]:focus,
 .cajita input[type="email"]:focus,
-.cajita input[type="password"]:focus {
+.cajita input[type="password"]:focus,
+.cajita input[type="tel"]:focus,
+.cajita input[type="date"]:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
@@ -160,7 +188,14 @@ body {
   gap: 0.5rem;
   color: var(--text-color);
   cursor: pointer;
-  padding: 0.5rem 0;
+  padding: 0.5rem 1rem;
+  background: #f8f9fa;
+  border-radius: var(--border-radius);
+  transition: all 0.3s ease;
+}
+
+.opciones label:hover {
+  background: #e9ecef;
 }
 
 .opciones input[type="radio"] {
@@ -182,18 +217,9 @@ body {
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-}
-
-.btn-login {
-  background-color: var(--accent-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   color: white;
-  margin-top: 0.5rem;
-}
-
-.btn-register {
-  background-color: var(--primary-color);
-  color: white;
-  margin-top: 0.5rem;
+  margin-top: 1rem;
 }
 
 .btn:hover {
@@ -224,6 +250,75 @@ body {
   text-decoration: underline;
 }
 
+.alert {
+  padding: 12px 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.alert-error {
+  background: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+}
+
+.alert-success {
+  background: #efe;
+  border: 1px solid #cfc;
+  color: #3c3;
+}
+
+.hidden {
+  display: none;
+}
+
+.especializaciones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.especializacion-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.especializacion-item:hover {
+  background: #e9ecef;
+}
+
+.especializacion-item.selected {
+  background: var(--primary-color);
+  color: white;
+}
+
+.file-upload {
+  border: 2px dashed #ddd;
+  padding: 20px;
+  text-align: center;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.file-upload:hover {
+  border-color: var(--primary-color);
+}
+
+.file-upload i {
+  font-size: 24px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
 @keyframes fadeIn {
   from {
       opacity: 0;
@@ -239,10 +334,15 @@ body {
 @media (max-width: 480px) {
   .contenedordelogin {
       padding: 1.5rem;
+      margin: 10px;
   }
   
   .opciones {
       flex-direction: column;
       gap: 0.5rem;
+  }
+  
+  .especializaciones-grid {
+      grid-template-columns: 1fr;
   }
 }

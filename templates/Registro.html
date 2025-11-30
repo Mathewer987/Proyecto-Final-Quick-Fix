@@ -10,152 +10,51 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    .background-lines {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      overflow: hidden;
-    }
-    .line {
-      position: absolute;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-      width: 1px;
-      height: 100%;
-    }
-    .line-1 { left: 20%; animation: float 8s infinite ease-in-out; }
-    .line-2 { left: 40%; animation: float 12s infinite ease-in-out; }
-    .line-3 { left: 60%; animation: float 10s infinite ease-in-out; }
-    .line-4 { left: 80%; animation: float 15s infinite ease-in-out; }
-    
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-20px); }
+    /* ESTILOS PARA SCROLLABLE */
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 20px 0;
     }
     
     .contenedordelogin {
       max-width: 500px;
-      margin: 50px auto;
+      margin: 20px auto;
       padding: 40px;
       background: rgba(255, 255, 255, 0.95);
       border-radius: 20px;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
       backdrop-filter: blur(10px);
+      /* SCROLLABLE */
+      max-height: 85vh;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #4a90e2 #f1f1f1;
     }
-    
-    h2 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 30px;
-      font-weight: 600;
+
+    /* Personalizar scrollbar */
+    .contenedordelogin::-webkit-scrollbar {
+      width: 8px;
     }
-    
-    .cajita {
-      margin-bottom: 20px;
-    }
-    
-    label {
-      display: block;
-      margin-bottom: 8px;
-      color: #555;
-      font-weight: 500;
-    }
-    
-    input, select {
-      width: 100%;
-      padding: 12px 15px;
-      border: 2px solid #e1e1e1;
+
+    .contenedordelogin::-webkit-scrollbar-track {
+      background: #f1f1f1;
       border-radius: 10px;
-      font-size: 14px;
-      transition: all 0.3s;
-      box-sizing: border-box;
     }
-    
-    input:focus, select:focus {
-      border-color: #4a90e2;
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
-    }
-    
-    .opciones {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    
-    .opciones label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      padding: 10px 15px;
-      background: #f8f9fa;
+
+    .contenedordelogin::-webkit-scrollbar-thumb {
+      background: #4a90e2;
       border-radius: 10px;
-      transition: all 0.3s;
     }
-    
-    .opciones label:hover {
-      background: #e9ecef;
+
+    .contenedordelogin::-webkit-scrollbar-thumb:hover {
+      background: #357abd;
     }
-    
-    .opciones input[type="radio"] {
-      width: auto;
-    }
-    
-    .btn {
-      width: 100%;
-      padding: 15px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    }
-    
-    .footer {
-      text-align: center;
-      margin-top: 20px;
-      color: #666;
-    }
-    
-    .footer a {
-      color: #4a90e2;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    
-    .footer a:hover {
-      text-decoration: underline;
-    }
-    
-    .alert {
-      padding: 12px 15px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      font-size: 14px;
-    }
-    
-    .alert-error {
-      background: #fee;
-      border: 1px solid #fcc;
-      color: #c33;
-    }
-    
-    .alert-success {
-      background: #efe;
-      border: 1px solid #cfc;
-      color: #3c3;
+
+    /* Estilos adicionales para el formulario */
+    .hidden {
+      display: none;
     }
     
     .especializaciones-grid {
@@ -203,10 +102,6 @@
       color: #666;
       margin-bottom: 10px;
     }
-    
-    .hidden {
-      display: none;
-    }
   </style>
 </head>
 <body>
@@ -217,6 +112,7 @@
     <div class="line line-4"></div>
   </div>
 
+  <!-- SOLO UN CONTENEDOR -->
   <div class="contenedordelogin">
     <h2>Registro de Usuario</h2>
 

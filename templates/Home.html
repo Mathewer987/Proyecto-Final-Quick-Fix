@@ -80,7 +80,21 @@
     color: #333;
 }
 
-/* ESTRELLAS */
+/* INFO DEL PROFESIONAL */
+.profesional-info {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border-left: 4px solid #2563eb;
+}
+
+.profesional-info p {
+    margin: 5px 0;
+    font-weight: 500;
+}
+
+/* ESTRELLAS - RELLENAS EN AMARILLO */
 .estrellas-container-perfil {
     text-align: center;
     margin: 15px 0;
@@ -95,17 +109,25 @@
 
 .estrella-perfil {
     font-size: 2rem;
-    color: #ddd;
+    color: #ddd; /* Color por defecto (gris) */
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .estrella-perfil.active {
-    color: #ffd700;
+    color: #ffc107; /* Amarillo sólido para estrellas activas */
 }
 
 .estrella-perfil:hover {
-    color: #ffd700;
+    color: #ffc107; /* Amarillo al hacer hover */
+}
+
+.estrella-perfil.active ~ .estrella-perfil {
+    color: #ddd; /* Las siguientes estrellas vuelven a gris */
+}
+
+.estrella-perfil:hover ~ .estrella-perfil {
+    color: #ddd; /* Las siguientes estrellas vuelven a gris al hover */
 }
 
 .calificacion-texto-perfil {
@@ -410,6 +432,20 @@ function mostrarModalCalificacion(calificacion) {
     
     document.getElementById('calificacionTitulo').textContent = titulo;
     document.getElementById('calificacionSubtitulo').textContent = subtitulo;
+    
+    // AGREGAR INFORMACIÓN DEL PROFESIONAL
+    const profesionalInfo = `
+        <div class="profesional-info">
+            <p><strong>Profesional:</strong> ${calificacion.profesional_nombre || 'Nombre no disponible'}</p>
+            <p><strong>Servicio:</strong> ${calificacion.titulo}</p>
+            ${calificacion.fecha ? `<p><strong>Fecha:</strong> ${calificacion.fecha}</p>` : ''}
+        </div>
+    `;
+    
+    // Insertar la info del profesional al inicio del modal body
+    const modalBody = document.querySelector('.modal-perfil-body');
+    const firstSection = modalBody.querySelector('.perfil-section');
+    modalBody.insertAdjacentHTML('afterbegin', profesionalInfo);
     
     // Mostrar modal
     document.getElementById('modalCalificacion').classList.add('active');

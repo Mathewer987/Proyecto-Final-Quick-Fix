@@ -1792,10 +1792,14 @@ def registrar_cliente(nombre, apellido, mail, tel, birth, contra, zona, request)
             "fecha_registro": datetime.now()
         }
 
+        # FALTABA ESTA LÍNEA CRÍTICA:
+        db.collection("clientes").document(mail).set(cliente_data)
+        flash('✅ ¡Registro exitoso! Cliente creado correctamente', 'success')
+        return redirect(url_for('login'))
+
     except Exception as e:
         flash(f'❌ Error al registrar cliente: {str(e)}', 'error')
         return render_template('registro.html')
-    
     
 
     

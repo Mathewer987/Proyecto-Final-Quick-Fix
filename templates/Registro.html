@@ -262,31 +262,39 @@
     }
 
     // Modal functions
-    function openMapModal() {
-        document.getElementById('mapModal').classList.remove('hidden');
-    }
-
-    function closeMapModal() {
-        document.getElementById('mapModal').classList.add('hidden');
-    }
-
-    function confirmLocation() {
-        if (coordenadasSeleccionadas) {
-            // Guardar en campos hidden
-            document.getElementById('latitud').value = coordenadasSeleccionadas.lat;
-            document.getElementById('longitud').value = coordenadasSeleccionadas.lng;
-            
-            // Actualizar resumen
-            const summary = document.getElementById('locationSummary');
-            summary.innerHTML = `
-                <i class="fas fa-check-circle"></i> 
-                📍 Ubicación confirmada: ${coordenadasSeleccionadas.lat.toFixed(6)}, ${coordenadasSeleccionadas.lng.toFixed(6)}
-            `;
-            summary.classList.add('has-location');
-            
-            closeMapModal();
+    // Modal functions - ACTUALIZADAS
+function openMapModal() {
+    document.getElementById('mapModal').classList.add('active');
+    // Pequeño delay para asegurar la animación
+    setTimeout(() => {
+        if (map) {
+            google.maps.event.trigger(map, 'resize');
         }
+    }, 300);
+}
+
+function closeMapModal() {
+    document.getElementById('mapModal').classList.remove('active');
+}
+
+function confirmLocation() {
+    if (coordenadasSeleccionadas) {
+        // Guardar en campos hidden
+        document.getElementById('latitud').value = coordenadasSeleccionadas.lat;
+        document.getElementById('longitud').value = coordenadasSeleccionadas.lng;
+        
+        // Actualizar resumen
+        const summary = document.getElementById('locationSummary');
+        summary.innerHTML = `
+            <i class="fas fa-check-circle" style="color: #10b981;"></i> 
+            <strong>📍 Ubicación confirmada:</strong><br>
+            Lat: ${coordenadasSeleccionadas.lat.toFixed(6)}, Lng: ${coordenadasSeleccionadas.lng.toFixed(6)}
+        `;
+        summary.classList.add('has-location');
+        
+        closeMapModal();
     }
+}
 
     // Datos de especializaciones
     const especializaciones = {

@@ -11,7 +11,154 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='Home.css') }}">
 </head>
+<style>
+/* SOLO ESTILOS DEL MODAL DE RATING */
+.modal-perfil-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+}
 
+.modal-perfil-overlay.active {
+    display: flex;
+}
+
+.modal-perfil-content {
+    background: white;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modal-perfil-header {
+    background: #2563eb;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.perfil-info h2 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.perfil-especialidad {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.close-perfil-modal {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.modal-perfil-body {
+    padding: 20px;
+}
+
+.perfil-section {
+    margin-bottom: 20px;
+}
+
+.perfil-section h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+/* ESTRELLAS */
+.estrellas-container-perfil {
+    text-align: center;
+    margin: 15px 0;
+}
+
+.estrellas-calificacion-perfil {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.estrella-perfil {
+    font-size: 2rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.estrella-perfil.active {
+    color: #ffd700;
+}
+
+.estrella-perfil:hover {
+    color: #ffd700;
+}
+
+.calificacion-texto-perfil {
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+/* COMENTARIO */
+.comentario-input-full textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.contador-caracteres-perfil {
+    text-align: right;
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* BOTONES */
+.modal-perfil-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.btn-perfil {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-cancelar-perfil {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-contratar {
+    background: #2563eb;
+    color: white;
+}
+</style>
 <body>
     <div class="background-lines">
         <div class="line line-1"></div>

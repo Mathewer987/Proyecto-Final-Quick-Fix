@@ -622,6 +622,23 @@ def browser():
             trabajador_data = doc.to_dict()
             trabajador_data['id'] = doc.id
             
+            # ✅ OBTENER CALIFICACIONES REALES
+            calificaciones = trabajador_data.get('calificaciones', [])
+            if calificaciones:
+                # Calcular promedio real
+                rating_promedio = sum(calificaciones) / len(calificaciones)
+                total_resenas = len(calificaciones)
+            else:
+                # Valores por defecto si no hay calificaciones
+                rating_promedio = 0
+                total_resenas = 0
+            
+            # ✅ ASIGNAR DATOS REALES DE CALIFICACIÓN
+            trabajador_data['rating'] = round(rating_promedio, 1)  # Promedio con 1 decimal
+            trabajador_data['reseñas'] = total_resenas  # Número real de reseñas
+            trabajador_data['calificaciones_lista'] = calificaciones  # Lista completa para debug
+            
+            # Procesar especialidades (código existente)
             especialidades = []
             campos_especialidad = [
                 'Albañil', 'Carpintero', 'Cerrajero', 'Electricista', 
@@ -647,14 +664,11 @@ def browser():
             trabajador_data['especialidades'] = especialidades
             trabajador_data['especialidad_principal'] = especialidades[0] if especialidades else "Servicios generales"
             
+            # Datos por defecto para otros campos
             if 'nombre' not in trabajador_data:
                 trabajador_data['nombre'] = 'Nombre no disponible'
             if 'apellido' not in trabajador_data:
                 trabajador_data['apellido'] = ''
-            if 'rating' not in trabajador_data:
-                trabajador_data['rating'] = 0
-            if 'reseñas' not in trabajador_data:
-                trabajador_data['reseñas'] = 0
             if 'ubicacion' not in trabajador_data:
                 trabajador_data['ubicacion'] = 'Ubicación no disponible'
             if 'precio' not in trabajador_data:
@@ -1437,7 +1451,25 @@ def oportunidades():
             trabajador_data = doc.to_dict()
             trabajador_data['id'] = doc.id
             
-            # Procesar especialidades (igual que en browser)
+            # ✅ OBTENER CALIFICACIONES REALES PARA MENTORES TAMBIÉN
+            calificaciones = trabajador_data.get('calificaciones', [])
+            calificaciones_mentoria = trabajador_data.get('calificaciones_mentoria', [])
+            
+            # Usar calificaciones de mentoría si existen, sino las generales
+            if calificaciones_mentoria:
+                rating_promedio = sum(calificaciones_mentoria) / len(calificaciones_mentoria)
+                total_resenas = len(calificaciones_mentoria)
+            elif calificaciones:
+                rating_promedio = sum(calificaciones) / len(calificaciones)
+                total_resenas = len(calificaciones)
+            else:
+                rating_promedio = 0
+                total_resenas = 0
+            
+            trabajador_data['rating'] = round(rating_promedio, 1)
+            trabajador_data['reseñas'] = total_resenas
+            
+            # ... (el resto del código de procesamiento de especialidades se mantiene igual)
             especialidades = []
             campos_especialidad = [
                 'Albañil', 'Carpintero', 'Cerrajero', 'Electricista', 
@@ -1468,10 +1500,6 @@ def oportunidades():
                 trabajador_data['nombre'] = 'Nombre no disponible'
             if 'apellido' not in trabajador_data:
                 trabajador_data['apellido'] = ''
-            if 'rating' not in trabajador_data:
-                trabajador_data['rating'] = 0
-            if 'reseñas' not in trabajador_data:
-                trabajador_data['reseñas'] = 0
             if 'ubicacion' not in trabajador_data:
                 trabajador_data['ubicacion'] = 'Ubicación no disponible'
             if 'experiencia' not in trabajador_data:

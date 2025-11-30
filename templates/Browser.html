@@ -844,19 +844,28 @@
                         <div class="card-content">
                             <h3>{{ profesional.nombre }} {{ profesional.apellido }}</h3>
                             <div class="card-rating">
-                                {% for i in range(5) %}
-                                    {% if i < profesional.rating|int %}
-                                        <i class="fas fa-star"></i>
-                                    {% else %}
-                                        {% if i < profesional.rating %}
-                                            <i class="fas fa-star-half-alt"></i>
-                                        {% else %}
-                                            <i class="far fa-star"></i>
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                                <span>({{ profesional.reseñas }} reseñas)</span>
-                            </div>
+    {% if profesional.rating > 0 %}
+        {% for i in range(5) %}
+            {% if i < profesional.rating|int %}
+                <i class="fas fa-star"></i>
+            {% else %}
+                {% if (profesional.rating - i) > 0 and (profesional.rating - i) < 1 %}
+                    <i class="fas fa-star-half-alt"></i>
+                {% else %}
+                    <i class="far fa-star"></i>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        <span>({{ profesional.reseñas }} reseña{% if profesional.reseñas != 1 %}s{% endif %})</span>
+    {% else %}
+        <i class="far fa-star"></i>
+        <i class="far fa-star"></i>
+        <i class="far fa-star"></i>
+        <i class="far fa-star"></i>
+        <i class="far fa-star"></i>
+        <span>(Sin calificaciones)</span>
+    {% endif %}
+</div>
                             <div class="card-specialty">
                                 <i class="fas fa-wrench"></i> {{ profesional.especialidad_principal }}
                                 {% if profesional.especialidades|length > 1 %}
@@ -987,9 +996,12 @@
     if (profesionalCard) {
         const nombre = profesionalCard.querySelector('h3').textContent;
         const especialidadPrincipal = profesionalCard.querySelector('.card-specialty').textContent.trim();
-        const rating = profesionalCard.querySelector('.card-rating');
+        const ratingContainer = profesionalCard.querySelector('.card-rating');
         const ubicacion = profesionalCard.querySelector('.card-location').textContent.trim();
         const precio = profesionalCard.querySelector('.card-price span').textContent;
+        
+        // Obtener el texto de reseñas
+        const reviewsText = ratingContainer.querySelector('span').textContent;
         
         // Obtener todas las especialidades
         const todasEspecialidades = profesionalCard.querySelector('.all-specialties').textContent.split(',');
@@ -1000,9 +1012,12 @@
         document.getElementById('perfilUbicacion').textContent = ubicacion.replace('📍 ', '');
         document.getElementById('perfilPrecio').textContent = `$${precio}`;
         
-        // Generar estrellas de rating
-        const ratingStars = rating.innerHTML;
+        // Copiar exactamente el mismo rating que aparece en la tarjeta
+        const ratingStars = ratingContainer.innerHTML;
         document.getElementById('perfilRating').innerHTML = ratingStars;
+        
+        // Actualizar texto de reseñas en el perfil
+        document.getElementById('perfilReviews').textContent = reviewsText;
         
         // Generar lista de especialidades
         const especialidadesContainer = document.getElementById('perfilEspecialidades');
@@ -1022,6 +1037,29 @@
         // Guardar el ID del profesional para usar en los botones
         document.getElementById('modalPerfil').dataset.profesionalId = profesionalId;
     }
+}
+
+// Función auxiliar para generar estrellas basadas en un rating numérico
+function generarEstrellas(rating, totalResenas) {
+    let estrellasHTML = '';
+    const ratingNum = parseFloat(rating);
+    
+    for (let i = 1; i <= 5; i++) {
+        if (i <= ratingNum) {
+            estrellasHTML += '<i class="fas fa-star"></i>';
+        } else if (i - 0.5 <= ratingNum) {
+            estrellasHTML += '<i class="fas fa-star-half-alt"></i>';
+        } else {
+            estrellasHTML += '<i class="far fa-star"></i>';
+        }
+    }
+    
+    const textoResenas = totalResenas > 0 ? 
+        `(${totalResenas} reseña${totalResenas !== 1 ? 's' : ''})` : 
+        '(Sin calificaciones)';
+    
+    estrellasHTML += `<span>${textoResenas}</span>`;
+    return estrellasHTML;
 }
 
 function cerrarModalPerfil() {

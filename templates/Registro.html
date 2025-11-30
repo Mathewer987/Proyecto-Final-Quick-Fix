@@ -9,111 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  <style>
-
-
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      padding: 20px 0;
-    }
-    
-    .contenedordelogin {
-      max-width: 500px;
-      margin: 20px auto;
-      padding: 40px;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(10px);
-      /* SCROLLABLE */
-      max-height: 85vh;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: #4a90e2 #f1f1f1;
-    }
-
-    /* Personalizar scrollbar */
-    .contenedordelogin::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .contenedordelogin::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 10px;
-    }
-
-    .contenedordelogin::-webkit-scrollbar-thumb {
-      background: #4a90e2;
-      border-radius: 10px;
-    }
-
-    .contenedordelogin::-webkit-scrollbar-thumb:hover {
-      background: #357abd;
-    }
-
-    /* Estilos adicionales para el formulario */
-    .hidden {
-      display: none;
-    }
-    
-    .especializaciones-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    
-    .especializacion-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    
-    .especializacion-item:hover {
-      background: #e9ecef;
-    }
-    
-    .especializacion-item.selected {
-      background: #4a90e2;
-      color: white;
-    }
-    
-    .file-upload {
-      border: 2px dashed #ddd;
-      padding: 20px;
-      text-align: center;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    
-    .file-upload:hover {
-      border-color: #4a90e2;
-    }
-    
-    .file-upload i {
-      font-size: 24px;
-      color: #666;
-      margin-bottom: 10px;
-    }
-
-
-
-  </style>
 </head>
 
-
-
 <body>
-
-    <!-- Modal para el mapa FUERA del formulario -->
+  <!-- Modal para el mapa FUERA del formulario -->
   <div id="mapModal" class="modal hidden">
     <div class="modal-content">
       <div class="modal-header">
@@ -213,34 +112,28 @@
       <!-- Campos específicos por rol -->
       <div id="extra-fields">
         <!-- Campos para cliente -->
-        <!-- Campos para cliente -->
-<div id="cliente-fields">
-  <div class="cajita">
-    <label for="zona">Zona en la que vivís</label>
-    <input type="text" id="zona" name="zona" placeholder="Ej. Palermo, La Boca, etc.">
-  </div>
+        <div id="cliente-fields">
+          <div class="cajita">
+            <label for="zona">Zona en la que vivís</label>
+            <input type="text" id="zona" name="zona" placeholder="Ej. Palermo, La Boca, etc.">
+          </div>
 
-  <!-- AGREGAR ESTO: Modal para el mapa DENTRO del formulario -->
-  <!-- Modal para el mapa DENTRO del formulario -->
-
-</div>
-
-  <!-- Botón para abrir el mapa DENTRO del formulario -->
-  <div class="cajita">
-    <label>Ubicación</label>
-    <div class="location-selector">
-      <button type="button" id="openMapBtn" class="btn-map-open">
-        <i class="fas fa-map-marker-alt"></i> Seleccionar en el mapa
-      </button>
-      <div id="locationSummary" class="location-summary">
-        <small>No se seleccionó ubicación</small>
-      </div>
-    </div>
-    <!-- Campos ocultos para las coordenadas -->
-    <input type="hidden" id="latitud" name="latitud">
-    <input type="hidden" id="longitud" name="longitud">
-  </div>
-</div>
+          <!-- Botón para abrir el mapa -->
+          <div class="cajita">
+            <label>Ubicación</label>
+            <div class="location-selector">
+              <button type="button" id="openMapBtn" class="btn-map-open">
+                <i class="fas fa-map-marker-alt"></i> Seleccionar en el mapa
+              </button>
+              <div id="locationSummary" class="location-summary">
+                <small>No se seleccionó ubicación</small>
+              </div>
+            </div>
+            <!-- Campos ocultos para las coordenadas -->
+            <input type="hidden" id="latitud" name="latitud">
+            <input type="hidden" id="longitud" name="longitud">
+          </div>
+        </div>
 
         <!-- Campos para trabajador -->
         <div id="trabajador-fields" class="hidden">
@@ -249,10 +142,11 @@
             <div class="especializaciones-grid" id="especializaciones-container">
               <!-- Las especialidades se cargarán con JavaScript -->
             </div>
-            <div class="cajita">
-              <label for="otras_especialidades">Otras especialidades (separadas por coma)</label>
-              <input type="text" id="otras_especialidades" name="otras_especialidades" placeholder="Ej. Instalador de persianas, etc.">
-            </div>
+          </div>
+          
+          <div class="cajita">
+            <label for="otras_especialidades">Otras especialidades (separadas por coma)</label>
+            <input type="text" id="otras_especialidades" name="otras_especialidades" placeholder="Ej. Instalador de persianas, etc.">
           </div>
           
           <div class="cajita">
@@ -302,9 +196,7 @@
     </div>
   </div>
 
-  
   <script>
-    // TODO EL CÓDIGO JAVASCRIPT AQUÍ DENTRO
     // Variables para el mapa
     let map;
     let marcador = null;
@@ -379,22 +271,22 @@
     }
 
     function confirmLocation() {
-    if (coordenadasSeleccionadas) {
-        // Guardar en campos hidden
-        document.getElementById('latitud').value = coordenadasSeleccionadas.lat;
-        document.getElementById('longitud').value = coordenadasSeleccionadas.lng;
-        
-        // Actualizar resumen
-        const summary = document.getElementById('locationSummary');
-        summary.innerHTML = `
-            <i class="fas fa-check-circle"></i> 
-            📍 Ubicación confirmada: ${coordenadasSeleccionadas.lat.toFixed(6)}, ${coordenadasSeleccionadas.lng.toFixed(6)}
-        `;
-        summary.classList.add('has-location');
-        
-        closeMapModal();
+        if (coordenadasSeleccionadas) {
+            // Guardar en campos hidden
+            document.getElementById('latitud').value = coordenadasSeleccionadas.lat;
+            document.getElementById('longitud').value = coordenadasSeleccionadas.lng;
+            
+            // Actualizar resumen
+            const summary = document.getElementById('locationSummary');
+            summary.innerHTML = `
+                <i class="fas fa-check-circle"></i> 
+                📍 Ubicación confirmada: ${coordenadasSeleccionadas.lat.toFixed(6)}, ${coordenadasSeleccionadas.lng.toFixed(6)}
+            `;
+            summary.classList.add('has-location');
+            
+            closeMapModal();
+        }
     }
-}
 
     // Datos de especializaciones
     const especializaciones = {

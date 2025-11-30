@@ -21,8 +21,12 @@
       </div>
       <div class="modal-body">
         <div class="map-instructions">
-          <i class="fas fa-info-circle"></i> Hacé click en el mapa para seleccionar tu ubicación exacta
-        </div>
+    <i class="fas fa-info-circle"></i> 
+    <div>
+        <strong>Seleccioná tu ubicación exacta</strong><br>
+        <small>El círculo rojo muestra tu ubicación aproximada. Hacé click para elegir la ubicación exacta.</small>
+    </div>
+</div>
         <div class="map-container-large">
           <div id="map"></div>
         </div>
@@ -198,103 +202,167 @@
 
   <script>
     // Variables para el mapa
-    let map;
-    let marcador = null;
-    let coordenadasSeleccionadas = null;
+    // Variables para el mapa
+let map;
+let marcador = null;
+let coordenadasSeleccionadas = null;
+let circulo = null; // <-- AGREGAR esta variable
 
-    // Inicializar mapa
-    function initMap() {
-        const defaultCenter = { lat: -34.6037, lng: -58.3816 };
+// Inicializar mapa
+function initMap() {
+    const defaultCenter = { lat: -34.6037, lng: -58.3816 };
+    
+    map = new google.maps.Map(document.getElementById("map"), {
+        center: defaultCenter,
+        zoom: 14,
+        styles: [
+            {
+                "featureType": "all",
+                "elementType": "geometry",
+                "stylers": [{ "color": "#f5f5f5" }]
+            }
+        ]
+    });
+
+    // Intentar geolocalización MEJORADA
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const ubicacionActual = {
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude
+                };
+                
+                // Centrar el mapa en la ubicación actual
+                map.setCenter(ubicacionActual);
+                
+                // Crear círculo de ubicación aproximada
+                circulo = new google.maps.Circle({
+                    strokeColor: "#FF0000",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: "#FF0000",
+                    fillOpacity: 0.15,
+                    map: map,
+                    center: ubicacionActual,
+                    radius: pos.coords.accuracy, // Radio basado en la precisión
+                    clickable: false,
+                });
+                
+                // Mensaje informativo
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div style="padding: 10px;">
+                            <strong>📍 Tu ubicación aproximada</strong><br>
+                            <small>El círculo rojo muestra tu ubicación estimada</small>
+                        </div>
+                    `,
+                    position: ubicacionActual,
+                });
+                
+                infoWindow.open(map);
+                setTimeout(() => infoWindow.close(), 5000);
+            },
+            (error) => {
+                console.log("Geolocalización no permitida o no disponible.");
+                // Mostrar mensaje amigable
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div style="padding: 10px;">
+                            <strong>🌍 Selecciona tu ubicación</strong><br>
+                            <small>Hacé click en el mapa para elegir tu ubicación exacta</small>
+                        </div>
+                    `,
+                    position: defaultCenter,
+                });
+                infoWindow.open(map);
+                setTimeout(() => infoWindow.close(), 5000);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 60000
+            }
+        );
+    }
+
+    // Click en el mapa
+    map.addListener("click", function(event) {
+        const latLng = event.latLng;
         
-        map = new google.maps.Map(document.getElementById("map"), {
-            center: defaultCenter,
-            zoom: 14,
-            styles: [
-                {
-                    "featureType": "all",
-                    "elementType": "geometry",
-                    "stylers": [{ "color": "#f5f5f5" }]
-                }
-            ]
-        });
-
-        // Intentar geolocalización
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const ubicacionActual = {
-                        lat: pos.coords.latitude,
-                        lng: pos.coords.longitude
-                    };
-                    map.setCenter(ubicacionActual);
-                },
-                () => {
-                    console.log("Geolocalización no permitida.");
-                }
-            );
+        // Remover círculo de geolocalización si existe
+        if (circulo) {
+            circulo.setMap(null);
+            circulo = null;
+        }
+        
+        if (!marcador) {
+            marcador = new google.maps.Marker({
+                position: latLng,
+                map: map,
+                draggable: true,
+                title: "Ubicación seleccionada"
+            });
+        } else {
+            marcador.setPosition(latLng);
         }
 
-        // Click en el mapa
-        map.addListener("click", function(event) {
-            const latLng = event.latLng;
-            
-            if (!marcador) {
-                marcador = new google.maps.Marker({
-                    position: latLng,
-                    map: map,
-                    draggable: true
-                });
-            } else {
-                marcador.setPosition(latLng);
-            }
+        coordenadasSeleccionadas = {
+            lat: latLng.lat(),
+            lng: latLng.lng()
+        };
 
+        // Actualizar display
+        document.getElementById('lat-display').textContent = coordenadasSeleccionadas.lat.toFixed(6);
+        document.getElementById('lng-display').textContent = coordenadasSeleccionadas.lng.toFixed(6);
+        document.getElementById('coordinates-display').style.display = 'block';
+        document.getElementById('confirmLocation').disabled = false;
+        
+        // Centrar el mapa en la ubicación seleccionada
+        map.setCenter(latLng);
+    });
+    
+    // Permitir arrastrar el marcador
+    if (marcador) {
+        marcador.addListener("dragend", function(event) {
+            const newLatLng = event.latLng;
             coordenadasSeleccionadas = {
-                lat: latLng.lat(),
-                lng: latLng.lng()
+                lat: newLatLng.lat(),
+                lng: newLatLng.lng()
             };
-
-            // Actualizar display
+            
             document.getElementById('lat-display').textContent = coordenadasSeleccionadas.lat.toFixed(6);
             document.getElementById('lng-display').textContent = coordenadasSeleccionadas.lng.toFixed(6);
-            document.getElementById('coordinates-display').style.display = 'block';
-            document.getElementById('confirmLocation').disabled = false;
         });
     }
+}
 
     // Modal functions
-    // Modal functions - ACTUALIZADAS
-function openMapModal() {
-    document.getElementById('mapModal').classList.add('active');
-    // Pequeño delay para asegurar la animación
-    setTimeout(() => {
-        if (map) {
-            google.maps.event.trigger(map, 'resize');
-        }
-    }, 300);
-}
-
-function closeMapModal() {
-    document.getElementById('mapModal').classList.remove('active');
-}
-
-function confirmLocation() {
-    if (coordenadasSeleccionadas) {
-        // Guardar en campos hidden
-        document.getElementById('latitud').value = coordenadasSeleccionadas.lat;
-        document.getElementById('longitud').value = coordenadasSeleccionadas.lng;
-        
-        // Actualizar resumen
-        const summary = document.getElementById('locationSummary');
-        summary.innerHTML = `
-            <i class="fas fa-check-circle" style="color: #10b981;"></i> 
-            <strong>📍 Ubicación confirmada:</strong><br>
-            Lat: ${coordenadasSeleccionadas.lat.toFixed(6)}, Lng: ${coordenadasSeleccionadas.lng.toFixed(6)}
-        `;
-        summary.classList.add('has-location');
-        
-        closeMapModal();
+    function openMapModal() {
+        document.getElementById('mapModal').classList.remove('hidden');
     }
-}
+
+    function closeMapModal() {
+        document.getElementById('mapModal').classList.add('hidden');
+    }
+
+    function confirmLocation() {
+        if (coordenadasSeleccionadas) {
+            // Guardar en campos hidden
+            document.getElementById('latitud').value = coordenadasSeleccionadas.lat;
+            document.getElementById('longitud').value = coordenadasSeleccionadas.lng;
+            
+            // Actualizar resumen
+            const summary = document.getElementById('locationSummary');
+            summary.innerHTML = `
+                <i class="fas fa-check-circle"></i> 
+                📍 Ubicación confirmada: ${coordenadasSeleccionadas.lat.toFixed(6)}, ${coordenadasSeleccionadas.lng.toFixed(6)}
+            `;
+            summary.classList.add('has-location');
+            
+            closeMapModal();
+        }
+    }
 
     // Datos de especializaciones
     const especializaciones = {

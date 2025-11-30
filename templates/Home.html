@@ -149,43 +149,78 @@
         </main>
     </div>
 
-    <div class="modal-overlay" id="modalCalificacion">
+    <!-- MODAL DE CALIFICACIÓN MEJORADO -->
+<div class="modal-overlay" id="modalCalificacion">
     <div class="modal-content calificacion-modal">
         <div class="modal-header">
-            <h3 class="modal-title">Calificar Servicio</h3>
+            <div class="header-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="header-text">
+                <h3 class="modal-title">Calificar Servicio</h3>
+                <p class="modal-subtitle">Tu opinión ayuda a mejorar nuestra comunidad</p>
+            </div>
             <button class="close-modal" onclick="cerrarModalCalificacion()">&times;</button>
         </div>
+        
         <form id="formCalificacion">
             <input type="hidden" id="tipoServicio" value="">
             <input type="hidden" id="servicioId" value="">
             <input type="hidden" id="profesionalId" value="">
             
             <div class="calificacion-section">
-                <label>¿Cómo calificarías el servicio?</label>
-                <div class="estrellas-calificacion">
-                    <span class="estrella" data-value="1">★</span>
-                    <span class="estrella" data-value="2">★</span>
-                    <span class="estrella" data-value="3">★</span>
-                    <span class="estrella" data-value="4">★</span>
-                    <span class="estrella" data-value="5">★</span>
+                <div class="calificacion-pregunta">
+                    <h4>¿Cómo calificarías el servicio recibido?</h4>
                 </div>
-                <div class="calificacion-texto">
-                    <span id="textoCalificacion">Selecciona una calificación</span>
+                
+                <div class="estrellas-container">
+                    <div class="estrellas-calificacion">
+                        <span class="estrella" data-value="1">
+                            <i class="far fa-star"></i>
+                        </span>
+                        <span class="estrella" data-value="2">
+                            <i class="far fa-star"></i>
+                        </span>
+                        <span class="estrella" data-value="3">
+                            <i class="far fa-star"></i>
+                        </span>
+                        <span class="estrella" data-value="4">
+                            <i class="far fa-star"></i>
+                        </span>
+                        <span class="estrella" data-value="5">
+                            <i class="far fa-star"></i>
+                        </span>
+                    </div>
+                    <div class="calificacion-texto">
+                        <span id="textoCalificacion">Selecciona una calificación</span>
+                    </div>
                 </div>
                 <input type="hidden" id="valorCalificacion" value="0">
             </div>
 
             <div class="comentario-section">
-                <label for="comentarioCalificacion">Comentario (opcional):</label>
-                <textarea id="comentarioCalificacion" placeholder="Comparte tu experiencia con este servicio..."></textarea>
-                <button type="button" class="btn-toggle-comentario" onclick="toggleComentario()">
-                    <i class="fas fa-comment"></i> Agregar comentario
-                </button>
+                <div class="comentario-header">
+                    <h4>Comparte tu experiencia (opcional)</h4>
+                    <button type="button" class="btn-toggle-comentario" onclick="toggleComentario()">
+                        <i class="fas fa-edit"></i> 
+                        <span class="btn-text">Agregar comentario</span>
+                    </button>
+                </div>
+                <div class="comentario-input-container" id="comentarioContainer" style="display: none;">
+                    <textarea id="comentarioCalificacion" placeholder="¿Qué te pareció el servicio? ¿Algo que destacar o mejorar?"></textarea>
+                    <div class="contador-caracteres">
+                        <span id="contadorCaracteres">0</span>/500
+                    </div>
+                </div>
             </div>
 
             <div class="modal-actions">
-                <button type="button" class="btn btn-cancel" onclick="cerrarModalCalificacion()">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="enviarCalificacion()">Enviar Calificación</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalCalificacion()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="enviarCalificacion()">
+                    <i class="fas fa-paper-plane"></i> Enviar Calificación
+                </button>
             </div>
         </form>
     </div>
@@ -352,6 +387,15 @@ function toggleComentario() {
             });
         }
     });
+// Contador de caracteres para comentario
+document.getElementById('comentarioCalificacion')?.addEventListener('input', function() {
+    const contador = document.getElementById('contadorCaracteres');
+    if (contador) {
+        contador.textContent = this.value.length;
+    }
+});
 </script>
+
+
 </body>
 </html>

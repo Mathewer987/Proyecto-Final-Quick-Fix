@@ -1682,6 +1682,239 @@ def rechazar_mentoria(mentoria_id):
         print(f"Error al rechazar mentoría: {str(e)}")
         return jsonify({'success': False, 'message': 'Error al procesar la solicitud'})
 
+
+
+@app.route('/registrate', methods=['GET', 'POST'])
+def registrate():
+    if request.method == 'POST':
+        try:
+            # Obtener datos básicos del formulario
+            nombre = request.form['nombre'].strip()
+            apellido = request.form['apellido'].strip()
+            mail = request.form['mail'].strip().lower()
+            tel = request.form['tel'].strip()
+            birth = datetime.strptime(request.form['birth'], '%Y-%m-%d')
+            contra = request.form['contra']
+            rol = request.form['rol']
+
+            # Validaciones básicas
+            if not all([nombre, apellido, mail, tel, contra, rol]):
+                flash('❌ Todos los campos obligatorios deben completarse', 'error')
+                return render_template('registro.html')
+
+            # Validar formato de email
+            if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', mail):
+                flash('❌ Por favor ingresa un email válido', 'error')
+                return render_template('registro.html')
+
+            # Validar longitud de contraseña
+            if len(contra) < 6:
+                flash('❌ La contraseña debe tener al menos 6 caracteres', 'error')
+                return render_template('registro.html')
+
+            # Verificar si el email ya existe en cualquier colección
+            colecciones = ['clientes', 'trabajadores', 'desempleados']
+            email_existente = False
+            for coleccion in colecciones:
+                doc_ref = db.collection(coleccion).document(mail)
+                if doc_ref.get().exists:
+                    email_existente = True
+                    break
+
+            if email_existente:
+                flash('❌ El email ya está registrado', 'error')
+                return render_template('registro.html')
+
+            # Verificar si el teléfono ya existe
+            telefono_existente = False
+            for coleccion in colecciones:
+                query = db.collection(coleccion).where("tel", "==", tel).limit(1).stream()
+                if any(True for _ in query):
+                    telefono_existente = True
+                    break
+
+            if telefono_existente:
+                flash('❌ El teléfono ya está registrado', 'error')
+                return render_template('registro.html')
+
+            # Procesar según el tipo de usuario
+            if rol == 'cliente':
+                return registrar_cliente(nombre, apellido, mail, tel, birth, contra, request.form.get('zona', ''))
+            
+            elif rol == 'trabajador':
+                return registrar_trabajador(nombre, apellido, mail, tel, birth, contra, request)
+            
+            elif rol == 'desempleado':
+                return registrar_desempleado(nombre, apellido, mail, tel, birth, contra, request)
+            else:
+                flash('❌ Tipo de usuario no válido', 'error')
+                return render_template('registro.html')
+
+        except ValueError as e:
+            flash('❌ Error en el formato de los datos. Verifica la fecha y teléfono', 'error')
+            return render_template('registro.html')
+        except Exception as e:
+            flash(f'❌ Error inesperado al registrar: {str(e)}', 'error')
+            print(f"Error en registro: {e}")
+            return render_template('registro.html')
+
+    # Si es GET, mostrar el formulario
+    return render_template('registro.html')
+
+def registrar_cliente(nombre, apellido, mail, tel, birth, contra, zona):
+    try:
+        # Coordenadas por defecto (Buenos Aires)
+        latitud = -34.6037
+        longitud = -58.3816
+
+        cliente_data = {
+            "nombre": nombre,
+            "apellido": apellido,
+            "mail": mail,
+            "tel": int(tel),
+            "birth": birth,
+            "contra": contra,
+            "latitud": latitud,
+            "longitud": longitud,
+            "zona": zona,
+            "fecha_registro": datetime.now()
+        }
+
+        db.collection("clientes").document(mail).set(cliente_data)
+        flash('✅ ¡Registro exitoso! Cliente creado correctamente', 'success')
+        return redirect(url_for('login'))
+
+    except Exception as e:
+        flash(f'❌ Error al registrar cliente: {str(e)}', 'error')
+        return render_template('registro.html')
+
+def registrar_trabajador(nombre, apellido, mail, tel, birth, contra, request):
+    try:
+        # Procesar CV
+        cv_content = None
+        if 'cv_trabajador' in request.files:
+            cv_file = request.files['cv_trabajador']
+            if cv_file and cv_file.filename:
+                cv_content = cv_file.read()
+
+        if not cv_content:
+            flash('❌ El CV es obligatorio para trabajadores', 'error')
+            return render_template('registro.html')
+
+        # Procesar especialidades
+        especialidades_seleccionadas = request.form.getlist('especialidades')
+        otras_especialidades = request.form.get('otras_especialidades', '')
+
+        # Inicializar todas las especialidades como False
+        especialidades_data = {
+            "Fontanero_Plomero": False,
+            "Electricista": False,
+            "Gasista_matriculado": False,
+            "Albañil": False,
+            "Carpintero": False,
+            "Pintor": False,
+            "Herrero": False,
+            "Techista_Impermeabilizador": False,
+            "Cerrajero": False,
+            "Instalador_de_aires_acondicionados": False,
+            "Instalador_de_alarmas_camaras_de_seguridad": False,
+            "Personal_de_limpieza": False,
+            "Limpieza_de_tanques_de_agua": False,
+            "Limpieza_de_vidrios_en_altura": False,
+            "Fumigador": False,
+            "LavadoDeAlfombras_cortinas": False,
+            "Jardinero": False,
+            "Podador_de_arboles": False,
+            "Mantenimiento_de_piletas": False,
+            "Paisajista": False,
+            "Tecnico_de_electrodomesticos": False,
+            "Tecnico_de_celulares": False,
+            "TecnicoDeComputadoras_laptops": False,
+            "TecnicoDeTelevisores_equiposelectronicos": False,
+            "Tecnico_de_impresoras": False,
+            "InstaladorDeRedes_WiFi": False
+        }
+
+        # Marcar especialidades seleccionadas como True
+        for esp in especialidades_seleccionadas:
+            # Normalizar nombre para coincidir con las claves
+            esp_normalizada = esp.replace(" ", "_").replace("/", "_")
+            if esp_normalizada in especialidades_data:
+                especialidades_data[esp_normalizada] = True
+
+        # Procesar otras especialidades
+        otros_trabajos = []
+        if otras_especialidades:
+            otros_trabajos = [trabajo.strip() for trabajo in otras_especialidades.split(',') if trabajo.strip()]
+
+        # Ayudar a otros
+        ayudar_otros = request.form.get('ayudar_otros') == 'true'
+
+        trabajador_data = {
+            "nombre": nombre,
+            "apellido": apellido,
+            "mail": mail,
+            "tel": int(tel),
+            "birth": birth,
+            "contra": contra,
+            "cv": cv_content,
+            "AyudarAOtros": ayudar_otros,
+            "calificaciones": [],
+            "rating": 0,
+            "total_calificaciones": 0,
+            "fecha_registro": datetime.now()
+        }
+
+        # Agregar especialidades al documento
+        trabajador_data.update(especialidades_data)
+        trabajador_data["Otro"] = otros_trabajos
+
+        db.collection("trabajadores").document(mail).set(trabajador_data)
+        flash('✅ ¡Registro exitoso! Trabajador creado correctamente', 'success')
+        return redirect(url_for('login'))
+
+    except Exception as e:
+        flash(f'❌ Error al registrar trabajador: {str(e)}', 'error')
+        return render_template('registro.html')
+
+def registrar_desempleado(nombre, apellido, mail, tel, birth, contra, request):
+    try:
+        # Procesar CV
+        cv_content = None
+        if 'cv_desempleado' in request.files:
+            cv_file = request.files['cv_desempleado']
+            if cv_file and cv_file.filename:
+                cv_content = cv_file.read()
+
+        if not cv_content:
+            flash('❌ El CV es obligatorio para desempleados', 'error')
+            return render_template('registro.html')
+
+        # Secundaria
+        secundaria = request.form.get('secundaria') == 'true'
+
+        desempleado_data = {
+            "nombre": nombre,
+            "apellido": apellido,
+            "mail": mail,
+            "tel": int(tel),
+            "birth": birth,
+            "contra": contra,
+            "CV": cv_content,
+            "Secundaria": secundaria,
+            "fecha_registro": datetime.now()
+        }
+
+        db.collection("desempleados").document(mail).set(desempleado_data)
+        flash('✅ ¡Registro exitoso! Desempleado creado correctamente', 'success')
+        return redirect(url_for('login'))
+
+    except Exception as e:
+        flash(f'❌ Error al registrar desempleado: {str(e)}', 'error')
+        return render_template('registro.html')
+    
+
+
 @app.route('/registro')
 def registro():
     return render_template('Registro.html')

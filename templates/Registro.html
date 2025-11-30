@@ -8,6 +8,206 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .background-lines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+    .line {
+      position: absolute;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      width: 1px;
+      height: 100%;
+    }
+    .line-1 { left: 20%; animation: float 8s infinite ease-in-out; }
+    .line-2 { left: 40%; animation: float 12s infinite ease-in-out; }
+    .line-3 { left: 60%; animation: float 10s infinite ease-in-out; }
+    .line-4 { left: 80%; animation: float 15s infinite ease-in-out; }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    .contenedordelogin {
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+    }
+    
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+      font-weight: 600;
+    }
+    
+    .cajita {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: 500;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e1e1e1;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: all 0.3s;
+      box-sizing: border-box;
+    }
+    
+    input:focus, select:focus {
+      border-color: #4a90e2;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    }
+    
+    .opciones {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .opciones label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 10px 15px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      transition: all 0.3s;
+    }
+    
+    .opciones label:hover {
+      background: #e9ecef;
+    }
+    
+    .opciones input[type="radio"] {
+      width: auto;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+    }
+    
+    .footer a {
+      color: #4a90e2;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .footer a:hover {
+      text-decoration: underline;
+    }
+    
+    .alert {
+      padding: 12px 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    
+    .alert-error {
+      background: #fee;
+      border: 1px solid #fcc;
+      color: #c33;
+    }
+    
+    .alert-success {
+      background: #efe;
+      border: 1px solid #cfc;
+      color: #3c3;
+    }
+    
+    .especializaciones-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .especializacion-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .especializacion-item:hover {
+      background: #e9ecef;
+    }
+    
+    .especializacion-item.selected {
+      background: #4a90e2;
+      color: white;
+    }
+    
+    .file-upload {
+      border: 2px dashed #ddd;
+      padding: 20px;
+      text-align: center;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .file-upload:hover {
+      border-color: #4a90e2;
+    }
+    
+    .file-upload i {
+      font-size: 24px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+    
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
   <div class="background-lines">
@@ -20,98 +220,287 @@
   <div class="contenedordelogin">
     <h2>Registro de Usuario</h2>
 
-    <form>
+    <!-- Mensajes Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/registrate" enctype="multipart/form-data" id="registroForm">
+      <!-- Campos comunes para todos los usuarios -->
       <div class="cajita">
-        <label for="email">Nombre de usuario</label>
-        <input type="email" id="nombre" name="nombre" placeholder="Elegí un nombre de usuario" />
+        <label for="nombre">Nombre</label>
+        <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required>
       </div>
 
       <div class="cajita">
-        <label for="password">Contraseña</label>
-        <input type="password" id="contra" name="contra" placeholder="Elegí una contraseña segura" />
+        <label for="apellido">Apellido</label>
+        <input type="text" id="apellido" name="apellido" placeholder="Tu apellido" required>
       </div>
 
-      <div class="opciones">
-        <label><input type="radio" name="rol" value="cliente" checked /> Cliente</label>
-        <label><input type="radio" name="rol" value="trabajador" /> Trabajador</label>
-        <label><input type="radio" name="rol" value="desempleado" /> Desempleado</label>
+      <div class="cajita">
+        <label for="mail">Email</label>
+        <input type="email" id="mail" name="mail" placeholder="tu@email.com" required>
       </div>
 
-      <div id="extra-fields"></div>
+      <div class="cajita">
+        <label for="tel">Teléfono</label>
+        <input type="tel" id="tel" name="tel" placeholder="Tu número de teléfono" required>
+      </div>
 
-      <button type="button" class="btn btn-register">Registrarse <i class="fas fa-arrow-right"></i></button>
+      <div class="cajita">
+        <label for="birth">Fecha de Nacimiento</label>
+        <input type="date" id="birth" name="birth" required>
+      </div>
+
+      <div class="cajita">
+        <label for="contra">Contraseña</label>
+        <input type="password" id="contra" name="contra" placeholder="Contraseña segura" required minlength="6">
+      </div>
+
+      <div class="cajita">
+        <label for="confirmar_contra">Confirmar Contraseña</label>
+        <input type="password" id="confirmar_contra" name="confirmar_contra" placeholder="Repetí tu contraseña" required>
+      </div>
+
+      <!-- Selección de rol -->
+      <div class="cajita">
+        <label>Tipo de usuario</label>
+        <div class="opciones">
+          <label><input type="radio" name="rol" value="cliente" checked /> Cliente</label>
+          <label><input type="radio" name="rol" value="trabajador" /> Trabajador</label>
+          <label><input type="radio" name="rol" value="desempleado" /> Desempleado</label>
+        </div>
+      </div>
+
+      <!-- Campos específicos por rol -->
+      <div id="extra-fields">
+        <!-- Campos para cliente -->
+        <div id="cliente-fields">
+          <div class="cajita">
+            <label for="zona">Zona en la que vivís</label>
+            <input type="text" id="zona" name="zona" placeholder="Ej. Palermo, La Boca, etc.">
+          </div>
+        </div>
+
+        <!-- Campos para trabajador -->
+        <div id="trabajador-fields" class="hidden">
+          <div class="cajita">
+            <label>Especialidades</label>
+            <div class="especializaciones-grid" id="especializaciones-container">
+              <!-- Las especialidades se cargarán con JavaScript -->
+            </div>
+            <div class="cajita">
+              <label for="otras_especialidades">Otras especialidades (separadas por coma)</label>
+              <input type="text" id="otras_especialidades" name="otras_especialidades" placeholder="Ej. Instalador de persianas, etc.">
+            </div>
+          </div>
+          
+          <div class="cajita">
+            <label for="ayudar_otros">
+              <input type="checkbox" id="ayudar_otros" name="ayudar_otros" value="true">
+              ¿Estás dispuesto a enseñarles a otros tus conocimientos en esta área?
+            </label>
+          </div>
+          
+          <div class="cajita">
+            <label>CV (PDF)</label>
+            <div class="file-upload" onclick="document.getElementById('cv_trabajador').click()">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <p>Hacé clic para subir tu CV en PDF</p>
+              <small id="cv-file-name"></small>
+            </div>
+            <input type="file" id="cv_trabajador" name="cv_trabajador" accept=".pdf" class="hidden">
+          </div>
+        </div>
+
+        <!-- Campos para desempleado -->
+        <div id="desempleado-fields" class="hidden">
+          <div class="cajita">
+            <label for="secundaria">
+              <input type="checkbox" id="secundaria" name="secundaria" value="true">
+              ¿Terminaste el secundario?
+            </label>
+          </div>
+          
+          <div class="cajita">
+            <label>CV (PDF)</label>
+            <div class="file-upload" onclick="document.getElementById('cv_desempleado').click()">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <p>Hacé clic para subir tu CV en PDF</p>
+              <small id="cv-file-name-desempleado"></small>
+            </div>
+            <input type="file" id="cv_desempleado" name="cv_desempleado" accept=".pdf" class="hidden">
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn">Registrarse <i class="fas fa-arrow-right"></i></button>
     </form>
 
     <div class="footer">
-    ¿Ya tenés cuenta? <a href="/Inicio_de_Sesion">Iniciar sesión</a>
-</div>
+      ¿Ya tenés cuenta? <a href="/login">Iniciar sesión</a>
+    </div>
   </div>
 
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-  
   <script>
-    const rolInputs = document.querySelectorAll('input[name="rol"]');
-    const extraFieldsContainer = document.getElementById('extra-fields');
-  
-    function updateExtraFields(rol) {
-      let html = '';
-  
-      if (rol === 'cliente') {
-        html = `
-          <div class="cajita">
-            <label for="email">Zona en la que vivís</label>
-            <input type="email" id="zona" name="zona" placeholder="Ej. Palermo, La Boca, etc." />
-          </div>
+    // Datos de especializaciones - NOMBRES EXACTOS como los espera el backend
+    const especializaciones = {
+      1: "Fontanero_Plomero",
+      2: "Electricista", 
+      3: "Gasista_matriculado",
+      4: "Albañil",
+      5: "Carpintero",
+      6: "Pintor",
+      7: "Herrero",
+      8: "Techista_Impermeabilizador",
+      9: "Cerrajero",
+      10: "Instalador_de_aires_acondicionados",
+      11: "Instalador_de_alarmas_camaras_de_seguridad",
+      12: "Personal_de_limpieza",
+      13: "Limpieza_de_tanques_de_agua",
+      14: "Limpieza_de_vidrios_en_altura",
+      15: "LavadoDeAlfombras_cortinas",
+      16: "Fumigador",
+      17: "Jardinero",
+      18: "Podador_de_arboles",
+      19: "Mantenimiento_de_piletas",
+      20: "Paisajista",
+      21: "Tecnico_de_electrodomesticos",
+      22: "Tecnico_de_celulares",
+      23: "TecnicoDeComputadoras_laptops",
+      24: "TecnicoDeTelevisores_equiposelectronicos",
+      25: "Tecnico_de_impresoras",
+      26: "InstaladorDeRedes_WiFi"
+    };
+
+    // Mapeo para mostrar nombres amigables al usuario
+    const nombresAmigables = {
+      "Fontanero_Plomero": "Fontanero/Plomero",
+      "Gasista_matriculado": "Gasista matriculado",
+      "Techista_Impermeabilizador": "Techista/Impermeabilizador",
+      "Instalador_de_aires_acondicionados": "Instalador de aires acondicionados",
+      "Instalador_de_alarmas_camaras_de_seguridad": "Instalador de alarmas/cámaras de seguridad",
+      "Personal_de_limpieza": "Personal de limpieza",
+      "Limpieza_de_tanques_de_agua": "Limpieza de tanques de agua",
+      "Limpieza_de_vidrios_en_altura": "Limpieza de vidrios en altura",
+      "LavadoDeAlfombras_cortinas": "Lavado de alfombras/cortinas",
+      "Podador_de_arboles": "Podador de árboles",
+      "Mantenimiento_de_piletas": "Mantenimiento de piletas",
+      "Tecnico_de_electrodomesticos": "Técnico de electrodomésticos",
+      "Tecnico_de_celulares": "Técnico de celulares",
+      "TecnicoDeComputadoras_laptops": "Técnico de computadoras/laptops",
+      "TecnicoDeTelevisores_equiposelectronicos": "Técnico de televisores/equipos electrónicos",
+      "Tecnico_de_impresoras": "Técnico de impresoras",
+      "InstaladorDeRedes_WiFi": "Instalador de redes/WiFi"
+    };
+
+    // Inicializar especializaciones
+    function inicializarEspecializaciones() {
+      const container = document.getElementById('especializaciones-container');
+      container.innerHTML = '';
+      
+      for (const [key, value] of Object.entries(especializaciones)) {
+        const div = document.createElement('div');
+        div.className = 'especializacion-item';
+        
+        // Mostrar nombre amigable al usuario, pero guardar el valor técnico
+        const nombreMostrar = nombresAmigables[value] || value;
+        
+        div.innerHTML = `
+          <input type="checkbox" id="esp_${key}" name="especialidades" value="${value}" class="hidden">
+          <span>${nombreMostrar}</span>
         `;
-      } else if (rol === 'trabajador') {
-        html = `
-          <div class="cajita">
-            <label for="email">Especialidad</label>
-            <input type="email" id="especialidad" name="especialidad" placeholder="Ej. Electricista, Plomero..." />
-          </div>
-        `;
-      } else if (rol === 'desempleado') {
-        html = `
-          <div class="cajita">
-            <label for="email">Nivel de educación</label>
-            <input type="email" id="educacion" name="educacion" placeholder="Ej. Secundario completo, Terciario..." />
-          </div>
-        `;
+        div.addEventListener('click', function() {
+          const checkbox = this.querySelector('input');
+          checkbox.checked = !checkbox.checked;
+          this.classList.toggle('selected', checkbox.checked);
+        });
+        container.appendChild(div);
       }
-  
-      extraFieldsContainer.innerHTML = html;
     }
-  
-    rolInputs.forEach(input => {
-      input.addEventListener('change', () => {
-        updateExtraFields(input.value);
-      });
+
+    // Mostrar/ocultar campos según el rol
+    function actualizarCamposPorRol() {
+      const rol = document.querySelector('input[name="rol"]:checked').value;
+      
+      // Ocultar todos los campos específicos
+      document.getElementById('cliente-fields').classList.add('hidden');
+      document.getElementById('trabajador-fields').classList.add('hidden');
+      document.getElementById('desempleado-fields').classList.add('hidden');
+      
+      // Mostrar campos del rol seleccionado
+      document.getElementById(`${rol}-fields`).classList.remove('hidden');
+    }
+
+    // Manejar subida de archivos
+    document.getElementById('cv_trabajador').addEventListener('change', function(e) {
+      const fileName = e.target.files[0]?.name || 'Ningún archivo seleccionado';
+      document.getElementById('cv-file-name').textContent = fileName;
     });
-  
-    updateExtraFields(document.querySelector('input[name="rol"]:checked').value);
+
+    document.getElementById('cv_desempleado').addEventListener('change', function(e) {
+      const fileName = e.target.files[0]?.name || 'Ningún archivo seleccionado';
+      document.getElementById('cv-file-name-desempleado').textContent = fileName;
+    });
+
+    // Validación de formulario
+    document.getElementById('registroForm').addEventListener('submit', function(e) {
+      const password = document.getElementById('contra').value;
+      const confirmPassword = document.getElementById('confirmar_contra').value;
+      
+      if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('❌ Las contraseñas no coinciden');
+        return false;
+      }
+      
+      // Validar campos requeridos según el rol
+      const rol = document.querySelector('input[name="rol"]:checked').value;
+      
+      if (rol === 'trabajador') {
+        const especialidadesSeleccionadas = document.querySelectorAll('input[name="especialidades"]:checked');
+        if (especialidadesSeleccionadas.length === 0) {
+          e.preventDefault();
+          alert('❌ Por favor selecciona al menos una especialidad');
+          return false;
+        }
+        
+        const cv = document.getElementById('cv_trabajador').files[0];
+        if (!cv) {
+          e.preventDefault();
+          alert('❌ Por favor sube tu CV');
+          return false;
+        }
+      }
+      
+      if (rol === 'desempleado') {
+        const cv = document.getElementById('cv_desempleado').files[0];
+        if (!cv) {
+          e.preventDefault();
+          alert('❌ Por favor sube tu CV');
+          return false;
+        }
+      }
+      
+      return true;
+    });
+
+    // Event listeners
+    document.querySelectorAll('input[name="rol"]').forEach(radio => {
+      radio.addEventListener('change', actualizarCamposPorRol);
+    });
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', function() {
+      inicializarEspecializaciones();
+      actualizarCamposPorRol();
+    });
   </script>
-  
-   
-  <script>
-document.querySelector('.btn-register').addEventListener('click', function() {
-    const role = document.querySelector('input[name="rol"]:checked').value;
-    const userType = {
-        'cliente': '1',
-        'trabajador': '2',
-        'desempleado': '3'
-    }[role];
-    
-    localStorage.setItem('userType', userType);
-    localStorage.setItem('isLoggedIn', 'true');
-    window.location.href = 'Home.html';
-});
-</script>
-
-
-
-<script src="auth-check.js"></script>
-<script src="auth.js"></script>
-<script src="session-manager.js"></script>
-
 </body>
 </html>

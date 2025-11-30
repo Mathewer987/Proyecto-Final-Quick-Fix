@@ -80,21 +80,7 @@
     color: #333;
 }
 
-/* INFO DEL PROFESIONAL */
-.profesional-info {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    border-left: 4px solid #2563eb;
-}
-
-.profesional-info p {
-    margin: 5px 0;
-    font-weight: 500;
-}
-
-/* ESTRELLAS - RELLENAS EN AMARILLO */
+/* ESTRELLAS */
 .estrellas-container-perfil {
     text-align: center;
     margin: 15px 0;
@@ -109,25 +95,17 @@
 
 .estrella-perfil {
     font-size: 2rem;
-    color: #ddd; /* Color por defecto (gris) */
+    color: #ddd;
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .estrella-perfil.active {
-    color: #ffc107; /* Amarillo sólido para estrellas activas */
+    color: #ffd700;
 }
 
 .estrella-perfil:hover {
-    color: #ffc107; /* Amarillo al hacer hover */
-}
-
-.estrella-perfil.active ~ .estrella-perfil {
-    color: #ddd; /* Las siguientes estrellas vuelven a gris */
-}
-
-.estrella-perfil:hover ~ .estrella-perfil {
-    color: #ddd; /* Las siguientes estrellas vuelven a gris al hover */
+    color: #ffd700;
 }
 
 .calificacion-texto-perfil {

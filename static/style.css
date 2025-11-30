@@ -353,12 +353,12 @@ body {
 /* Modal para mapa - PANTALLA COMPLETA */
 .modal {
   position: fixed;
-  z-index: 1000;
+  z-index: 10000;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0,0,0,0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -370,12 +370,13 @@ body {
 
 .modal-content {
   background: white;
-  border-radius: 15px;
-  width: 95%; /* Más ancho */
-  max-width: 95vw; /* Ocupa el 95% del ancho de la ventana */
-  height: 95vh; /* Ocupa el 95% del alto de la ventana */
+  border-radius: 0;
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  max-height: 100vh;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  box-shadow: none;
 }
 
 .modal-header {
@@ -391,61 +392,55 @@ body {
 .modal-header h3 {
   margin: 0;
   color: white;
+  font-size: 1.5rem;
 }
 
 .close {
-  font-size: 24px;
+  font-size: 28px;
   cursor: pointer;
   color: white;
+  background: rgba(0,0,0,0.2);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .close:hover {
-  color: #f0f0f0;
+  background: rgba(0,0,0,0.4);
 }
 
 .modal-body {
   padding: 0;
-  height: calc(100% - 80px); /* Resta el alto del header */
+  height: calc(100% - 80px);
   display: flex;
   flex-direction: column;
 }
 
-/* Mapa pantalla completa dentro del modal */
+/* Mapa pantalla completa */
 .map-container-large {
-  height: 100%; /* Ocupa todo el espacio disponible */
+  height: 100%;
   border: none;
-  border-radius: 0;
   overflow: hidden;
   margin: 0;
   flex-grow: 1;
 }
 
-/* Botones del mapa - reposicionados */
+/* Controles del mapa */
 .map-controls {
   padding: 15px 20px;
   border-top: 1px solid #e1e1e1;
   background: #f8f9fa;
 }
 
-.btn-map-confirm {
-  width: 100%;
-  padding: 12px;
-  background: #28a745;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: all 0.3s;
-}
-
-.btn-map-confirm:hover {
-  background: #218838;
-}
-
-.btn-map-confirm:disabled {
-  background: #6c757d;
-  cursor: not-allowed;
+.map-instructions {
+  background: #f8f9fa;
+  padding: 10px 20px;
+  border-bottom: 1px solid #e1e1e1;
+  font-size: 14px;
+  color: #666;
 }
 
 /* Resumen de ubicación */

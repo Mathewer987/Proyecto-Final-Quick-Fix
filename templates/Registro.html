@@ -112,6 +112,35 @@
 
 
 <body>
+
+    <!-- Modal para el mapa FUERA del formulario -->
+  <div id="mapModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🗺️ Seleccioná tu ubicación en el mapa</h3>
+        <span class="close">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="map-instructions">
+          <i class="fas fa-info-circle"></i> Hacé click en el mapa para seleccionar tu ubicación exacta
+        </div>
+        <div class="map-container-large">
+          <div id="map"></div>
+        </div>
+        <div class="map-controls">
+          <div class="map-coordinates" id="coordinates-display">
+            <strong>📍 Ubicación seleccionada:</strong><br>
+            Latitud: <span id="lat-display">-</span><br>
+            Longitud: <span id="lng-display">-</span>
+          </div>
+          <button id="confirmLocation" class="btn-map-confirm" disabled>
+            ✅ Confirmar Ubicación Seleccionada
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
   <div class="background-lines">
     <div class="line line-1"></div>
     <div class="line line-2"></div>
@@ -193,31 +222,7 @@
 
   <!-- AGREGAR ESTO: Modal para el mapa DENTRO del formulario -->
   <!-- Modal para el mapa DENTRO del formulario -->
-<div id="mapModal" class="modal hidden">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>🗺️ Seleccioná tu ubicación en el mapa</h3>
-      <span class="close">&times;</span>
-    </div>
-    <div class="modal-body">
-      <div class="map-instructions">
-        <i class="fas fa-info-circle"></i> Hacé click en el mapa para seleccionar tu ubicación exacta
-      </div>
-      <div class="map-container-large">
-        <div id="map"></div>
-      </div>
-      <div class="map-controls">
-        <div class="map-coordinates" id="coordinates-display">
-          <strong>📍 Ubicación seleccionada:</strong><br>
-          Latitud: <span id="lat-display">-</span><br>
-          Longitud: <span id="lng-display">-</span>
-        </div>
-        <button id="confirmLocation" class="btn-map-confirm" disabled>
-          ✅ Confirmar Ubicación Seleccionada
-        </button>
-      </div>
-    </div>
-  </div>
+
 </div>
 
   <!-- Botón para abrir el mapa DENTRO del formulario -->

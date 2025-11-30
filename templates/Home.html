@@ -326,6 +326,32 @@ function toggleComentario() {
         button.innerHTML = '<i class="fas fa-comment"></i> Agregar comentario';
     }
 }
+
+ document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM cargado - inicializando botones flotantes');
+        
+        // Botón del Muro
+        const muroButton = document.getElementById('muroButton');
+        console.log('Botón muro encontrado:', muroButton);
+        
+        if (muroButton) {
+            muroButton.addEventListener('click', function() {
+                console.log('Clic en muro - redirigiendo...');
+                window.location.href = '/muro_publicaciones';
+            });
+        }
+
+        // Botón del Chat
+        const chatButton = document.getElementById('chatButton');
+        console.log('Botón chat encontrado:', chatButton);
+        
+        if (chatButton) {
+            chatButton.addEventListener('click', function() {
+                console.log('Clic en chat - redirigiendo...');
+                window.location.href = '/chat_home';
+            });
+        }
+    });
 </script>
 </body>
 </html>

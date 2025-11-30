@@ -1688,7 +1688,7 @@ def registro():
 
 @app.route('/Inicio_de_Sesion')
 def Inicio_de_Sesion():
-    return render_template('Inicio_de_sesion.html')
+    return render_template('Inicio_de_Sesion.html')
 
 # 🆕 RUTA NUEVA - AGREGAR COMPLETA
 @app.route('/calificar_trabajo/<trabajo_id>', methods=['POST'])

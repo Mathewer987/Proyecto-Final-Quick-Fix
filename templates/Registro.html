@@ -105,45 +105,7 @@
   </style>
 </head>
 
-<!-- Modal para el mapa -->
-<div id="mapModal" class="modal hidden">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Seleccioná tu ubicación</h3>
-      <span class="close">&times;</span>
-    </div>
-    <div class="modal-body">
-      <div class="map-instructions">
-        <i class="fas fa-info-circle"></i> Hacé click en el mapa para seleccionar tu ubicación exacta
-      </div>
-      <div class="map-container-large">
-        <div id="map"></div>
-      </div>
-      <div class="map-coordinates" id="coordinates-display">
-        <strong>Ubicación seleccionada:</strong><br>
-        Latitud: <span id="lat-display">-</span><br>
-        Longitud: <span id="lng-display">-</span>
-      </div>
-      <button id="confirmLocation" class="btn-map-confirm">Confirmar Ubicación</button>
-    </div>
-  </div>
-</div>
 
-<!-- Botón para abrir el mapa (reemplaza la sección del mapa actual) -->
-<div class="cajita">
-  <label>Ubicación</label>
-  <div class="location-selector">
-    <button type="button" id="openMapBtn" class="btn-map-open">
-      <i class="fas fa-map-marker-alt"></i> Seleccionar en el mapa
-    </button>
-    <div id="locationSummary" class="location-summary">
-      <small>No se seleccionó ubicación</small>
-    </div>
-  </div>
-  <!-- Campos ocultos para las coordenadas -->
-  <input type="hidden" id="latitud" name="latitud">
-  <input type="hidden" id="longitud" name="longitud">
-</div>
 
 <body>
   <div class="background-lines">
@@ -218,30 +180,53 @@
       <!-- Campos específicos por rol -->
       <div id="extra-fields">
         <!-- Campos para cliente -->
-        <div id="cliente-fields">
-          <div class="cajita">
-            <label for="zona">Zona en la que vivís</label>
-            <input type="text" id="zona" name="zona" placeholder="Ej. Palermo, La Boca, etc.">
-          </div>
+        <!-- Campos para cliente -->
+<div id="cliente-fields">
+  <div class="cajita">
+    <label for="zona">Zona en la que vivís</label>
+    <input type="text" id="zona" name="zona" placeholder="Ej. Palermo, La Boca, etc.">
+  </div>
 
-           <div class="cajita">
-    <label>Seleccioná tu ubicación en el mapa</label>
-    <div class="map-instructions">
-      <i class="fas fa-info-circle"></i> Hacé click en el mapa para seleccionar tu ubicación exacta
+  <!-- AGREGAR ESTO: Modal para el mapa DENTRO del formulario -->
+  <div id="mapModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Seleccioná tu ubicación</h3>
+        <span class="close">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="map-instructions">
+          <i class="fas fa-info-circle"></i> Hacé click en el mapa para seleccionar tu ubicación exacta
+        </div>
+        <div class="map-container-large">
+          <div id="map"></div>
+        </div>
+        <div class="map-coordinates" id="coordinates-display">
+          <strong>Ubicación seleccionada:</strong><br>
+          Latitud: <span id="lat-display">-</span><br>
+          Longitud: <span id="lng-display">-</span>
+        </div>
+        <button id="confirmLocation" class="btn-map-confirm">Confirmar Ubicación</button>
+      </div>
     </div>
-    <div class="map-container">
-      <div id="map"></div>
-    </div>
-    <div class="map-coordinates" id="coordinates-display">
-      <strong>Ubicación seleccionada:</strong><br>
-      Latitud: <span id="lat-display">-</span><br>
-      Longitud: <span id="lng-display">-</span>
+  </div>
+
+  <!-- Botón para abrir el mapa DENTRO del formulario -->
+  <div class="cajita">
+    <label>Ubicación</label>
+    <div class="location-selector">
+      <button type="button" id="openMapBtn" class="btn-map-open">
+        <i class="fas fa-map-marker-alt"></i> Seleccionar en el mapa
+      </button>
+      <div id="locationSummary" class="location-summary">
+        <small>No se seleccionó ubicación</small>
+      </div>
     </div>
     <!-- Campos ocultos para las coordenadas -->
     <input type="hidden" id="latitud" name="latitud">
     <input type="hidden" id="longitud" name="longitud">
   </div>
-        </div>
+</div>
 
         <!-- Campos para trabajador -->
         <div id="trabajador-fields" class="hidden">

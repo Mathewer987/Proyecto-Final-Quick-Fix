@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def muro():
-    return render_template("Home.html")  # <-- acá ponés el nombre exacto del HTML
+    return render_template("Inicio_de_Sesion.html")  # <-- acá ponés el nombre exacto del HTML
 
 if __name__ == "__main__":
     app.run(debug=True)

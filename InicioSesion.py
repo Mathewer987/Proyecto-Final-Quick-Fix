@@ -1053,33 +1053,60 @@ def mis_solicitudes():
 
 @app.route('/aceptar_trabajo/<trabajo_id>', methods=['POST'])
 def aceptar_trabajo(trabajo_id):
+    print(f"═══════════════════════════════════════════════════")
+    print(f"DEBUG ACEPTAR_TRABAJO: ID={trabajo_id}")
+    print(f"DEBUG: Sesión activa? {session.get('is_logged_in')}")
+    print(f"DEBUG: User type = {session.get('user_type')}")
+    
     if not session.get('is_logged_in') or session.get('user_type') != '2':
+        print(f"DEBUG: ERROR DE AUTORIZACIÓN")
+        print(f"═══════════════════════════════════════════════════")
         return jsonify({'success': False, 'message': 'No autorizado'})
     
     try:
-        # OBTENER PRECIO DEL TRABAJADOR
+        # DEBUG: ¿Qué está llegando?
+        print(f"DEBUG: request.content_type = {request.content_type}")
+        print(f"DEBUG: request.data = {request.data}")
+        
         data = request.get_json()
+        print(f"DEBUG: data = {data}")
+        print(f"DEBUG: type(data) = {type(data)}")
+        
+        if data is None:
+            print(f"DEBUG: ERROR - data es None!")
+            print(f"═══════════════════════════════════════════════════")
+            return jsonify({'success': False, 'message': 'No se recibieron datos JSON'})
+        
         precio = float(data.get('precio', 0))
+        print(f"DEBUG: precio extraído = {precio}")
         
         if precio <= 0:
+            print(f"DEBUG: ERROR - precio inválido: {precio}")
+            print(f"═══════════════════════════════════════════════════")
             return jsonify({'success': False, 'message': 'Debe especificar un precio válido'})
         
+        # El resto del código...
         trabajo_ref = db.collection('PendClienteTrabajador').document(trabajo_id)
         trabajo_ref.update({
             'estado': 'aceptado',
             'pago': 'pendiente',
-            'precio_estimado': precio,  # GUARDAR PRECIO
+            'precio_estimado': precio,
             'metodo_pago': 'mercadopago',
             'fecha_actualizacion': datetime.now(),
             'precio_aceptado_por': session.get('user_id'),
             'fecha_precio_aceptado': datetime.now()
         })
         
+        print(f"DEBUG: ÉXITO - Trabajo {trabajo_id} aceptado con precio ${precio}")
+        print(f"═══════════════════════════════════════════════════")
         return jsonify({'success': True, 'message': 'Trabajo aceptado con éxito'})
         
     except Exception as e:
-        print(f"Error al aceptar trabajo: {str(e)}")
-        return jsonify({'success': False, 'message': 'Error al procesar la solicitud'})
+        print(f"DEBUG: EXCEPCIÓN - {str(e)}")
+        import traceback
+        traceback.print_exc()
+        print(f"═══════════════════════════════════════════════════")
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 
 @app.route('/rechazar_trabajo/<trabajo_id>', methods=['POST'])
 def rechazar_trabajo(trabajo_id):

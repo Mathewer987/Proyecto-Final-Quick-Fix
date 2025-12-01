@@ -1105,6 +1105,7 @@ def aceptar_trabajo(trabajo_id):
         import traceback
         traceback.print_exc()
         print(f"═══════════════════════════════════════════════════")
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 
 @app.route('/rechazar_trabajo/<trabajo_id>', methods=['POST'])
 def rechazar_trabajo(trabajo_id):

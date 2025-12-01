@@ -1,3 +1,6 @@
 flask
 firebase_admin
 gunicorn
+mercadopago
+qrcode
+pillow

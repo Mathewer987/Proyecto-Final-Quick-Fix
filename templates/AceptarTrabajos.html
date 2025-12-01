@@ -297,6 +297,134 @@
         .btn-devolver-detalles:hover {
             background: #f57c00;
         }
+
+        /* MODAL PARA ESPECIFICAR PRECIO */
+.modal-precio-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1002;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal-precio-overlay.active {
+    display: flex;
+}
+
+.modal-precio-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modal-precio-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-precio-header h2 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.close-precio-modal {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.modal-precio-body {
+    padding: 25px;
+}
+
+.precio-form-group {
+    margin-bottom: 20px;
+}
+
+.precio-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.precio-input-group {
+    position: relative;
+}
+
+.precio-symbol {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 600;
+    color: #28a745;
+}
+
+#inputPrecioEstimado {
+    width: 100%;
+    padding: 12px 12px 12px 35px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+#inputPrecioEstimado:focus {
+    outline: none;
+    border-color: #28a745;
+}
+
+.precio-info {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #666;
+}
+
+.modal-precio-footer {
+    padding: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-precio {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-cancelar-precio {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-confirmar-precio {
+    background: #28a745;
+    color: white;
+}
     </style>
 </head>
 
@@ -428,6 +556,39 @@
             </div>
         </div>
     </div>
+
+    <!-- MODAL PARA ESPECIFICAR PRECIO -->
+<div class="modal-precio-overlay" id="modalPrecio">
+    <div class="modal-precio-content">
+        <div class="modal-precio-header">
+            <h2>Especificar Precio del Trabajo</h2>
+            <button class="close-precio-modal" onclick="cerrarModalPrecio()">&times;</button>
+        </div>
+        
+        <div class="modal-precio-body">
+            <div class="precio-form-group">
+                <label for="inputPrecioEstimado">Precio estimado (ARS):</label>
+                <div class="precio-input-group">
+                    <span class="precio-symbol">$</span>
+                    <input type="number" id="inputPrecioEstimado" placeholder="Ej: 5000" min="1" step="100">
+                </div>
+                <div class="precio-info">
+                    <i class="fas fa-info-circle"></i>
+                    Este precio se mostrará al cliente para que realice el pago por MercadoPago.
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-precio-footer">
+            <button class="btn-precio btn-cancelar-precio" onclick="cerrarModalPrecio()">
+                Cancelar
+            </button>
+            <button class="btn-precio btn-confirmar-precio" onclick="confirmarAceptacionConPrecio()">
+                <i class="fas fa-check"></i> Confirmar Precio y Aceptar
+            </button>
+        </div>
+    </div>
+</div>
 <body>
     <div class="background-lines">
         <div class="line line-1"></div>
@@ -597,90 +758,54 @@
     </div>
 
     <script>
-        let trabajoActualId = '';
-        
-        function abrirModalDevolucion(trabajoId) {
-            trabajoActualId = trabajoId;
-            document.getElementById('trabajoIdDevolucion').value = trabajoId;
-            document.getElementById('especificacionesTrabajador').value = '';
-            document.getElementById('modalDevolucion').style.display = 'flex';
+    let trabajoActualId = '';
+    let trabajoActualTipo = '';
+    
+    function abrirModalDevolucion(trabajoId) {
+        trabajoActualId = trabajoId;
+        document.getElementById('trabajoIdDevolucion').value = trabajoId;
+        document.getElementById('especificacionesTrabajador').value = '';
+        document.getElementById('modalDevolucion').style.display = 'flex';
+    }
+    
+    function cerrarModalDevolucion() {
+        document.getElementById('modalDevolucion').style.display = 'none';
+        trabajoActualId = '';
+    }
+    
+    function aceptarTrabajo(trabajoId, tipo) {
+        // Si es mentoría, usar función normal (sin precio)
+        if (tipo === 'mentoria') {
+            aceptarMentoria(trabajoId);
+            return;
         }
         
-        function cerrarModalDevolucion() {
-            document.getElementById('modalDevolucion').style.display = 'none';
-            trabajoActualId = '';
-        }
+        // Si es contratación, mostrar modal de precio
+        trabajoActualId = trabajoId;
+        trabajoActualTipo = tipo;
         
-        function aceptarTrabajo(trabajoId) {
-            if (confirm('¿Estás seguro de que quieres aceptar este trabajo?')) {
-                fetch(`/aceptar_trabajo/${trabajoId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Trabajo aceptado con éxito');
-                        location.reload();
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al procesar la solicitud');
-                });
-            }
-        }
+        // Limpiar input
+        document.getElementById('inputPrecioEstimado').value = '';
+        
+        // Mostrar modal
+        document.getElementById('modalPrecio').classList.add('active');
+    }
 
-        function rechazarTrabajo(trabajoId) {
-            if (confirm('¿Estás seguro de que quieres rechazar este trabajo?')) {
-                fetch(`/rechazar_trabajo/${trabajoId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Trabajo rechazado');
-                        location.reload();
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al procesar la solicitud');
-                });
-            }
-        }
-
-        function devolverTrabajo() {
-            const especificaciones = document.getElementById('especificacionesTrabajador').value.trim();
-            
-            if (!especificaciones) {
-                alert('Por favor, ingrese las especificaciones adicionales.');
-                return;
-            }
-            
-            fetch(`/devolver_trabajo/${trabajoActualId}`, {
+    function rechazarTrabajo(trabajoId, tipo) {
+        const url = tipo === 'contratacion' ? `/rechazar_trabajo/${trabajoId}` : `/rechazar_mentoria/${trabajoId}`;
+        const mensaje = tipo === 'contratacion' ? 'trabajo' : 'mentoría';
+        
+        if (confirm(`¿Estás seguro de que quieres rechazar este ${mensaje}?`)) {
+            fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    especificaciones: especificaciones
-                })
+                }
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Solicitud devuelta con éxito');
-                    cerrarModalDevolucion();
+                    alert(`${tipo === 'contratacion' ? 'Trabajo' : 'Mentoría'} rechazado`);
                     location.reload();
                 } else {
                     alert('Error: ' + data.message);
@@ -691,8 +816,42 @@
                 alert('Error al procesar la solicitud');
             });
         }
+    }
 
-       function verDetalles(trabajoId) {
+    function devolverTrabajo() {
+        const especificaciones = document.getElementById('especificacionesTrabajador').value.trim();
+        
+        if (!especificaciones) {
+            alert('Por favor, ingrese las especificaciones adicionales.');
+            return;
+        }
+        
+        fetch(`/devolver_trabajo/${trabajoActualId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                especificaciones: especificaciones
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Solicitud devuelta con éxito');
+                cerrarModalDevolucion();
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al procesar la solicitud');
+        });
+    }
+
+   function verDetalles(trabajoId) {
     console.log('Abriendo detalles del trabajo:', trabajoId);
     
     // Buscar el trabajo en la lista actual
@@ -782,14 +941,20 @@ function cerrarModalDetalles() {
 
 function aceptarDesdeDetalles() {
     const trabajoId = document.getElementById('modalDetalles').dataset.trabajoId;
+    const trabajoCard = document.querySelector(`button[onclick*="verDetalles('${trabajoId}')"]`).closest('.job-card');
+    const tipo = trabajoCard.dataset.tipo;
+    
     cerrarModalDetalles();
-    aceptarTrabajo(trabajoId);
+    aceptarTrabajo(trabajoId, tipo);
 }
 
 function rechazarDesdeDetalles() {
     const trabajoId = document.getElementById('modalDetalles').dataset.trabajoId;
+    const trabajoCard = document.querySelector(`button[onclick*="verDetalles('${trabajoId}')"]`).closest('.job-card');
+    const tipo = trabajoCard.dataset.tipo;
+    
     cerrarModalDetalles();
-    rechazarTrabajo(trabajoId);
+    rechazarTrabajo(trabajoId, tipo);
 }
 
 function devolverDesdeDetalles() {
@@ -804,13 +969,13 @@ document.getElementById('modalDetalles').addEventListener('click', function(e) {
         cerrarModalDetalles();
     }
 });
-        
-        // Cerrar modal al hacer clic fuera del contenido
-        document.getElementById('modalDevolucion').addEventListener('click', function(e) {
-            if (e.target === this) {
-                cerrarModalDevolucion();
-            }
-        });
+    
+    // Cerrar modal al hacer clic fuera del contenido
+    document.getElementById('modalDevolucion').addEventListener('click', function(e) {
+        if (e.target === this) {
+            cerrarModalDevolucion();
+        }
+    });
 
 // Funciones para mentorías
 function aceptarMentoria(mentoriaId) {
@@ -952,60 +1117,72 @@ document.getElementById('modalDetallesMentoria').addEventListener('click', funct
     }
 });
 
-// Modificar funciones existentes para soportar tipos
-function aceptarTrabajo(trabajoId, tipo) {
-    const url = tipo === 'contratacion' ? `/aceptar_trabajo/${trabajoId}` : `/aceptar_mentoria/${trabajoId}`;
-    const mensaje = tipo === 'contratacion' ? 'trabajo' : 'mentoría';
-    
-    if (confirm(`¿Estás seguro de que quieres aceptar este ${mensaje}?`)) {
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(`${tipo === 'contratacion' ? 'Trabajo' : 'Mentoría'} aceptado con éxito`);
-                location.reload();
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al procesar la solicitud');
-        });
-    }
+// ========== NUEVAS FUNCIONES PARA PRECIO ==========
+
+// Modal de precio
+function cerrarModalPrecio() {
+    document.getElementById('modalPrecio').classList.remove('active');
+    trabajoActualId = '';
+    trabajoActualTipo = '';
 }
 
-function rechazarTrabajo(trabajoId, tipo) {
-    const url = tipo === 'contratacion' ? `/rechazar_trabajo/${trabajoId}` : `/rechazar_mentoria/${trabajoId}`;
-    const mensaje = tipo === 'contratacion' ? 'trabajo' : 'mentoría';
+function confirmarAceptacionConPrecio() {
+    const precioInput = document.getElementById('inputPrecioEstimado');
+    const precio = parseFloat(precioInput.value);
     
-    if (confirm(`¿Estás seguro de que quieres rechazar este ${mensaje}?`)) {
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(`${tipo === 'contratacion' ? 'Trabajo' : 'Mentoría'} rechazado`);
-                location.reload();
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al procesar la solicitud');
-        });
+    // Validar precio
+    if (!precio || precio <= 0 || isNaN(precio)) {
+        alert('Por favor ingresa un precio válido mayor a 0');
+        precioInput.focus();
+        return;
     }
+    
+    // Confirmar con el usuario
+    if (!confirm(`¿Confirmas aceptar el trabajo con un precio de $${precio}?`)) {
+        return;
+    }
+    
+    cerrarModalPrecio();
+    
+    // Enviar al backend con el precio
+    fetch(`/aceptar_trabajo/${trabajoActualId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            precio: precio
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Trabajo aceptado con éxito! Se notificará al cliente.');
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al procesar la solicitud');
+    });
 }
-    </script>
+
+// Cerrar modal al hacer clic fuera
+document.getElementById('modalPrecio').addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarModalPrecio();
+    }
+});
+
+// Permitir presionar Enter en el input de precio
+document.getElementById('inputPrecioEstimado').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        confirmarAceptacionConPrecio();
+    }
+});
+</script>
 </body>
 </html>

@@ -296,8 +296,33 @@
         </main>
     </div>
 
-    <!-- MODAL DE CALIFICACIÓN MEJORADO -->
-<!-- MODAL DE CALIFICACIÓN - ESTILO BROWSER -->
+<!-- POPUP DE PAGO PENDIENTE -->
+<div class="modal-perfil-overlay" id="modalPagoPendiente" style="display:none;">
+    <div class="modal-perfil-content">
+        
+        <div class="modal-perfil-header" style="background:#ff9800;">
+            <h2>Pago Pendiente</h2>
+            <button class="close-perfil-modal" onclick="cerrarPopupPago()">&times;</button>
+        </div>
+
+        <div class="modal-perfil-body">
+            <p id="popupTextoPago" style="font-size:1.1rem; text-align:center;"></p>
+        </div>
+
+        <div class="modal-perfil-footer">
+            <button class="btn-perfil btn-cancelar-perfil" onclick="cerrarPopupPago()">
+                Más tarde
+            </button>
+
+            <button class="btn-perfil btn-contratar" onclick="redirigirAPago()">
+                Ir a pagar ahora
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
 <div class="modal-perfil-overlay" id="modalCalificacion">
     <div class="modal-perfil-content">
         <div class="modal-perfil-header">
@@ -370,6 +395,41 @@
 </div>
 
     <script>
+
+let trabajoPendienteID = "";
+
+function abrirPopupPagoPendiente(trabajo) {
+    trabajoPendienteID = trabajo.id;
+
+    document.getElementById('popupTextoPago').innerText =
+        `${trabajo.trabajador_nombre} aceptó tu solicitud.\n` +
+        `Como seleccionaste Mercado Pago, debés pagar ahora para confirmar el trabajo.`;
+
+    document.getElementById('modalPagoPendiente').style.display = "flex";
+}
+
+function cerrarPopupPago() {
+    document.getElementById('modalPagoPendiente').style.display = "none";
+}
+
+function redirigirAPago() {
+    window.location.href = `/crear-pago/${trabajoPendienteID}`;
+}
+
+function verificarPagosPendientes() {
+    fetch('/api/pagos_pendientes')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && data.trabajos.length > 0) {
+                abrirPopupPagoPendiente(data.trabajos[0]);
+            }
+        });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    verificarPagosPendientes();
+});
+
 // Detectar calificaciones pendientes al cargar la página
 document.addEventListener('DOMContentLoaded', function() {
     // Verificar si el usuario está logueado y es cliente (tipo 1) o desempleado (tipo 3)

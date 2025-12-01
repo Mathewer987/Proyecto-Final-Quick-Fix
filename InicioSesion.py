@@ -10,6 +10,7 @@ from pago import generar_enlace_pago, generar_qr
 from pago import sdk
 
 
+
 def init_firebase():
     if not firebase_admin._apps:
         try:
@@ -82,25 +83,26 @@ ESPECIALIDADES_PREDEFINIDAS = [
     'Técnico de celulares', 'Técnico de electrodomésticos', 'Técnico de impresoras'
 ]
 
-@app.route("/crear-pago")
-def crear_pago():
 
-    referencia = "orden_0001"
+@app.route('/crear-pago/<trabajo_id>')
+def crear_pago_para_trabajo(trabajo_id):
+
+    # 1. Obtener info del trabajo
+    t = db.collection('PendClienteTrabajador').document(trabajo_id).get()
+    data = t.to_dict()
 
     link = generar_enlace_pago(
-        monto=100,
-        descripcion="Servicio de Electricista",
-        referencia=referencia
+        monto=data.get("precio_estimado", 150),
+        descripcion=f"Pago trabajo: {data.get('especializacion', '')}",
+        referencia=trabajo_id
     )
 
     generar_qr(link["init_point"], "static/qr.png")
 
-    return render_template(
-        "resultado_pago.html",
-        link=link["init_point"],
-        qr_file="/static/qr.png",
-        referencia=referencia
-    )
+    return render_template("resultado_pago.html",
+                           link=link["init_point"],
+                           qr_file="/static/qr.png")
+
 
 
 
@@ -126,26 +128,24 @@ def pago_pendiente():
 @app.route("/webhooks/mercadopago", methods=["POST"])
 def mp_webhook():
     data = request.json
-    print("🔔 WEBHOOK:", data)
+    print("WEBHOOK RECIBIDO:", data)
 
-    if data and data.get("type") == "payment":
+    if data and "data" in data and "id" in data["data"]:
         payment_id = data["data"]["id"]
 
-        # Consultar datos del pago
-        pago = sdk.payment().get(payment_id)
-        info = pago["response"]
+        pago = sdk.payment().get(payment_id)["response"]
 
-        referencia = info["external_reference"]
+        if pago["status"] == "approved":
+            trabajo_id = pago["external_reference"]
 
-        # Guardar en Firebase
-        db.collection("pagos").document(referencia).set({
-            "payment_id": payment_id,
-            "status": info["status"],
-            "monto": info["transaction_amount"],
-            "fecha": datetime.now()
-        })
+            db.collection("PendClienteTrabajador").document(trabajo_id).update({
+                "pago": "hecho"
+            })
+
+            print("PAGO CONFIRMADO ✔️")
 
     return jsonify({"status": "ok"}), 200
+
 
 @app.route("/estado-pago/<referencia>")
 def estado_pago(referencia):
@@ -1057,11 +1057,22 @@ def aceptar_trabajo(trabajo_id):
         return jsonify({'success': False, 'message': 'No autorizado'})
     
     try:
+        # OBTENER PRECIO DEL TRABAJADOR
+        data = request.get_json()
+        precio = float(data.get('precio', 0))
+        
+        if precio <= 0:
+            return jsonify({'success': False, 'message': 'Debe especificar un precio válido'})
+        
         trabajo_ref = db.collection('PendClienteTrabajador').document(trabajo_id)
         trabajo_ref.update({
             'estado': 'aceptado',
+            'pago': 'pendiente',
+            'precio_estimado': precio,  # GUARDAR PRECIO
+            'metodo_pago': 'mercadopago',
             'fecha_actualizacion': datetime.now(),
-            'pago': 'pendiente'
+            'precio_aceptado_por': session.get('user_id'),
+            'fecha_precio_aceptado': datetime.now()
         })
         
         return jsonify({'success': True, 'message': 'Trabajo aceptado con éxito'})

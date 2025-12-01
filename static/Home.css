@@ -1007,3 +1007,52 @@ body {
 .btn-cancel:hover {
     background: #545b62;
 }
+
+.modal-perfil-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-perfil-content {
+    background: white;
+    padding: 20px;
+    width: 90%;
+    max-width: 420px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.modal-perfil-header {
+    padding: 10px;
+    border-radius: 10px 10px 0 0;
+    text-align: center;
+    color: white;
+}
+
+.modal-perfil-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn-perfil {
+    padding: 12px 18px;
+    font-size: 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-contratar {
+    background: #2563eb;
+    color: white;
+}
+
+.btn-cancelar-perfil {
+    background: #ccc;
+}

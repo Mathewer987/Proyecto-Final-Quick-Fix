@@ -1054,58 +1054,168 @@ def mis_solicitudes():
 @app.route('/aceptar_trabajo/<trabajo_id>', methods=['POST'])
 def aceptar_trabajo(trabajo_id):
     print(f"═══════════════════════════════════════════════════")
-    print(f"DEBUG ACEPTAR_TRABAJO: ID={trabajo_id}")
-    print(f"DEBUG: Sesión activa? {session.get('is_logged_in')}")
-    print(f"DEBUG: User type = {session.get('user_type')}")
+    print(f"🔥 DEBUG INICIO: ACEPTAR_TRABAJO - ID={trabajo_id}")
+    print(f"🔥 URL completa: {request.url}")
+    print(f"🔥 Método: {request.method}")
     
-    if not session.get('is_logged_in') or session.get('user_type') != '2':
-        print(f"DEBUG: ERROR DE AUTORIZACIÓN")
+    # 1. DEBUG SESIÓN DETALLADO
+    print(f"🔥 SESSION KEYS: {list(session.keys())}")
+    print(f"🔥 is_logged_in: {session.get('is_logged_in')}")
+    print(f"🔥 user_type: {session.get('user_type')} (type: {type(session.get('user_type'))})")
+    print(f"🔥 user_id: {session.get('user_id')}")
+    print(f"🔥 user_name: {session.get('user_name')}")
+    
+    # 2. VERIFICAR SESIÓN
+    if not session.get('is_logged_in'):
+        print(f"🔥❌ ERROR: NO HAY SESIÓN ACTIVA")
+        print(f"   Cookies recibidas: {request.cookies}")
+        print(f"   Headers: {dict(request.headers)}")
         print(f"═══════════════════════════════════════════════════")
-        return jsonify({'success': False, 'message': 'No autorizado'})
+        return jsonify({'success': False, 'message': 'No autorizado - Sesión expirada'}), 401
+    
+    if session.get('user_type') != '2':
+        print(f"🔥❌ ERROR: USER_TYPE INCORRECTO")
+        print(f"   Esperaba: '2' (trabajador)")
+        print(f"   Recibí: '{session.get('user_type')}'")
+        print(f"═══════════════════════════════════════════════════")
+        return jsonify({'success': False, 'message': 'Solo trabajadores pueden aceptar trabajos'}), 403
+    
+    print(f"🔥✅ SESIÓN OK: Usuario {session.get('user_id')} autorizado como trabajador")
     
     try:
-        # DEBUG: ¿Qué está llegando?
-        print(f"DEBUG: request.content_type = {request.content_type}")
-        print(f"DEBUG: request.data = {request.data}")
+        # 3. DEBUG REQUEST COMPLETO
+        print(f"🔥 HEADERS RECIBIDOS:")
+        for key, value in request.headers.items():
+            print(f"   {key}: {value}")
         
-        data = request.get_json()
-        print(f"DEBUG: data = {data}")
-        print(f"DEBUG: type(data) = {type(data)}")
+        print(f"🔥 CONTENT-TYPE: {request.content_type}")
+        print(f"🔥 CONTENT-LENGTH: {request.content_length}")
         
+        # 4. VER DATOS EN BRUTO
+        raw_data = request.get_data(as_text=True)
+        print(f"🔥 DATOS EN BRUTO (raw): '{raw_data}'")
+        print(f"🔥 Longitud datos: {len(raw_data) if raw_data else 0}")
+        
+        # 5. INTENTAR PARSEAR JSON
+        data = None
+        if request.content_type and 'application/json' in request.content_type:
+            try:
+                data = request.get_json()
+                print(f"🔥✅ JSON PARSEADO: {data}")
+                print(f"🔥 Tipo de data: {type(data)}")
+            except Exception as json_error:
+                print(f"🔥❌ ERROR PARSING JSON: {json_error}")
+                print(f"   Raw data que causó error: '{raw_data[:200]}...'")
+                data = None
+        else:
+            print(f"🔥⚠️  WARNING: Content-Type no es JSON: {request.content_type}")
+        
+        # 6. VERIFICAR DATOS
         if data is None:
-            print(f"DEBUG: ERROR - data es None!")
+            print(f"🔥❌ ERROR: data es None o no se pudo parsear")
+            print(f"   Content-Type era: {request.content_type}")
+            print(f"   Raw data: '{raw_data}'")
             print(f"═══════════════════════════════════════════════════")
-            return jsonify({'success': False, 'message': 'No se recibieron datos JSON'})
+            return jsonify({'success': False, 'message': 'Datos JSON inválidos o faltantes'}), 400
         
-        precio = float(data.get('precio', 0))
-        print(f"DEBUG: precio extraído = {precio}")
+        # 7. EXTRAER Y VALIDAR PRECIO
+        precio = data.get('precio')
+        print(f"🔥 PRECIO RECIBIDO: {precio} (tipo: {type(precio)})")
         
-        if precio <= 0:
-            print(f"DEBUG: ERROR - precio inválido: {precio}")
+        if precio is None:
+            print(f"🔥❌ ERROR: No hay campo 'precio' en data")
+            print(f"   Campos disponibles en data: {list(data.keys())}")
             print(f"═══════════════════════════════════════════════════")
-            return jsonify({'success': False, 'message': 'Debe especificar un precio válido'})
+            return jsonify({'success': False, 'message': 'Falta el campo "precio" en los datos'}), 400
         
+        try:
+            precio_float = float(precio)
+            print(f"🔥 PRECIO CONVERTIDO A FLOAT: {precio_float}")
+        except (ValueError, TypeError) as conv_error:
+            print(f"🔥❌ ERROR CONVERSIÓN PRECIO: {conv_error}")
+            print(f"   Valor recibido: {precio} (tipo: {type(precio)})")
+            print(f"═══════════════════════════════════════════════════")
+            return jsonify({'success': False, 'message': 'El precio debe ser un número válido'}), 400
+        
+        if precio_float <= 0:
+            print(f"🔥❌ ERROR: Precio <= 0: {precio_float}")
+            print(f"═══════════════════════════════════════════════════")
+            return jsonify({'success': False, 'message': 'El precio debe ser mayor a 0'}), 400
+        
+        # 8. VERIFICAR QUE EL TRABAJO EXISTE EN FIRESTORE
+        print(f"🔥 BUSCANDO TRABAJO EN FIRESTORE: {trabajo_id}")
         trabajo_ref = db.collection('PendClienteTrabajador').document(trabajo_id)
-        trabajo_ref.update({
+        trabajo_doc = trabajo_ref.get()
+        
+        if not trabajo_doc.exists:
+            print(f"🔥❌ ERROR: Trabajo {trabajo_id} NO EXISTE en Firestore")
+            print(f"   Colección: PendClienteTrabajador")
+            print(f"═══════════════════════════════════════════════════")
+            return jsonify({'success': False, 'message': 'Trabajo no encontrado'}), 404
+        
+        trabajo_data = trabajo_doc.to_dict()
+        print(f"🔥✅ TRABAJO ENCONTRADO:")
+        print(f"   Cliente: {trabajo_data.get('cliente_nombre')}")
+        print(f"   Especialización: {trabajo_data.get('especializacion')}")
+        print(f"   Estado actual: {trabajo_data.get('estado')}")
+        print(f"   Profesional asignado: {trabajo_data.get('profesional_id')}")
+        print(f"   Yo soy: {session.get('user_id')}")
+        
+        # 9. ACTUALIZAR FIRESTORE
+        print(f"🔥 ACTUALIZANDO FIRESTORE...")
+        update_data = {
             'estado': 'aceptado',
             'pago': 'pendiente',
-            'precio_estimado': precio,
+            'precio_estimado': precio_float,
             'metodo_pago': 'mercadopago',
             'fecha_actualizacion': datetime.now(),
             'precio_aceptado_por': session.get('user_id'),
             'fecha_precio_aceptado': datetime.now()
+        }
+        
+        print(f"🔥 DATOS A ACTUALIZAR: {update_data}")
+        
+        try:
+            trabajo_ref.update(update_data)
+            print(f"🔥✅ FIRESTORE ACTUALIZADO EXITOSAMENTE")
+        except Exception as firestore_error:
+            print(f"🔥❌ ERROR ACTUALIZANDO FIRESTORE: {firestore_error}")
+            print(f"   Documento: {trabajo_id}")
+            print(f"   Update data: {update_data}")
+            print(f"═══════════════════════════════════════════════════")
+            return jsonify({'success': False, 'message': f'Error actualizando base de datos: {str(firestore_error)}'}), 500
+        
+        # 10. ÉXITO
+        print(f"🔥✅ TRABAJO {trabajo_id} ACEPTADO CON ÉXITO")
+        print(f"   Precio: ${precio_float}")
+        print(f"   Por usuario: {session.get('user_id')}")
+        print(f"   Fecha: {datetime.now()}")
+        print(f"═══════════════════════════════════════════════════")
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Trabajo aceptado con éxito',
+            'trabajo_id': trabajo_id,
+            'precio': precio_float
         })
         
-        print(f"DEBUG: ÉXITO - Trabajo {trabajo_id} aceptado con precio ${precio}")
-        print(f"═══════════════════════════════════════════════════")
-        return jsonify({'success': True, 'message': 'Trabajo aceptado con éxito'})
-        
     except Exception as e:
-        print(f"DEBUG: EXCEPCIÓN - {str(e)}")
+        print(f"🔥🔥🔥 EXCEPCIÓN NO MANEJADA EN ACEPTAR_TRABAJO")
+        print(f"🔥 ERROR: {str(e)}")
+        print(f"🔥 TIPO DE ERROR: {type(e).__name__}")
+        
+        # DEBUG DETALLADO DEL ERROR
         import traceback
-        traceback.print_exc()
+        error_trace = traceback.format_exc()
+        print(f"🔥 TRAZABILIDAD COMPLETA:")
+        print(error_trace)
+        
         print(f"═══════════════════════════════════════════════════")
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+        return jsonify({
+            'success': False, 
+            'message': f'Error interno del servidor: {str(e)}',
+            'error_type': type(e).__name__
+        }), 500
 
 @app.route('/rechazar_trabajo/<trabajo_id>', methods=['POST'])
 def rechazar_trabajo(trabajo_id):

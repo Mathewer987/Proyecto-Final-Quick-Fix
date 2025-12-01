@@ -1,8 +1,13 @@
 # app.py
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect
 from pago import generar_enlace_pago, generar_qr
 
 app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return redirect("/crear-pago")
+
 
 @app.route("/pagos")
 def pagina_pagos():
@@ -13,7 +18,7 @@ def pagina_pagos():
 def crear_pago():
 
     link = generar_enlace_pago(
-        monto=100,
+        monto=150,
         descripcion="Servicio Quick-Fix",
         referencia="orden_0001"
     )

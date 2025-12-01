@@ -4,6 +4,44 @@
     <meta charset="utf-8">
     <title>Pago generado</title>
 </head>
+<style>
+    body {
+    background: #f3f8ff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+.container {
+    margin-top: 60px;
+}
+
+.qr {
+    width: 250px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.boton {
+    display: inline-block;
+    background: #2563eb;
+    color: white;
+    padding: 12px 22px;
+    border-radius: 10px;
+    text-decoration: none;
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+.boton:hover {
+    background: #1e4fc2;
+}
+
+.texto {
+    margin-top: 15px;
+    font-size: 18px;
+}
+
+</style>
 <body>
 
     <h1>Escaneá para pagar</h1>
@@ -15,4 +53,19 @@
     </p>
 
 </body>
+
+<script>
+function verificarPago() {
+    fetch("/estado-pago/{{ referencia }}")
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === "approved") {
+                window.location.href = "/pago-confirmado";
+            }
+        });
+}
+
+setInterval(verificarPago, 3000);
+</script>
+
 </html>

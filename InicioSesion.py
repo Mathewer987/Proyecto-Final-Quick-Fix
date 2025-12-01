@@ -6,7 +6,8 @@ from datetime import datetime
 import functools
 import json
 import re  #
-
+from pago import generar_enlace_pago, generar_qr
+from pago import sdk
 
 
 def init_firebase():
@@ -80,6 +81,85 @@ ESPECIALIDADES_PREDEFINIDAS = [
     'Técnico de Computadoras/laptops', 'Técnico de Televisores/equipos electrónicos',
     'Técnico de celulares', 'Técnico de electrodomésticos', 'Técnico de impresoras'
 ]
+
+@app.route("/crear-pago")
+def crear_pago():
+
+    referencia = "orden_0001"
+
+    link = generar_enlace_pago(
+        monto=100,
+        descripcion="Servicio de Electricista",
+        referencia=referencia
+    )
+
+    generar_qr(link["init_point"], "static/qr.png")
+
+    return render_template(
+        "resultado_pago.html",
+        link=link["init_point"],
+        qr_file="/static/qr.png",
+        referencia=referencia
+    )
+
+
+
+@app.route("/mp/success")
+def pago_exitoso():
+    payment_id = request.args.get("payment_id")
+    status = request.args.get("status")
+    return render_template("success.html",
+                           payment_id=payment_id,
+                           status=status)
+
+
+@app.route("/mp/failure")
+def pago_fallido():
+    return render_template("failure.html")
+
+
+@app.route("/mp/pending")
+def pago_pendiente():
+    return render_template("pending.html")
+
+
+@app.route("/webhooks/mercadopago", methods=["POST"])
+def mp_webhook():
+    data = request.json
+    print("🔔 WEBHOOK:", data)
+
+    if data and data.get("type") == "payment":
+        payment_id = data["data"]["id"]
+
+        # Consultar datos del pago
+        pago = sdk.payment().get(payment_id)
+        info = pago["response"]
+
+        referencia = info["external_reference"]
+
+        # Guardar en Firebase
+        db.collection("pagos").document(referencia).set({
+            "payment_id": payment_id,
+            "status": info["status"],
+            "monto": info["transaction_amount"],
+            "fecha": datetime.now()
+        })
+
+    return jsonify({"status": "ok"}), 200
+
+@app.route("/estado-pago/<referencia>")
+def estado_pago(referencia):
+    doc = db.collection("pagos").document(referencia).get()
+
+    if doc.exists:
+        return jsonify({"status": doc.to_dict().get("status")})
+
+    return jsonify({"status": "pending"})
+
+@app.route("/pago-confirmado")
+def pago_confirmado():
+    return render_template("mis_solicitudes.html")
+
 
 @app.route('/')
 def index():
@@ -980,7 +1060,8 @@ def aceptar_trabajo(trabajo_id):
         trabajo_ref = db.collection('PendClienteTrabajador').document(trabajo_id)
         trabajo_ref.update({
             'estado': 'aceptado',
-            'fecha_actualizacion': datetime.now()
+            'fecha_actualizacion': datetime.now(),
+            'pago': 'pendiente'
         })
         
         return jsonify({'success': True, 'message': 'Trabajo aceptado con éxito'})

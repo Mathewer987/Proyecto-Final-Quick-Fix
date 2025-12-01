@@ -2,5 +2,5 @@ flask
 firebase_admin
 gunicorn
 mercadopago
-qrcodegit
+qrcode        # ← CAMBIAR ESTO (sin "git")
 pillow

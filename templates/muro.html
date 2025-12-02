@@ -7,512 +7,512 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Estilos para métodos de pago */
-.metodo-pago-options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.metodo-pago-option {
-    display: flex;
-    align-items: center;
-    padding: 15px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.metodo-pago-option:hover {
-    border-color: #4e73df;
-    background-color: #f8f9fa;
-}
-
-.metodo-pago-option input[type="radio"] {
-    margin-right: 15px;
-}
-
-.metodo-pago-option label {
-    display: flex;
-    flex-direction: column;
-    cursor: pointer;
-    flex: 1;
-}
-
-.metodo-pago-option label i {
-    font-size: 20px;
-    color: #4e73df;
-    margin-bottom: 5px;
-}
-
-.metodo-pago-option label span {
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 3px;
-}
-
-.metodo-pago-option label small {
-    color: #666;
-    font-size: 12px;
-}
-
-.metodo-pago-option input[type="radio"]:checked + label {
-    color: #4e73df;
-}
-
-.metodo-pago-option input[type="radio"]:checked ~ .metodo-pago-option {
-    border-color: #4e73df;
-    background-color: #f0f4ff;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-body {
-    background-color: #f5f5f5;
-    color: #333;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-.logo {
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.logo span {
-    color: #4e73df;
-}
-
-.nav {
-    display: flex;
-    gap: 20px;
-}
-
-.nav-item {
-    text-decoration: none;
-    color: #555;
-    font-weight: 500;
-    padding: 8px 16px;
-    border-radius: 5px;
-    transition: all 0.3s;
-}
-
-.nav-item:hover, .nav-item.active {
-    background-color: #4e73df;
-    color: white;
-}
-
-/* Botón publicar para clientes */
-.btn-publicar {
-    background: #28a745;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.3s;
-}
-
-.btn-publicar:hover {
-    background: #218838;
-}
-
-/* Modal publicar */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s;
-}
-
-.modal-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.modal-content {
-    background: white;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 600px;
-    max-height: 90vh;
-    overflow-y: auto;
-    transform: translateY(-50px);
-    transition: transform 0.3s;
-}
-
-.modal-overlay.active .modal-content {
-    transform: translateY(0);
-}
-
-.modal-header {
-    padding: 20px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h2 {
-    margin: 0;
-    color: #333;
-}
-
-.close-modal {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #999;
-}
-
-.modal-body {
-    padding: 20px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 16px;
-}
-
-.form-group textarea {
-    min-height: 100px;
-    resize: vertical;
-}
-
-.modal-footer {
-    padding: 20px;
-    border-top: 1px solid #eee;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-.btn {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-}
-
-.btn-cancel {
-    background: #f8f9fa;
-    color: #333;
-}
-
-.btn-submit {
-    background: #4e73df;
-    color: white;
-}
-
-/* Publicaciones */
-.publicaciones-container {
-    display: grid;
-    gap: 20px;
-}
-
-.publicacion-card {
-    background: white;
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    border-left: 4px solid #4e73df;
-}
-
-.pub-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 15px;
-}
-
-.pub-titulo {
-    font-size: 20px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 5px;
-}
-
-.pub-cliente {
-    color: #666;
-    font-size: 14px;
-}
-
-.pub-fecha {
-    color: #999;
-    font-size: 12px;
-}
-
-.pub-descripcion {
-    color: #555;
-    line-height: 1.6;
-    margin-bottom: 15px;
-}
-
-.pub-detalles {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
-}
-
-.detalle-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.detalle-item i {
-    color: #4e73df;
-    width: 16px;
-}
-
-.pub-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.pub-estado {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.estado-disponible {
-    background: #d4edda;
-    color: #155724;
-}
-
-.estado-proceso {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.btn-aceptar {
-    background: #28a745;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.btn-aceptar:hover {
-    background: #218838;
-}
-
-.btn-aceptar:disabled {
-    background: #6c757d;
-    cursor: not-allowed;
-}
-
-.no-publicaciones {
-    text-align: center;
-    padding: 60px 20px;
-    color: #666;
-}
-
-.no-publicaciones i {
-    font-size: 4rem;
-    margin-bottom: 20px;
-    opacity: 0.3;
-}
-
-/* MODAL PRECIO MURO */
-.modal-precio-muro {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.7);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-precio-muro.active {
-    display: flex;
-}
-
-.modal-precio-muro-content {
-    background: white;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
-
-.modal-precio-muro-header {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
-    padding: 20px;
-    border-radius: 12px 12px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-precio-muro-header h3 {
-    margin: 0;
-    font-size: 22px;
-}
-
-.close-precio-muro-modal {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    opacity: 0.8;
-}
-
-.close-precio-muro-modal:hover {
-    opacity: 1;
-}
-
-.modal-precio-muro-body {
-    padding: 25px;
-}
-
-.precio-muro-form-group {
-    margin-bottom: 20px;
-}
-
-.precio-muro-form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: #333;
-}
-
-.precio-muro-input-group {
-    position: relative;
-}
-
-.precio-muro-symbol {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-weight: 600;
-    color: #28a745;
-}
-
-#inputPrecioMuro {
-    width: 100%;
-    padding: 12px 12px 12px 35px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 16px;
-    transition: border-color 0.3s;
-}
-
-#inputPrecioMuro:focus {
-    outline: none;
-    border-color: #28a745;
-}
-
-.precio-muro-info {
-    margin-top: 10px;
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    font-size: 14px;
-    color: #666;
-}
-
-.modal-precio-muro-footer {
-    padding: 20px;
-    border-top: 1px solid #eee;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-.btn-precio-muro {
-    padding: 10px 25px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-}
-
-.btn-cancelar-precio-muro {
-    background: #6c757d;
-    color: white;
-}
-
-.btn-cancelar-precio-muro:hover {
-    background: #5a6268;
-}
-
-.btn-confirmar-precio-muro {
-    background: #28a745;
-    color: white;
-}
-
-.btn-confirmar-precio-muro:hover {
-    background: #218838;
-}
+        .metodo-pago-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .metodo-pago-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .metodo-pago-option:hover {
+            border-color: #4e73df;
+            background-color: #f8f9fa;
+        }
+
+        .metodo-pago-option.selected {
+            border-color: #4e73df;
+            background-color: #f0f4ff;
+        }
+
+        .metodo-pago-option input[type="radio"] {
+            margin-right: 15px;
+        }
+
+        .metodo-pago-option label {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .metodo-pago-option label i {
+            font-size: 20px;
+            color: #4e73df;
+            margin-bottom: 5px;
+        }
+
+        .metodo-pago-option label span {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .metodo-pago-option label small {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .metodo-pago-option input[type="radio"]:checked + label {
+            color: #4e73df;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #4e73df;
+        }
+
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: #4e73df;
+            color: white;
+        }
+
+        /* Botón publicar para clientes */
+        .btn-publicar {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+
+        .btn-publicar:hover {
+            background: #218838;
+        }
+
+        /* Modal publicar */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(-50px);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-cancel {
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .btn-submit {
+            background: #4e73df;
+            color: white;
+        }
+
+        /* Publicaciones */
+        .publicaciones-container {
+            display: grid;
+            gap: 20px;
+        }
+
+        .publicacion-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #4e73df;
+        }
+
+        .pub-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .pub-titulo {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .pub-cliente {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .pub-fecha {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .pub-descripcion {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .pub-detalles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .detalle-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detalle-item i {
+            color: #4e73df;
+            width: 16px;
+        }
+
+        .pub-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pub-estado {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .estado-disponible {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .estado-proceso {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .btn-aceptar {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-aceptar:hover {
+            background: #218838;
+        }
+
+        .btn-aceptar:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .no-publicaciones {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .no-publicaciones i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        /* MODAL PRECIO MURO */
+        .modal-precio-muro {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-precio-muro.active {
+            display: flex;
+        }
+
+        .modal-precio-muro-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-precio-muro-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-precio-muro-header h3 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .close-precio-muro-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        .close-precio-muro-modal:hover {
+            opacity: 1;
+        }
+
+        .modal-precio-muro-body {
+            padding: 25px;
+        }
+
+        .precio-muro-form-group {
+            margin-bottom: 20px;
+        }
+
+        .precio-muro-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .precio-muro-input-group {
+            position: relative;
+        }
+
+        .precio-muro-symbol {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        #inputPrecioMuro {
+            width: 100%;
+            padding: 12px 12px 12px 35px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        #inputPrecioMuro:focus {
+            outline: none;
+            border-color: #28a745;
+        }
+
+        .precio-muro-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .modal-precio-muro-footer {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-precio-muro {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-cancelar-precio-muro {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-cancelar-precio-muro:hover {
+            background: #5a6268;
+        }
+
+        .btn-confirmar-precio-muro {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-confirmar-precio-muro:hover {
+            background: #218838;
+        }
     </style>
 </head>
 <body>
@@ -661,12 +661,12 @@ body {
     </div>
     {% endif %}
 
-    <!-- Modal para especificar precio (solo trabajadores) -->
+    <!-- Modal para especificar precio (solo trabajadores) - VERSIÓN CORREGIDA -->
     {% if user_type == '2' %}
     <div class="modal-precio-muro" id="modalPrecioMuro">
         <div class="modal-precio-muro-content">
             <div class="modal-precio-muro-header">
-                <h3>Especificar Precio del Trabajo</h3>
+                <h3>Confirmar Aceptación del Trabajo</h3>
                 <button class="close-precio-muro-modal" onclick="cerrarModalPrecioMuro()">&times;</button>
             </div>
             
@@ -679,7 +679,38 @@ body {
                     </div>
                     <div class="precio-muro-info">
                         <i class="fas fa-info-circle"></i>
-                        Este precio se mostrará al cliente para que realice el pago por MercadoPago.
+                        Este será el precio que el cliente deberá pagar.
+                    </div>
+                </div>
+
+                <!-- SELECCIÓN DE MÉTODO DE PAGO -->
+                <div class="precio-muro-form-group">
+                    <label for="selectMetodoPagoMuro">Método de pago:</label>
+                    <div class="metodo-pago-options">
+                        <div class="metodo-pago-option">
+                            <input type="radio" id="metodoMercadoPago" name="metodoPagoMuro" value="mercadopago" checked>
+                            <label for="metodoMercadoPago">
+                                <i class="fas fa-credit-card"></i>
+                                <span>MercadoPago (Pago online)</span>
+                                <small>El cliente pagará online antes de comenzar</small>
+                            </label>
+                        </div>
+                        <div class="metodo-pago-option">
+                            <input type="radio" id="metodoEfectivo" name="metodoPagoMuro" value="efectivo">
+                            <label for="metodoEfectivo">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>Efectivo</span>
+                                <small>El cliente pagará en efectivo al finalizar</small>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="precio-muro-info" id="infoMercadoPago" style="display: block;">
+                        <i class="fas fa-info-circle"></i>
+                        Con MercadoPago, el trabajo se confirmará automáticamente cuando el cliente pague.
+                    </div>
+                    <div class="precio-muro-info" id="infoEfectivo" style="display: none;">
+                        <i class="fas fa-info-circle"></i>
+                        Con efectivo, el trabajo quedará pendiente de pago hasta que el cliente confirme el pago.
                     </div>
                 </div>
             </div>
@@ -689,7 +720,7 @@ body {
                     Cancelar
                 </button>
                 <button class="btn-precio-muro btn-confirmar-precio-muro" onclick="confirmarAceptacionMuro()">
-                    <i class="fas fa-check"></i> Confirmar Precio y Aceptar
+                    <i class="fas fa-check"></i> Aceptar Trabajo
                 </button>
             </div>
         </div>
@@ -698,6 +729,7 @@ body {
     
     <script>
         {% if user_type == '1' %}
+        // Funciones para clientes
         function abrirModalPublicar() {
             document.getElementById('modalPublicar').classList.add('active');
         }
@@ -744,72 +776,9 @@ body {
             });
         }
         {% endif %}
-        <!-- Modal para especificar precio (solo trabajadores) -->
-{% if user_type == '2' %}
-<div class="modal-precio-muro" id="modalPrecioMuro">
-    <div class="modal-precio-muro-content">
-        <div class="modal-precio-muro-header">
-            <h3>Confirmar Aceptación del Trabajo</h3>
-            <button class="close-precio-muro-modal" onclick="cerrarModalPrecioMuro()">&times;</button>
-        </div>
         
-        <div class="modal-precio-muro-body">
-            <div class="precio-muro-form-group">
-                <label for="inputPrecioMuro">Precio estimado (ARS):</label>
-                <div class="precio-muro-input-group">
-                    <span class="precio-muro-symbol">$</span>
-                    <input type="number" id="inputPrecioMuro" placeholder="Ej: 5000" min="1" step="100">
-                </div>
-                <div class="precio-muro-info">
-                    <i class="fas fa-info-circle"></i>
-                    Este será el precio que el cliente deberá pagar.
-                </div>
-            </div>
-
-            <!-- ⭐ NUEVO: SELECCIÓN DE MÉTODO DE PAGO -->
-            <div class="precio-muro-form-group">
-                <label for="selectMetodoPagoMuro">Método de pago:</label>
-                <div class="metodo-pago-options">
-                    <div class="metodo-pago-option">
-                        <input type="radio" id="metodoMercadoPago" name="metodoPagoMuro" value="mercadopago" checked>
-                        <label for="metodoMercadoPago">
-                            <i class="fas fa-credit-card"></i>
-                            <span>MercadoPago (Pago online)</span>
-                            <small>El cliente pagará online antes de comenzar</small>
-                        </label>
-                    </div>
-                    <div class="metodo-pago-option">
-                        <input type="radio" id="metodoEfectivo" name="metodoPagoMuro" value="efectivo">
-                        <label for="metodoEfectivo">
-                            <i class="fas fa-money-bill-wave"></i>
-                            <span>Efectivo</span>
-                            <small>El cliente pagará en efectivo al finalizar</small>
-                        </label>
-                    </div>
-                </div>
-                <div class="precio-muro-info" id="infoMercadoPago" style="display: block;">
-                    <i class="fas fa-info-circle"></i>
-                    Con MercadoPago, el trabajo se confirmará automáticamente cuando el cliente pague.
-                </div>
-                <div class="precio-muro-info" id="infoEfectivo" style="display: none;">
-                    <i class="fas fa-info-circle"></i>
-                    Con efectivo, el trabajo quedará pendiente de pago hasta que el cliente confirme el pago.
-                </div>
-            </div>
-        </div>
-        
-        <div class="modal-precio-muro-footer">
-            <button class="btn-precio-muro btn-cancelar-precio-muro" onclick="cerrarModalPrecioMuro()">
-                Cancelar
-            </button>
-            <button class="btn-precio-muro btn-confirmar-precio-muro" onclick="confirmarAceptacionMuro()">
-                <i class="fas fa-check"></i> Aceptar Trabajo
-            </button>
-        </div>
-    </div>
-</div>
-{% endif %}
         {% if user_type == '2' %}
+        // Funciones para trabajadores
         let publicacionActualId = '';
         
         function abrirModalPrecioMuro(publicacionId) {
@@ -817,6 +786,11 @@ body {
             document.getElementById('modalPrecioMuro').classList.add('active');
             document.getElementById('inputPrecioMuro').value = '';
             document.getElementById('inputPrecioMuro').focus();
+            
+            // Resetear a MercadoPago por defecto
+            document.getElementById('metodoMercadoPago').checked = true;
+            document.getElementById('infoMercadoPago').style.display = 'block';
+            document.getElementById('infoEfectivo').style.display = 'none';
         }
         
         function cerrarModalPrecioMuro() {
@@ -824,9 +798,26 @@ body {
             publicacionActualId = '';
         }
         
+        // Escuchar cambios en método de pago
+        document.querySelectorAll('input[name="metodoPagoMuro"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'mercadopago') {
+                    document.getElementById('infoMercadoPago').style.display = 'block';
+                    document.getElementById('infoEfectivo').style.display = 'none';
+                } else {
+                    document.getElementById('infoMercadoPago').style.display = 'none';
+                    document.getElementById('infoEfectivo').style.display = 'block';
+                }
+            });
+        });
+        
         function confirmarAceptacionMuro() {
             const precioInput = document.getElementById('inputPrecioMuro');
             const precio = parseFloat(precioInput.value);
+            
+            // Obtener método de pago seleccionado
+            const metodoPagoSeleccionado = document.querySelector('input[name="metodoPagoMuro"]:checked');
+            const metodoPago = metodoPagoSeleccionado ? metodoPagoSeleccionado.value : 'mercadopago';
             
             // Validar precio
             if (!precio || precio <= 0 || isNaN(precio)) {
@@ -835,21 +826,33 @@ body {
                 return;
             }
             
-            // Confirmar con el usuario
-            if (!confirm(`¿Confirmas aceptar el trabajo con un precio de $${precio}?\n\nEl cliente recibirá una notificación para realizar el pago por MercadoPago.`)) {
+            // Mensaje diferente según método de pago
+            let mensajeConfirmacion = '';
+            if (metodoPago === 'mercadopago') {
+                mensajeConfirmacion = `¿Confirmas aceptar el trabajo con un precio de $${precio}?\n\nEl cliente deberá pagar por MercadoPago antes de comenzar.`;
+            } else {
+                mensajeConfirmacion = `¿Confirmas aceptar el trabajo con un precio de $${precio}?\n\nEl cliente pagará en efectivo al finalizar el trabajo.`;
+            }
+            
+            if (!confirm(mensajeConfirmacion)) {
                 return;
             }
             
-            console.log('Enviando aceptación para publicación:', publicacionActualId, 'con precio:', precio);
+            console.log('Enviando aceptación:', {
+                publicacionId: publicacionActualId,
+                precio: precio,
+                metodo_pago: metodoPago
+            });
             
-            // Enviar al backend con el precio
+            // Enviar al backend con precio Y método de pago
             fetch(`/aceptar_trabajo_muro/${publicacionActualId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    precio: precio
+                    precio: precio,
+                    metodo_pago: metodoPago
                 })
             })
             .then(response => response.json())
@@ -857,7 +860,14 @@ body {
                 console.log('Respuesta del backend:', data);
                 
                 if (data.success) {
-                    alert('✅ Trabajo aceptado con éxito!\n\nEl cliente ha sido notificado y deberá realizar el pago por MercadoPago para confirmar el trabajo.');
+                    let mensajeExito = '';
+                    if (metodoPago === 'mercadopago') {
+                        mensajeExito = '✅ Trabajo aceptado con éxito!\n\nEl cliente ha sido notificado y deberá realizar el pago por MercadoPago para confirmar el trabajo.';
+                    } else {
+                        mensajeExito = '✅ Trabajo aceptado con éxito!\n\nEl trabajo está confirmado. El cliente pagará en efectivo al finalizar.';
+                    }
+                    
+                    alert(mensajeExito);
                     cerrarModalPrecioMuro();
                     location.reload();
                 } else {
@@ -896,126 +906,6 @@ body {
                 {% endif %}
             }
         });
-
-        {% if user_type == '2' %}
-let publicacionActualId = '';
-
-function abrirModalPrecioMuro(publicacionId) {
-    publicacionActualId = publicacionId;
-    document.getElementById('modalPrecioMuro').classList.add('active');
-    document.getElementById('inputPrecioMuro').value = '';
-    document.getElementById('inputPrecioMuro').focus();
-    
-    // Resetear a MercadoPago por defecto
-    document.getElementById('metodoMercadoPago').checked = true;
-    document.getElementById('infoMercadoPago').style.display = 'block';
-    document.getElementById('infoEfectivo').style.display = 'none';
-}
-
-function cerrarModalPrecioMuro() {
-    document.getElementById('modalPrecioMuro').classList.remove('active');
-    publicacionActualId = '';
-}
-
-// Escuchar cambios en método de pago
-document.querySelectorAll('input[name="metodoPagoMuro"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        if (this.value === 'mercadopago') {
-            document.getElementById('infoMercadoPago').style.display = 'block';
-            document.getElementById('infoEfectivo').style.display = 'none';
-        } else {
-            document.getElementById('infoMercadoPago').style.display = 'none';
-            document.getElementById('infoEfectivo').style.display = 'block';
-        }
-    });
-});
-
-function confirmarAceptacionMuro() {
-    const precioInput = document.getElementById('inputPrecioMuro');
-    const precio = parseFloat(precioInput.value);
-    
-    // Obtener método de pago seleccionado
-    const metodoPagoSeleccionado = document.querySelector('input[name="metodoPagoMuro"]:checked');
-    const metodoPago = metodoPagoSeleccionado ? metodoPagoSeleccionado.value : 'mercadopago';
-    
-    // Validar precio
-    if (!precio || precio <= 0 || isNaN(precio)) {
-        alert('Por favor ingresa un precio válido mayor a 0');
-        precioInput.focus();
-        return;
-    }
-    
-    // Mensaje diferente según método de pago
-    let mensajeConfirmacion = '';
-    if (metodoPago === 'mercadopago') {
-        mensajeConfirmacion = `¿Confirmas aceptar el trabajo con un precio de $${precio}?\n\nEl cliente deberá pagar por MercadoPago antes de comenzar.`;
-    } else {
-        mensajeConfirmacion = `¿Confirmas aceptar el trabajo con un precio de $${precio}?\n\nEl cliente pagará en efectivo al finalizar el trabajo.`;
-    }
-    
-    if (!confirm(mensajeConfirmacion)) {
-        return;
-    }
-    
-    console.log('Enviando aceptación:', {
-        publicacionId: publicacionActualId,
-        precio: precio,
-        metodo_pago: metodoPago
-    });
-    
-    // Enviar al backend con precio Y método de pago
-    fetch(`/aceptar_trabajo_muro/${publicacionActualId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            precio: precio,
-            metodo_pago: metodoPago  // ⭐ NUEVO: enviar método de pago
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Respuesta del backend:', data);
-        
-        if (data.success) {
-            let mensajeExito = '';
-            if (metodoPago === 'mercadopago') {
-                mensajeExito = '✅ Trabajo aceptado con éxito!\n\nEl cliente ha sido notificado y deberá realizar el pago por MercadoPago para confirmar el trabajo.';
-            } else {
-                mensajeExito = '✅ Trabajo aceptado con éxito!\n\nEl trabajo está confirmado. El cliente pagará en efectivo al finalizar.';
-            }
-            
-            alert(mensajeExito);
-            cerrarModalPrecioMuro();
-            location.reload();
-        } else {
-            alert('❌ Error: ' + data.message);
-            cerrarModalPrecioMuro();
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('❌ Error al procesar la solicitud');
-        cerrarModalPrecioMuro();
-    });
-}
-
-// Permitir presionar Enter en el input de precio
-document.getElementById('inputPrecioMuro').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        confirmarAceptacionMuro();
-    }
-});
-
-// Cerrar modal al hacer clic fuera
-document.getElementById('modalPrecioMuro').addEventListener('click', function(e) {
-    if (e.target === this) {
-        cerrarModalPrecioMuro();
-    }
-});
-{% endif %}
     </script>
 </body>
 </html>

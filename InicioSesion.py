@@ -2476,6 +2476,39 @@ def obtener_calificaciones_pendientes():
         print(f"Error obteniendo calificaciones pendientes: {str(e)}")
         return jsonify({'success': False, 'calificaciones_pendientes': []})
 
+@app.route('/marcar_pago_y_volver/<trabajo_id>')
+def marcar_pago_y_volver(trabajo_id):
+    """Ruta para marcar pago como hecho y redirigir al home"""
+    if not session.get('is_logged_in'):
+        flash('Debes iniciar sesión primero', 'warning')
+        return redirect(url_for('login'))
+    
+    try:
+        # Verificar que el trabajo existe
+        trabajo_ref = db.collection('PendClienteTrabajador').document(trabajo_id)
+        trabajo_doc = trabajo_ref.get()
+        
+        if trabajo_doc.exists:
+            trabajo_data = trabajo_doc.to_dict()
+            
+            # Verificar que el usuario actual es el cliente
+            if session.get('user_id') == trabajo_data.get('cliente_id'):
+                # Actualizar el estado del pago
+                trabajo_ref.update({
+                    'pago': 'hecho',
+                    'fecha_pago_completado': datetime.now()
+                })
+                flash('✅ Pago marcado como completado', 'success')
+            else:
+                flash('⚠️ No tienes permiso para modificar este trabajo', 'warning')
+        else:
+            flash('❌ Trabajo no encontrado', 'error')
+    
+    except Exception as e:
+        print(f"Error al marcar pago como hecho: {str(e)}")
+        flash('❌ Error al procesar la solicitud', 'error')
+    
+    return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug = True)

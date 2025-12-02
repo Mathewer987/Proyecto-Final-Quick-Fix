@@ -606,8 +606,8 @@
             <nav class="nav">
                 <a href="{{ url_for('home') }}" class="nav-item">Inicio</a>
                 <a href="/trabajos" class="nav-item active">Solicitudes</a>
-                
-                
+                <a href="#" class="nav-item">Mis Servicios</a>
+                <a href="#" class="nav-item">Ayuda</a>
                 <a class="nav-item" href="{{ url_for('logout') }}"><i class="fas fa-user"></i> Cerrar Sesión</a>
             </nav>
         </header>
@@ -621,7 +621,7 @@
                 </div>
             </div>
 
-            
+            <!-- SECCIÓN CONTRATACIONES DE CLIENTES -->
             <div class="seccion-solicitudes">
                 <div class="seccion-header">
                     <h3>Contrataciones de Clientes</h3>
@@ -680,7 +680,7 @@
                 {% endif %}
             </div>
 
-            
+            <!-- SECCIÓN SOLICITUDES DE MENTORÍA -->
             <div class="seccion-solicitudes">
                 <div class="seccion-header">
                     <h3>Solicitudes de Mentoría</h3>
@@ -736,7 +736,7 @@
         </main>
     </div>
 
-    
+    <!-- Modal para devolver trabajo -->
     <div class="modal-overlay" id="modalDevolucion">
         <div class="modal-content">
             <div class="modal-header">
@@ -774,16 +774,20 @@
     }
     
     function aceptarTrabajo(trabajoId, tipo) {
+        // Si es mentoría, usar función normal (sin precio)
         if (tipo === 'mentoria') {
             aceptarMentoria(trabajoId);
             return;
         }
         
+        // Si es contratación, mostrar modal de precio
         trabajoActualId = trabajoId;
         trabajoActualTipo = tipo;
         
+        // Limpiar input
         document.getElementById('inputPrecioEstimado').value = '';
         
+        // Mostrar modal
         document.getElementById('modalPrecio').classList.add('active');
     }
 
@@ -850,11 +854,13 @@
    function verDetalles(trabajoId) {
     console.log('Abriendo detalles del trabajo:', trabajoId);
     
+    // Buscar el trabajo en la lista actual
     const trabajoCard = document.querySelector(`button[onclick*="verDetalles('${trabajoId}')"]`).closest('.job-card');
     
     if (trabajoCard) {
         console.log('Tarjeta encontrada:', trabajoCard);
         
+        // Obtener información básica
         const titulo = trabajoCard.querySelector('h3').textContent;
         const especializacion = titulo.replace('Solicitud de ', '');
         
@@ -869,6 +875,7 @@
             especificaciones = descripcionParrafos[1].textContent.replace('Especificaciones: ', '');
         }
         
+        // Obtener detalles específicos de ubicación, fechas, etc.
         const detalles = trabajoCard.querySelectorAll('.job-details .detail');
         let ubicacion = 'Ubicación no especificada';
         let fechaTrabajo = 'Fecha no especificada';
@@ -900,6 +907,7 @@
             especificaciones
         });
         
+        // Llenar el modal con los datos
         document.getElementById('detallesEspecializacion').textContent = especializacion;
         document.getElementById('detallesCliente').textContent = 'Cliente: ' + cliente;
         document.getElementById('detallesUbicacion').textContent = ubicacion;
@@ -908,12 +916,17 @@
         document.getElementById('detallesSolicitud').textContent = fechaSolicitud;
         document.getElementById('detallesEspecificaciones').textContent = especificaciones;
         
+        // Verificar si es urgente
         const esUrgente = trabajoCard.classList.contains('highlighted');
         document.getElementById('detallesEstado').textContent = esUrgente ? '⚠️ Urgente' : 'Pendiente';
-                document.getElementById('seccionComentariosTrabajador').style.display = 'none';
         
+        // Ocultar sección de comentarios del trabajador por defecto
+        document.getElementById('seccionComentariosTrabajador').style.display = 'none';
+        
+        // Mostrar el modal
         document.getElementById('modalDetalles').classList.add('active');
         
+        // Guardar el ID del trabajo para usar en los botones
         document.getElementById('modalDetalles').dataset.trabajoId = trabajoId;
         
     } else {
@@ -950,18 +963,21 @@ function devolverDesdeDetalles() {
     abrirModalDevolucion(trabajoId);
 }
 
+// Cerrar modal al hacer clic fuera del contenido
 document.getElementById('modalDetalles').addEventListener('click', function(e) {
     if (e.target === this) {
         cerrarModalDetalles();
     }
 });
     
+    // Cerrar modal al hacer clic fuera del contenido
     document.getElementById('modalDevolucion').addEventListener('click', function(e) {
         if (e.target === this) {
             cerrarModalDevolucion();
         }
     });
 
+// Funciones para mentorías
 function aceptarMentoria(mentoriaId) {
     if (confirm('¿Estás seguro de que quieres aceptar esta solicitud de mentoría?')) {
         fetch(`/aceptar_mentoria/${mentoriaId}`, {
@@ -1013,11 +1029,13 @@ function rechazarMentoria(mentoriaId) {
 function verDetallesMentoria(mentoriaId) {
     console.log('Abriendo detalles de mentoría:', mentoriaId);
     
+    // Buscar la mentoría en la lista actual
     const mentoriaCard = document.querySelector(`button[onclick*="verDetallesMentoria('${mentoriaId}')"]`).closest('.job-card');
     
     if (mentoriaCard) {
         console.log('Tarjeta de mentoría encontrada:', mentoriaCard);
         
+        // Obtener información básica
         const titulo = mentoriaCard.querySelector('h3').textContent;
         const areaInteres = titulo.replace('Solicitud de Mentoría - ', '');
         
@@ -1032,6 +1050,7 @@ function verDetallesMentoria(mentoriaId) {
             objetivos = descripcionParrafos[1].textContent.replace('Objetivos: ', '');
         }
         
+        // Obtener detalles específicos
         const detalles = mentoriaCard.querySelectorAll('.job-details .detail');
         let disponibilidad = 'Disponibilidad no especificada';
         let fechaSolicitud = 'Fecha no disponible';
@@ -1055,6 +1074,7 @@ function verDetallesMentoria(mentoriaId) {
             fechaSolicitud
         });
         
+        // Llenar el modal con los datos
         document.getElementById('detallesMentoriaAreaInteres').textContent = `Mentoría - ${areaInteres}`;
         document.getElementById('detallesMentoriaAprendiz').textContent = 'Aprendiz: ' + aprendiz;
         document.getElementById('detallesMentoriaArea').textContent = areaInteres;
@@ -1062,8 +1082,10 @@ function verDetallesMentoria(mentoriaId) {
         document.getElementById('detallesMentoriaObjetivos').textContent = objetivos;
         document.getElementById('detallesMentoriaDisponibilidad').textContent = disponibilidad;
         
+        // Mostrar el modal
         document.getElementById('modalDetallesMentoria').classList.add('active');
         
+        // Guardar el ID de la mentoría para usar en los botones
         document.getElementById('modalDetallesMentoria').dataset.mentoriaId = mentoriaId;
         
     } else {
@@ -1088,13 +1110,16 @@ function rechazarDesdeDetallesMentoria() {
     rechazarMentoria(mentoriaId);
 }
 
+// Cerrar modal al hacer clic fuera del contenido
 document.getElementById('modalDetallesMentoria').addEventListener('click', function(e) {
     if (e.target === this) {
         cerrarModalDetallesMentoria();
     }
 });
 
+// ========== NUEVAS FUNCIONES PARA PRECIO ==========
 
+// Modal de precio
 function cerrarModalPrecio() {
     document.getElementById('modalPrecio').classList.remove('active');
     
@@ -1103,6 +1128,7 @@ function cerrarModalPrecio() {
 function confirmarAceptacionConPrecio() {
     console.log('🔍 confirmarAceptacionConPrecio - trabajoActualId:', trabajoActualId);
     
+    // VERIFICA QUE TENGA ID
     if (!trabajoActualId) {
         alert('Error: No se pudo obtener el ID del trabajo. Recarga la página.');
         return;
@@ -1111,20 +1137,24 @@ function confirmarAceptacionConPrecio() {
     const precioInput = document.getElementById('inputPrecioEstimado');
     const precio = parseFloat(precioInput.value);
     
+    // Validar precio
     if (!precio || precio <= 0 || isNaN(precio)) {
         alert('Por favor ingresa un precio válido mayor a 0');
         precioInput.focus();
         return;
     }
     
+    // Confirmar con el usuario
     if (!confirm(`¿Confirmas aceptar el trabajo con un precio de $${precio}?`)) {
         return;
     }
     
-   
+    // ⚠️ IMPORTANTE: NO cerrar el modal aquí todavía
+    // cerrarModalPrecio(); // ⬅️ COMENTA O ELIMINA ESTA LÍNEA
     
     console.log('🌐 Enviando fetch a:', `/aceptar_trabajo/${trabajoActualId}`);
     
+    // Enviar al backend con el precio
     fetch(`/aceptar_trabajo/${trabajoActualId}`, {
         method: 'POST',
         headers: {
@@ -1144,6 +1174,7 @@ function confirmarAceptacionConPrecio() {
         if (data.success) {
             alert('Trabajo aceptado con éxito! Se notificará al cliente.');
             
+            // ✅ AHORA SÍ: cerrar modal y resetear
             document.getElementById('modalPrecio').classList.remove('active');
             trabajoActualId = '';
             trabajoActualTipo = '';
@@ -1151,22 +1182,26 @@ function confirmarAceptacionConPrecio() {
             location.reload();
         } else {
             alert('Error: ' + data.message);
+            // Solo cerrar modal en error, no resetear
             document.getElementById('modalPrecio').classList.remove('active');
         }
     })
     .catch(error => {
         console.error('Error:', error);
         alert('Error al procesar la solicitud');
+        // Solo cerrar modal en error, no resetear
         document.getElementById('modalPrecio').classList.remove('active');
     });
 }
 
+// Cerrar modal al hacer clic fuera
 document.getElementById('modalPrecio').addEventListener('click', function(e) {
     if (e.target === this) {
         cerrarModalPrecio();
     }
 });
 
+// Permitir presionar Enter en el input de precio
 document.getElementById('inputPrecioEstimado').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         e.preventDefault();

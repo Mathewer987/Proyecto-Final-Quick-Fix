@@ -507,6 +507,14 @@ def aceptar_trabajo_muro(publicacion_id):
         
         publicacion_data = publicacion.to_dict()
         
+        # Pedir al trabajador que especifique el precio
+        data = request.get_json()
+        precio = float(data.get('precio', 0)) if data else 0
+        
+        if precio <= 0:
+            return jsonify({'success': False, 'message': 'Debe especificar un precio válido'})
+        
+        # ⭐ CORRECCIÓN: Usar el precio del trabajador, NO el presupuesto del cliente
         # Crear solicitud de trabajo directamente ACEPTADA
         trabajo_data = {
             'cliente_id': publicacion_data.get('cliente_id'),
@@ -518,15 +526,17 @@ def aceptar_trabajo_muro(publicacion_id):
             'descripcion': publicacion_data.get('descripcion'),
             'categoria': publicacion_data.get('categoria'),
             'ubicacion': publicacion_data.get('ubicacion'),
-            'presupuesto': publicacion_data.get('presupuesto'),
+            'presupuesto_cliente': publicacion_data.get('presupuesto'),  # ⭐ CAMBIAR NOMBRE
+            'precio_estimado': precio,  # ⭐ PRECIO DEL TRABAJADOR
             'fecha_trabajo_propuesta': publicacion_data.get('fecha_limite'),
             'especificaciones': publicacion_data.get('descripcion'),
-            'metodo_pago': 'efectivo',  # Valor por defecto para trabajos del muro
-            'estado': 'aceptado',  # ✅ DIRECTAMENTE ACEPTADO
+            'metodo_pago': 'mercadopago',
+            'estado': 'aceptado',
+            'pago': 'pendiente',
             'fecha_solicitud': datetime.now(),
             'fecha_actualizacion': datetime.now(),
             'origen': 'muro',
-            'aceptado_directamente': True  # Marcar que fue aceptado directamente del muro
+            'aceptado_directamente': True
         }
         
         # Guardar en PendClienteTrabajador
@@ -539,13 +549,15 @@ def aceptar_trabajo_muro(publicacion_id):
             'trabajador_asignado_id': session.get('user_id'),
             'trabajador_asignado_nombre': session.get('user_name', 'Trabajador'),
             'fecha_asignacion': datetime.now(),
-            'trabajo_id': nuevo_trabajo[1].id  # Guardar referencia al trabajo creado
+            'trabajo_id': nuevo_trabajo[1].id,
+            'precio_aceptado': precio
         })
         
         return jsonify({
             'success': True, 
             'message': 'Trabajo aceptado exitosamente. Ya aparece en tus trabajos pendientes.',
-            'trabajo_id': nuevo_trabajo[1].id
+            'trabajo_id': nuevo_trabajo[1].id,
+            'precio': precio
         })
         
     except Exception as e:

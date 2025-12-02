@@ -206,6 +206,7 @@ def obtener_pagos_pendientes():
             print(f"📄 Trabajo encontrado: {doc.id}")
             print(f"   Método pago: {trabajo_data.get('metodo_pago')}")
             print(f"   Estado pago: {trabajo_data.get('pago')}")
+            print(f"   profesional_nombre actual: {trabajo_data.get('profesional_nombre')}")
             
             # SEGUNDO: Filtrar SOLO MercadoPago
             if trabajo_data.get('metodo_pago') != 'mercadopago':
@@ -220,8 +221,41 @@ def obtener_pagos_pendientes():
             # ✅ CUMPLE TODAS LAS CONDICIONES
             print(f"   ✅ ES MercadoPago y está pendiente!")
             
-            if 'profesional_nombre' not in trabajo_data:
-                trabajo_data['profesional_nombre'] = 'Trabajador'
+            # 🔍 BUSCAR NOMBRE DEL TRABAJADOR SI NO EXISTE
+            if 'profesional_nombre' not in trabajo_data or not trabajo_data['profesional_nombre']:
+                print(f"   🔍 Buscando nombre del trabajador...")
+                profesional_id = trabajo_data.get('profesional_id')
+                
+                if profesional_id:
+                    try:
+                        # Buscar en la colección de trabajadores
+                        trabajador_ref = db.collection('trabajadores').document(profesional_id)
+                        trabajador_doc = trabajador_ref.get()
+                        
+                        if trabajador_doc.exists:
+                            trabajador_info = trabajador_doc.to_dict()
+                            # Construir nombre completo
+                            nombre = trabajador_info.get('nombre', '')
+                            apellido = trabajador_info.get('apellido', '')
+                            nombre_completo = f"{nombre} {apellido}".strip()
+                            
+                            if nombre_completo:
+                                trabajo_data['profesional_nombre'] = nombre_completo
+                                print(f"   ✅ Nombre encontrado: {nombre_completo}")
+                            else:
+                                trabajo_data['profesional_nombre'] = 'Trabajador'
+                                print(f"   ⚠️ Nombre vacío, usando 'Trabajador'")
+                        else:
+                            trabajo_data['profesional_nombre'] = 'Trabajador'
+                            print(f"   ❌ Trabajador no encontrado en DB")
+                    except Exception as e:
+                        print(f"   ❌ Error buscando trabajador: {str(e)}")
+                        trabajo_data['profesional_nombre'] = 'Trabajador'
+                else:
+                    trabajo_data['profesional_nombre'] = 'Trabajador'
+                    print(f"   ❌ No hay profesional_id")
+            else:
+                print(f"   ✅ Ya tiene profesional_nombre: {trabajo_data['profesional_nombre']}")
             
             trabajos_pendientes.append(trabajo_data)
         

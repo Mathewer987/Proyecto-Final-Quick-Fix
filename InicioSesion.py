@@ -1137,7 +1137,8 @@ def aceptar_trabajo(trabajo_id):
         # OBTENER PRECIO DEL TRABAJADOR
         data = request.get_json()
         precio = float(data.get('precio', 0))
-        
+         
+
         if precio <= 0:
             return jsonify({'success': False, 'message': 'Debe especificar un precio válido'})
         
@@ -1146,7 +1147,6 @@ def aceptar_trabajo(trabajo_id):
             'estado': 'aceptado',
             'pago': 'pendiente',
             'precio_estimado': precio,  # GUARDAR PRECIO
-            'metodo_pago': 'mercadopago',
             'fecha_actualizacion': datetime.now(),
             'precio_aceptado_por': session.get('user_id'),
             'fecha_precio_aceptado': datetime.now()

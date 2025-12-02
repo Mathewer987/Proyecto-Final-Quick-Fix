@@ -1122,8 +1122,7 @@ document.getElementById('modalDetallesMentoria').addEventListener('click', funct
 // Modal de precio
 function cerrarModalPrecio() {
     document.getElementById('modalPrecio').classList.remove('active');
-    trabajoActualId = '';
-    trabajoActualTipo = '';
+    
 }
 
 function confirmarAceptacionConPrecio() {
@@ -1144,10 +1143,6 @@ function confirmarAceptacionConPrecio() {
     
     cerrarModalPrecio();
     
-    console.log('=== DEBUG FETCH ===');
-    console.log('trabajoActualId:', trabajoActualId);
-    console.log('URL completa:', `${window.location.origin}/aceptar_trabajo/${trabajoActualId}`);
-    
     // Enviar al backend con el precio
     fetch(`/aceptar_trabajo/${trabajoActualId}`, {
         method: 'POST',
@@ -1158,34 +1153,8 @@ function confirmarAceptacionConPrecio() {
             precio: precio
         })
     })
-    .then(response => {
-        console.log('=== RESPONSE ===');
-        console.log('Status:', response.status, response.statusText);
-        console.log('URL:', response.url);
-        
-        // Si es error 404, mostrar info específica
-        if (response.status === 404) {
-            throw new Error(`Ruta no encontrada: /aceptar_trabajo/${trabajoActualId}. ¿Está definida en el backend?`);
-        }
-        
-        // Intentar leer como texto primero para ver qué hay
-        return response.text().then(text => {
-            console.log('Response text (first 500 chars):', text.substring(0, 500));
-            
-            // Intentar parsear como JSON si parece JSON
-            try {
-                const data = JSON.parse(text);
-                return data;
-            } catch (e) {
-                // No es JSON, es HTML probablemente
-                throw new Error(`El servidor devolvió HTML en lugar de JSON. Status: ${response.status}. ¿La ruta existe?`);
-            }
-        });
-    })
+    .then(response => response.json())
     .then(data => {
-        console.log('=== DATA ===');
-        console.log('Data recibida:', data);
-        
         if (data.success) {
             alert('Trabajo aceptado con éxito! Se notificará al cliente.');
             location.reload();
@@ -1194,12 +1163,8 @@ function confirmarAceptacionConPrecio() {
         }
     })
     .catch(error => {
-        console.error('=== ERROR COMPLETO ===');
         console.error('Error:', error);
-        console.error('Error message:', error.message);
-        
-        alert('Error al procesar la solicitud:\n\n' + error.message + 
-              '\n\nVerifica la consola para más detalles (F12 → Console)');
+        alert('Error al procesar la solicitud');
     });
 }
 

@@ -140,6 +140,40 @@
             background: #218838;
         }
 
+        /* Filtro automático para trabajadores */
+        .filtro-automatico {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #4e73df 0%, #3a56c4 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .filtro-automatico h3 {
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .especialidades-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .especialidad-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
         /* Modal publicar */
         .modal-overlay {
             position: fixed;
@@ -375,8 +409,8 @@
             opacity: 0.3;
         }
 
-        /* MODAL PARA ACEPTAR TRABAJO (CLIENTE ELIGE MÉTODO PAGO) */
-        .modal-aceptar-trabajo {
+        /* MODAL PARA ACEPTAR TRABAJO (TRABAJADOR ESPECIFICA PRECIO) */
+        .modal-precio-trabajo {
             display: none;
             position: fixed;
             top: 0;
@@ -389,11 +423,11 @@
             align-items: center;
         }
 
-        .modal-aceptar-trabajo.active {
+        .modal-precio-trabajo.active {
             display: flex;
         }
 
-        .modal-aceptar-trabajo-content {
+        .modal-precio-trabajo-content {
             background: white;
             border-radius: 12px;
             width: 90%;
@@ -401,7 +435,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        .modal-aceptar-trabajo-header {
+        .modal-precio-trabajo-header {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
             padding: 20px;
@@ -411,12 +445,12 @@
             align-items: center;
         }
 
-        .modal-aceptar-trabajo-header h3 {
+        .modal-precio-trabajo-header h3 {
             margin: 0;
             font-size: 22px;
         }
 
-        .close-aceptar-trabajo-modal {
+        .close-precio-trabajo-modal {
             background: none;
             border: none;
             color: white;
@@ -425,33 +459,62 @@
             opacity: 0.8;
         }
 
-        .close-aceptar-trabajo-modal:hover {
+        .close-precio-trabajo-modal:hover {
             opacity: 1;
         }
 
-        .modal-aceptar-trabajo-body {
+        .modal-precio-trabajo-body {
             padding: 25px;
         }
 
-        .aceptar-trabajo-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
+        .precio-trabajo-form-group {
             margin-bottom: 20px;
         }
 
-        .aceptar-trabajo-info p {
-            margin: 5px 0;
+        .precio-trabajo-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
         }
 
-        .aceptar-trabajo-info .precio {
-            font-size: 24px;
-            font-weight: bold;
+        .precio-trabajo-input-group {
+            position: relative;
+        }
+
+        .precio-trabajo-symbol {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: 600;
             color: #28a745;
-            margin: 10px 0;
         }
 
-        .modal-aceptar-trabajo-footer {
+        #inputPrecioTrabajo {
+            width: 100%;
+            padding: 12px 12px 12px 35px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        #inputPrecioTrabajo:focus {
+            outline: none;
+            border-color: #28a745;
+        }
+
+        .precio-trabajo-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .modal-precio-trabajo-footer {
             padding: 20px;
             border-top: 1px solid #eee;
             display: flex;
@@ -459,7 +522,7 @@
             gap: 10px;
         }
 
-        .btn-aceptar-trabajo {
+        .btn-precio-trabajo {
             padding: 10px 25px;
             border: none;
             border-radius: 6px;
@@ -467,21 +530,21 @@
             font-weight: 600;
         }
 
-        .btn-cancelar-aceptar {
+        .btn-cancelar-precio-trabajo {
             background: #6c757d;
             color: white;
         }
 
-        .btn-cancelar-aceptar:hover {
+        .btn-cancelar-precio-trabajo:hover {
             background: #5a6268;
         }
 
-        .btn-confirmar-pago {
+        .btn-confirmar-precio-trabajo {
             background: #28a745;
             color: white;
         }
 
-        .btn-confirmar-pago:hover {
+        .btn-confirmar-precio-trabajo:hover {
             background: #218838;
         }
 
@@ -546,9 +609,25 @@
             {% endif %}
         </header>
         
+        <!-- Información de especialidades del trabajador -->
+        {% if user_type == '2' and especialidades_trabajador %}
+        <div class="filtro-automatico">
+            <h3><i class="fas fa-user-tag"></i> Mostrando trabajos de tus especialidades:</h3>
+            <div class="especialidades-list">
+                {% for especialidad in especialidades_trabajador %}
+                <div class="especialidad-badge">
+                    <i class="fas fa-check"></i> {{ especialidad }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
         <main class="publicaciones-container">
             {% if publicaciones %}
                 {% for publicacion in publicaciones %}
+                <!-- Para trabajadores: solo mostrar trabajos de sus especialidades -->
+                {% if user_type == '1' or (user_type == '2' and publicacion.categoria in especialidades_trabajador) %}
                 <div class="publicacion-card">
                     <div class="pub-header">
                         <div>
@@ -598,7 +677,7 @@
                         <!-- Si el cliente aún no ha elegido método de pago -->
                         {% if user_type == '1' and not publicacion.metodo_pago %}
                         <p><strong>Estado:</strong> Esperando que elijas método de pago</p>
-                        <button class="btn-aceptar" onclick="abrirModalMetodoPago('{{ publicacion.id }}', {{ publicacion.precio_aceptado }})">
+                        <button class="btn-aceptar" onclick="abrirModalMetodoPago('{{ publicacion.id }}', {{ publicacion.precio_aceptado }}, '{{ publicacion.trabajador_nombre }}', '{{ publicacion.titulo }}')">
                             <i class="fas fa-credit-card"></i> Elegir Método de Pago
                         </button>
                         {% elif publicacion.metodo_pago %}
@@ -639,7 +718,25 @@
                         {% endif %}
                     </div>
                 </div>
+                {% endif %}
                 {% endfor %}
+                
+                <!-- Mensaje si el trabajador no ve ningún trabajo -->
+                {% if user_type == '2' and publicaciones and not tiene_trabajos_visibles %}
+                <div class="no-publicaciones">
+                    <i class="fas fa-search"></i>
+                    <h3>No hay trabajos disponibles en tus especialidades</h3>
+                    <p>Actualmente no hay publicaciones en las categorías que manejas</p>
+                    <p style="margin-top: 10px; font-size: 14px;">
+                        Tus especialidades: 
+                        {% for especialidad in especialidades_trabajador %}
+                        <span style="background: #f8f9fa; padding: 4px 8px; border-radius: 4px; margin: 0 5px;">
+                            {{ especialidad }}
+                        </span>
+                        {% endfor %}
+                    </p>
+                </div>
+                {% endif %}
             {% else %}
                 <div class="no-publicaciones">
                     <i class="fas fa-newspaper"></i>
@@ -711,28 +808,34 @@
 
     <!-- Modal para que trabajador especifique precio -->
     {% if user_type == '2' %}
-    <div class="modal-overlay" id="modalPrecioTrabajo">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Especificar Precio del Trabajo</h2>
-                <button class="close-modal" onclick="cerrarModalPrecioTrabajo()">&times;</button>
+    <div class="modal-precio-trabajo" id="modalPrecioTrabajo">
+        <div class="modal-precio-trabajo-content">
+            <div class="modal-precio-trabajo-header">
+                <h3>Especificar Precio del Trabajo</h3>
+                <button class="close-precio-trabajo-modal" onclick="cerrarModalPrecioTrabajo()">&times;</button>
             </div>
-            <div class="modal-body">
-                <div class="form-group">
+            
+            <div class="modal-precio-trabajo-body">
+                <div class="precio-trabajo-form-group">
                     <label for="inputPrecioTrabajo">Precio estimado (ARS):</label>
-                    <div class="precio-muro-input-group">
-                        <span class="precio-muro-symbol">$</span>
+                    <div class="precio-trabajo-input-group">
+                        <span class="precio-trabajo-symbol">$</span>
                         <input type="number" id="inputPrecioTrabajo" placeholder="Ej: 5000" min="1" step="100">
                     </div>
-                    <div class="precio-muro-info">
+                    <div class="precio-trabajo-info">
                         <i class="fas fa-info-circle"></i>
                         Este será el precio que propondrás al cliente. El cliente podrá elegir cómo pagarte (MercadoPago o Efectivo).
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-cancel" onclick="cerrarModalPrecioTrabajo()">Cancelar</button>
-                <button class="btn btn-submit" onclick="confirmarPrecioTrabajo()">Enviar Propuesta</button>
+            
+            <div class="modal-precio-trabajo-footer">
+                <button class="btn-precio-trabajo btn-cancelar-precio-trabajo" onclick="cerrarModalPrecioTrabajo()">
+                    Cancelar
+                </button>
+                <button class="btn-precio-trabajo btn-confirmar-precio-trabajo" onclick="confirmarPrecioTrabajo()">
+                    <i class="fas fa-check"></i> Enviar Propuesta
+                </button>
             </div>
         </div>
     </div>
@@ -740,22 +843,22 @@
 
     <!-- Modal para que cliente elija método de pago -->
     {% if user_type == '1' %}
-    <div class="modal-aceptar-trabajo" id="modalMetodoPago">
-        <div class="modal-aceptar-trabajo-content">
-            <div class="modal-aceptar-trabajo-header">
+    <div class="modal-precio-trabajo" id="modalMetodoPago">
+        <div class="modal-precio-trabajo-content">
+            <div class="modal-precio-trabajo-header">
                 <h3>Elegir Método de Pago</h3>
-                <button class="close-aceptar-trabajo-modal" onclick="cerrarModalMetodoPago()">&times;</button>
+                <button class="close-precio-trabajo-modal" onclick="cerrarModalMetodoPago()">&times;</button>
             </div>
             
-            <div class="modal-aceptar-trabajo-body">
-                <div class="aceptar-trabajo-info">
+            <div class="modal-precio-trabajo-body">
+                <div class="aceptar-trabajo-info" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                     <p><strong>Trabajo:</strong> <span id="tituloTrabajoMetodo"></span></p>
                     <p><strong>Profesional:</strong> <span id="trabajadorNombreMetodo"></span></p>
                     <p><strong>Precio acordado:</strong></p>
-                    <div class="precio" id="precioMetodoPago">$0</div>
+                    <div class="pub-precio" id="precioMetodoPago">$0</div>
                 </div>
 
-                <div class="form-group">
+                <div class="precio-trabajo-form-group">
                     <label>Selecciona cómo deseas pagar:</label>
                     <div class="metodo-pago-options">
                         <div class="metodo-pago-option">
@@ -775,22 +878,22 @@
                             </label>
                         </div>
                     </div>
-                    <div class="precio-muro-info" id="infoMercadoPagoCliente" style="display: block;">
+                    <div class="precio-trabajo-info" id="infoMercadoPagoCliente" style="display: block;">
                         <i class="fas fa-info-circle"></i>
                         Con MercadoPago, el trabajo se confirma inmediatamente al realizar el pago. El profesional recibirá el dinero después de que completes el trabajo.
                     </div>
-                    <div class="precio-muro-info" id="infoEfectivoCliente" style="display: none;">
+                    <div class="precio-trabajo-info" id="infoEfectivoCliente" style="display: none;">
                         <i class="fas fa-info-circle"></i>
                         Con efectivo, el trabajo queda confirmado y pagarás directamente al profesional cuando finalice el trabajo.
                     </div>
                 </div>
             </div>
             
-            <div class="modal-aceptar-trabajo-footer">
-                <button class="btn-aceptar-trabajo btn-cancelar-aceptar" onclick="cerrarModalMetodoPago()">
+            <div class="modal-precio-trabajo-footer">
+                <button class="btn-precio-trabajo btn-cancelar-precio-trabajo" onclick="cerrarModalMetodoPago()">
                     Cancelar
                 </button>
-                <button class="btn-aceptar-trabajo btn-confirmar-pago" onclick="confirmarMetodoPago()">
+                <button class="btn-precio-trabajo btn-confirmar-precio-trabajo" onclick="confirmarMetodoPago()">
                     <i class="fas fa-check"></i> Confirmar Método de Pago
                 </button>
             </div>
@@ -1034,13 +1137,13 @@
             if (e.target.classList.contains('modal-overlay')) {
                 {% if user_type == '1' %}
                 cerrarModalPublicar();
-                {% elif user_type == '2' %}
-                cerrarModalPrecioTrabajo();
                 {% endif %}
             }
-            if (e.target.classList.contains('modal-aceptar-trabajo')) {
+            if (e.target.classList.contains('modal-precio-trabajo')) {
                 {% if user_type == '1' %}
                 cerrarModalMetodoPago();
+                {% elif user_type == '2' %}
+                cerrarModalPrecioTrabajo();
                 {% endif %}
             }
         });

@@ -1126,6 +1126,14 @@ function cerrarModalPrecio() {
 }
 
 function confirmarAceptacionConPrecio() {
+    console.log('🔍 confirmarAceptacionConPrecio - trabajoActualId:', trabajoActualId);
+    
+    // VERIFICA QUE TENGA ID
+    if (!trabajoActualId) {
+        alert('Error: No se pudo obtener el ID del trabajo. Recarga la página.');
+        return;
+    }
+    
     const precioInput = document.getElementById('inputPrecioEstimado');
     const precio = parseFloat(precioInput.value);
     
@@ -1141,7 +1149,10 @@ function confirmarAceptacionConPrecio() {
         return;
     }
     
-    cerrarModalPrecio();
+    // ⚠️ IMPORTANTE: NO cerrar el modal aquí todavía
+    // cerrarModalPrecio(); // ⬅️ COMENTA O ELIMINA ESTA LÍNEA
+    
+    console.log('🌐 Enviando fetch a:', `/aceptar_trabajo/${trabajoActualId}`);
     
     // Enviar al backend con el precio
     fetch(`/aceptar_trabajo/${trabajoActualId}`, {
@@ -1153,18 +1164,33 @@ function confirmarAceptacionConPrecio() {
             precio: precio
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('📥 Respuesta recibida, status:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('📦 Datos recibidos:', data);
+        
         if (data.success) {
             alert('Trabajo aceptado con éxito! Se notificará al cliente.');
+            
+            // ✅ AHORA SÍ: cerrar modal y resetear
+            document.getElementById('modalPrecio').classList.remove('active');
+            trabajoActualId = '';
+            trabajoActualTipo = '';
+            
             location.reload();
         } else {
             alert('Error: ' + data.message);
+            // Solo cerrar modal en error, no resetear
+            document.getElementById('modalPrecio').classList.remove('active');
         }
     })
     .catch(error => {
         console.error('Error:', error);
         alert('Error al procesar la solicitud');
+        // Solo cerrar modal en error, no resetear
+        document.getElementById('modalPrecio').classList.remove('active');
     });
 }
 

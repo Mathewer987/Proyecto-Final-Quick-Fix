@@ -140,97 +140,6 @@
             background: #218838;
         }
 
-        /* Filtro automático para trabajadores */
-        .filtro-automatico {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: linear-gradient(135deg, #4e73df 0%, #3a56c4 100%);
-            color: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .filtro-automatico h3 {
-            margin: 0 0 10px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .especialidades-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .especialidad-badge {
-            background: rgba(255,255,255,0.2);
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        /* Buscador para el muro */
-        .search-container-muro {
-            margin-bottom: 20px;
-        }
-
-        .search-box-muro {
-            display: flex;
-            gap: 10px;
-        }
-
-        .search-box-muro input {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-
-        .search-box-muro button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-buscar {
-            background: #4e73df;
-            color: white;
-        }
-
-        .btn-buscar:hover {
-            background: #3a56c4;
-        }
-
-        .btn-limpiar {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-limpiar:hover {
-            background: #5a6268;
-        }
-
-        /* Texto oculto para búsqueda */
-        .all-specialties-muro {
-            display: none;
-            opacity: 0;
-            height: 0;
-            width: 0;
-            position: absolute;
-            pointer-events: none;
-        }
-
         /* Modal publicar */
         .modal-overlay {
             position: fixed;
@@ -466,8 +375,8 @@
             opacity: 0.3;
         }
 
-        /* MODAL PARA ACEPTAR TRABAJO (TRABAJADOR ESPECIFICA PRECIO) */
-        .modal-precio-trabajo {
+        /* MODAL PARA ACEPTAR TRABAJO (CLIENTE ELIGE MÉTODO PAGO) */
+        .modal-aceptar-trabajo {
             display: none;
             position: fixed;
             top: 0;
@@ -480,11 +389,11 @@
             align-items: center;
         }
 
-        .modal-precio-trabajo.active {
+        .modal-aceptar-trabajo.active {
             display: flex;
         }
 
-        .modal-precio-trabajo-content {
+        .modal-aceptar-trabajo-content {
             background: white;
             border-radius: 12px;
             width: 90%;
@@ -492,7 +401,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        .modal-precio-trabajo-header {
+        .modal-aceptar-trabajo-header {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
             padding: 20px;
@@ -502,12 +411,12 @@
             align-items: center;
         }
 
-        .modal-precio-trabajo-header h3 {
+        .modal-aceptar-trabajo-header h3 {
             margin: 0;
             font-size: 22px;
         }
 
-        .close-precio-trabajo-modal {
+        .close-aceptar-trabajo-modal {
             background: none;
             border: none;
             color: white;
@@ -516,62 +425,33 @@
             opacity: 0.8;
         }
 
-        .close-precio-trabajo-modal:hover {
+        .close-aceptar-trabajo-modal:hover {
             opacity: 1;
         }
 
-        .modal-precio-trabajo-body {
+        .modal-aceptar-trabajo-body {
             padding: 25px;
         }
 
-        .precio-trabajo-form-group {
+        .aceptar-trabajo-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
             margin-bottom: 20px;
         }
 
-        .precio-trabajo-form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #333;
+        .aceptar-trabajo-info p {
+            margin: 5px 0;
         }
 
-        .precio-trabajo-input-group {
-            position: relative;
-        }
-
-        .precio-trabajo-symbol {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-weight: 600;
+        .aceptar-trabajo-info .precio {
+            font-size: 24px;
+            font-weight: bold;
             color: #28a745;
+            margin: 10px 0;
         }
 
-        #inputPrecioTrabajo {
-            width: 100%;
-            padding: 12px 12px 12px 35px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        #inputPrecioTrabajo:focus {
-            outline: none;
-            border-color: #28a745;
-        }
-
-        .precio-trabajo-info {
-            margin-top: 10px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .modal-precio-trabajo-footer {
+        .modal-aceptar-trabajo-footer {
             padding: 20px;
             border-top: 1px solid #eee;
             display: flex;
@@ -579,7 +459,7 @@
             gap: 10px;
         }
 
-        .btn-precio-trabajo {
+        .btn-aceptar-trabajo {
             padding: 10px 25px;
             border: none;
             border-radius: 6px;
@@ -587,21 +467,21 @@
             font-weight: 600;
         }
 
-        .btn-cancelar-precio-trabajo {
+        .btn-cancelar-aceptar {
             background: #6c757d;
             color: white;
         }
 
-        .btn-cancelar-precio-trabajo:hover {
+        .btn-cancelar-aceptar:hover {
             background: #5a6268;
         }
 
-        .btn-confirmar-precio-trabajo {
+        .btn-confirmar-pago {
             background: #28a745;
             color: white;
         }
 
-        .btn-confirmar-precio-trabajo:hover {
+        .btn-confirmar-pago:hover {
             background: #218838;
         }
 
@@ -666,202 +546,100 @@
             {% endif %}
         </header>
         
-        <!-- Información de especialidades del trabajador -->
-        {% if user_type == '2' and especialidades_trabajador %}
-        <div class="filtro-automatico">
-            <h3><i class="fas fa-user-tag"></i> Mostrando trabajos de tus especialidades:</h3>
-            <div class="especialidades-list">
-                {% for especialidad in especialidades_trabajador %}
-                <div class="especialidad-badge">
-                    <i class="fas fa-check"></i> {{ especialidad }}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        
-        <!-- Buscador dentro del muro (solo para trabajadores) -->
-        <div class="search-container-muro">
-            <div class="search-box-muro">
-                <input type="text" 
-                       id="buscadorMuro" 
-                       placeholder="Buscar dentro de tus especialidades..."
-                       oninput="filtrarPublicacionesMuro()">
-                <button class="btn-buscar" onclick="filtrarPublicacionesMuro()">
-                    <i class="fas fa-search"></i> Buscar
-                </button>
-                <button class="btn-limpiar" onclick="resetearBusquedaMuro()">
-                    <i class="fas fa-times"></i> Limpiar
-                </button>
-            </div>
-        </div>
-        {% endif %}
-        
         <main class="publicaciones-container">
             {% if publicaciones %}
-                {% set tiene_trabajos_visibles = false %}
-                
                 {% for publicacion in publicaciones %}
-                    {% set mostrar = false %}
+                <div class="publicacion-card">
+                    <div class="pub-header">
+                        <div>
+                            <h3 class="pub-titulo">{{ publicacion.titulo }}</h3>
+                            <div class="pub-cliente">
+                                <i class="fas fa-user"></i> Publicado por: {{ publicacion.cliente_nombre }}
+                            </div>
+                        </div>
+                        <div class="pub-fecha">
+                            {{ publicacion.fecha_publicacion_str }}
+                        </div>
+                    </div>
                     
-                    <!-- Para clientes: mostrar todas las publicaciones -->
-                    {% if user_type == '1' %}
-                        {% set mostrar = true %}
+                    <div class="pub-descripcion">
+                        {{ publicacion.descripcion }}
+                    </div>
                     
-                    <!-- Para trabajadores: solo mostrar si la categoría está en sus especialidades -->
-                    {% elif user_type == '2' %}
-                        {% set categoria_publicacion = publicacion.categoria %}
-                        {% for especialidad in especialidades_trabajador %}
-                            {% if especialidad|lower == categoria_publicacion|lower %}
-                                {% set mostrar = true %}
-                                {% set tiene_trabajos_visibles = true %}
+                    <div class="pub-detalles">
+                        <div class="detalle-item">
+                            <i class="fas fa-tag"></i>
+                            <span><strong>Categoría:</strong> {{ publicacion.categoria }}</span>
+                        </div>
+                        <div class="detalle-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span><strong>Ubicación:</strong> {{ publicacion.ubicacion }}</span>
+                        </div>
+                        {% if publicacion.presupuesto %}
+                        <div class="detalle-item">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span><strong>Presupuesto sugerido:</strong> ${{ publicacion.presupuesto }}</span>
+                        </div>
+                        {% endif %}
+                        {% if publicacion.fecha_limite %}
+                        <div class="detalle-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span><strong>Fecha límite:</strong> {{ publicacion.fecha_limite }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Si el trabajo ya fue aceptado por un trabajador -->
+                    {% if publicacion.aceptado_por %}
+                    <div class="pub-info-aceptado">
+                        <p><strong>✅ Trabajo aceptado por:</strong> {{ publicacion.trabajador_nombre }}</p>
+                        <p><strong>Precio acordado:</strong> <span class="pub-precio">${{ publicacion.precio_aceptado }}</span></p>
+                        
+                        <!-- Si el cliente aún no ha elegido método de pago -->
+                        {% if user_type == '1' and not publicacion.metodo_pago %}
+                        <p><strong>Estado:</strong> Esperando que elijas método de pago</p>
+                        <button class="btn-aceptar" onclick="abrirModalMetodoPago('{{ publicacion.id }}', {{ publicacion.precio_aceptado }})">
+                            <i class="fas fa-credit-card"></i> Elegir Método de Pago
+                        </button>
+                        {% elif publicacion.metodo_pago %}
+                        <p><strong>Método de pago:</strong> 
+                            {% if publicacion.metodo_pago == 'mercadopago' %}
+                            <span class="metodo-pago-badge metodo-mercadopago">MercadoPago</span>
+                            {% else %}
+                            <span class="metodo-pago-badge metodo-efectivo">Efectivo</span>
                             {% endif %}
-                        {% endfor %}
+                        </p>
+                        <p><strong>Estado:</strong> 
+                            {% if publicacion.metodo_pago == 'mercadopago' %}
+                            Esperando pago
+                            {% else %}
+                            Pendiente de pago en efectivo
+                            {% endif %}
+                        </p>
+                        {% endif %}
+                    </div>
                     {% endif %}
                     
-                    {% if mostrar %}
-                    <div class="publicacion-card">
-                        <div class="pub-header">
-                            <div>
-                                <h3 class="pub-titulo">{{ publicacion.titulo }}</h3>
-                                <div class="pub-cliente">
-                                    <i class="fas fa-user"></i> Publicado por: {{ publicacion.cliente_nombre }}
-                                </div>
-                            </div>
-                            <div class="pub-fecha">
-                                {{ publicacion.fecha_publicacion_str }}
-                            </div>
+                    <div class="pub-footer">
+                        {% if not publicacion.aceptado_por %}
+                        <div class="pub-estado estado-disponible">
+                            Disponible
                         </div>
-                        
-                        <div class="pub-descripcion">
-                            {{ publicacion.descripcion }}
-                        </div>
-                        
-                        <div class="pub-detalles">
-                            <div class="detalle-item">
-                                <i class="fas fa-tag"></i>
-                                <span><strong>Categoría:</strong> {{ publicacion.categoria }}</span>
-                            </div>
-                            <div class="detalle-item">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span><strong>Ubicación:</strong> {{ publicacion.ubicacion }}</span>
-                            </div>
-                            {% if publicacion.presupuesto %}
-                            <div class="detalle-item">
-                                <i class="fas fa-dollar-sign"></i>
-                                <span><strong>Presupuesto sugerido:</strong> ${{ publicacion.presupuesto }}</span>
-                            </div>
-                            {% endif %}
-                            {% if publicacion.fecha_limite %}
-                            <div class="detalle-item">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span><strong>Fecha límite:</strong> {{ publicacion.fecha_limite }}</span>
-                            </div>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Texto oculto para búsqueda (con variaciones de palabras) -->
-                        <div class="all-specialties-muro">
-                            {% if publicacion.categoria == "Plomería" or publicacion.categoria == "Plomeria" %}
-                                plomero plomeria fontanería cañerías tuberías desagüe sanitario
-                            {% elif publicacion.categoria == "Electricidad" %}
-                                electricista electricidad instalación cableado luces enchufes
-                            {% elif publicacion.categoria == "Albañilería" or publicacion.categoria == "Albañileria" %}
-                                albañil albañilería construcción mampostería paredes ladrillos
-                            {% elif publicacion.categoria == "Pintura" %}
-                                pintor pintura pintar revestimiento color brochas
-                            {% elif publicacion.categoria == "Carpintería" or publicacion.categoria == "Carpinteria" %}
-                                carpintero carpintería madera muebles estanterías puertas
-                            {% elif publicacion.categoria == "Limpieza" %}
-                                limpieza limpiar aseo higiene orden desinfección
-                            {% elif publicacion.categoria == "Jardinería" or publicacion.categoria == "Jardineria" %}
-                                jardinero jardinería plantas jardín poda césped
-                            {% elif publicacion.categoria == "Gasista" %}
-                                gasista gas instalación gas natural garrafa cañerías
-                            {% else %}
-                                {{ publicacion.categoria|lower }}
-                            {% endif %}
-                            {{ publicacion.descripcion|lower }}
-                            {{ publicacion.titulo|lower }}
-                        </div>
-                        
-                        <!-- Si el trabajo ya fue aceptado por un trabajador -->
-                        {% if publicacion.aceptado_por %}
-                        <div class="pub-info-aceptado">
-                            <p><strong>✅ Trabajo aceptado por:</strong> {{ publicacion.trabajador_nombre }}</p>
-                            <p><strong>Precio acordado:</strong> <span class="pub-precio">${{ publicacion.precio_aceptado }}</span></p>
-                            
-                            <!-- Si el cliente aún no ha elegido método de pago -->
-                            {% if user_type == '1' and not publicacion.metodo_pago %}
-                            <p><strong>Estado:</strong> Esperando que elijas método de pago</p>
-                            <button class="btn-aceptar" onclick="abrirModalMetodoPago('{{ publicacion.id }}', {{ publicacion.precio_aceptado }}, '{{ publicacion.trabajador_nombre }}', '{{ publicacion.titulo }}')">
-                                <i class="fas fa-credit-card"></i> Elegir Método de Pago
-                            </button>
-                            {% elif publicacion.metodo_pago %}
-                            <p><strong>Método de pago:</strong> 
-                                {% if publicacion.metodo_pago == 'mercadopago' %}
-                                <span class="metodo-pago-badge metodo-mercadopago">MercadoPago</span>
-                                {% else %}
-                                <span class="metodo-pago-badge metodo-efectivo">Efectivo</span>
-                                {% endif %}
-                            </p>
-                            <p><strong>Estado:</strong> 
-                                {% if publicacion.metodo_pago == 'mercadopago' %}
-                                Esperando pago
-                                {% else %}
-                                Pendiente de pago en efectivo
-                                {% endif %}
-                            </p>
-                            {% endif %}
+                        {% else %}
+                        <div class="pub-estado estado-proceso">
+                            En proceso
                         </div>
                         {% endif %}
                         
-                        <div class="pub-footer">
-                            {% if not publicacion.aceptado_por %}
-                            <div class="pub-estado estado-disponible">
-                                Disponible
-                            </div>
-                            {% else %}
-                            <div class="pub-estado estado-proceso">
-                                En proceso
-                            </div>
-                            {% endif %}
-                            
-                            <!-- Solo trabajadores pueden aceptar trabajos disponibles -->
-                            {% if user_type == '2' and not publicacion.aceptado_por %}
-                            <button class="btn-aceptar" onclick="abrirModalPrecioTrabajo('{{ publicacion.id }}')">
-                                <i class="fas fa-handshake"></i> Aceptar Trabajo
-                            </button>
-                            {% endif %}
-                        </div>
+                        <!-- Solo trabajadores pueden aceptar trabajos disponibles -->
+                        {% if user_type == '2' and not publicacion.aceptado_por %}
+                        <button class="btn-aceptar" onclick="abrirModalPrecioTrabajo('{{ publicacion.id }}')">
+                            <i class="fas fa-handshake"></i> Aceptar Trabajo
+                        </button>
+                        {% endif %}
                     </div>
-                    {% endif %}
+                </div>
                 {% endfor %}
-                
-                <!-- Mensaje si el trabajador no ve ningún trabajo en sus especialidades -->
-                {% if user_type == '2' and not tiene_trabajos_visibles and publicaciones %}
-                <div class="no-publicaciones">
-                    <i class="fas fa-search"></i>
-                    <h3>No hay trabajos disponibles en tus especialidades</h3>
-                    <p>Actualmente no hay publicaciones en las categorías que manejas</p>
-                    <p style="margin-top: 10px; font-size: 14px;">
-                        Tus especialidades: 
-                        {% for especialidad in especialidades_trabajador %}
-                        <span style="background: #f8f9fa; padding: 4px 8px; border-radius: 4px; margin: 0 5px;">
-                            {{ especialidad }}
-                        </span>
-                        {% endfor %}
-                    </p>
-                </div>
-                {% endif %}
-                
-                <!-- Mensaje si no hay publicaciones en absoluto -->
-                {% if user_type == '2' and tiene_trabajos_visibles == false and not publicaciones %}
-                <div class="no-publicaciones">
-                    <i class="fas fa-newspaper"></i>
-                    <h3>No hay publicaciones en el muro</h3>
-                    <p>No hay trabajos disponibles en este momento</p>
-                </div>
-                {% endif %}
             {% else %}
                 <div class="no-publicaciones">
                     <i class="fas fa-newspaper"></i>
@@ -884,7 +662,7 @@
                 <form id="formPublicar">
                     <div class="form-group">
                         <label for="titulo">Título del trabajo</label>
-                        <input type="text" id="titulo" name="titulo" placeholder="Ej: Necesito gasista para instalación" required>
+                        <input type="text" id="titulo" name="titulo" placeholder="Ej: Necesito plomero para reparar cañería" required>
                     </div>
                     
                     <div class="form-group">
@@ -903,7 +681,6 @@
                             <option value="Carpintería">Carpintería</option>
                             <option value="Limpieza">Limpieza</option>
                             <option value="Jardinería">Jardinería</option>
-                            <option value="Gasista">Gasista</option>
                             <option value="Otros">Otros</option>
                         </select>
                     </div>
@@ -934,34 +711,28 @@
 
     <!-- Modal para que trabajador especifique precio -->
     {% if user_type == '2' %}
-    <div class="modal-precio-trabajo" id="modalPrecioTrabajo">
-        <div class="modal-precio-trabajo-content">
-            <div class="modal-precio-trabajo-header">
-                <h3>Especificar Precio del Trabajo</h3>
-                <button class="close-precio-trabajo-modal" onclick="cerrarModalPrecioTrabajo()">&times;</button>
+    <div class="modal-overlay" id="modalPrecioTrabajo">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Especificar Precio del Trabajo</h2>
+                <button class="close-modal" onclick="cerrarModalPrecioTrabajo()">&times;</button>
             </div>
-            
-            <div class="modal-precio-trabajo-body">
-                <div class="precio-trabajo-form-group">
+            <div class="modal-body">
+                <div class="form-group">
                     <label for="inputPrecioTrabajo">Precio estimado (ARS):</label>
-                    <div class="precio-trabajo-input-group">
-                        <span class="precio-trabajo-symbol">$</span>
+                    <div class="precio-muro-input-group">
+                        <span class="precio-muro-symbol">$</span>
                         <input type="number" id="inputPrecioTrabajo" placeholder="Ej: 5000" min="1" step="100">
                     </div>
-                    <div class="precio-trabajo-info">
+                    <div class="precio-muro-info">
                         <i class="fas fa-info-circle"></i>
                         Este será el precio que propondrás al cliente. El cliente podrá elegir cómo pagarte (MercadoPago o Efectivo).
                     </div>
                 </div>
             </div>
-            
-            <div class="modal-precio-trabajo-footer">
-                <button class="btn-precio-trabajo btn-cancelar-precio-trabajo" onclick="cerrarModalPrecioTrabajo()">
-                    Cancelar
-                </button>
-                <button class="btn-precio-trabajo btn-confirmar-precio-trabajo" onclick="confirmarPrecioTrabajo()">
-                    <i class="fas fa-check"></i> Enviar Propuesta
-                </button>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="cerrarModalPrecioTrabajo()">Cancelar</button>
+                <button class="btn btn-submit" onclick="confirmarPrecioTrabajo()">Enviar Propuesta</button>
             </div>
         </div>
     </div>
@@ -969,22 +740,22 @@
 
     <!-- Modal para que cliente elija método de pago -->
     {% if user_type == '1' %}
-    <div class="modal-precio-trabajo" id="modalMetodoPago">
-        <div class="modal-precio-trabajo-content">
-            <div class="modal-precio-trabajo-header">
+    <div class="modal-aceptar-trabajo" id="modalMetodoPago">
+        <div class="modal-aceptar-trabajo-content">
+            <div class="modal-aceptar-trabajo-header">
                 <h3>Elegir Método de Pago</h3>
-                <button class="close-precio-trabajo-modal" onclick="cerrarModalMetodoPago()">&times;</button>
+                <button class="close-aceptar-trabajo-modal" onclick="cerrarModalMetodoPago()">&times;</button>
             </div>
             
-            <div class="modal-precio-trabajo-body">
-                <div class="aceptar-trabajo-info" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <div class="modal-aceptar-trabajo-body">
+                <div class="aceptar-trabajo-info">
                     <p><strong>Trabajo:</strong> <span id="tituloTrabajoMetodo"></span></p>
                     <p><strong>Profesional:</strong> <span id="trabajadorNombreMetodo"></span></p>
                     <p><strong>Precio acordado:</strong></p>
-                    <div class="pub-precio" id="precioMetodoPago">$0</div>
+                    <div class="precio" id="precioMetodoPago">$0</div>
                 </div>
 
-                <div class="precio-trabajo-form-group">
+                <div class="form-group">
                     <label>Selecciona cómo deseas pagar:</label>
                     <div class="metodo-pago-options">
                         <div class="metodo-pago-option">
@@ -1004,22 +775,22 @@
                             </label>
                         </div>
                     </div>
-                    <div class="precio-trabajo-info" id="infoMercadoPagoCliente" style="display: block;">
+                    <div class="precio-muro-info" id="infoMercadoPagoCliente" style="display: block;">
                         <i class="fas fa-info-circle"></i>
                         Con MercadoPago, el trabajo se confirma inmediatamente al realizar el pago. El profesional recibirá el dinero después de que completes el trabajo.
                     </div>
-                    <div class="precio-trabajo-info" id="infoEfectivoCliente" style="display: none;">
+                    <div class="precio-muro-info" id="infoEfectivoCliente" style="display: none;">
                         <i class="fas fa-info-circle"></i>
                         Con efectivo, el trabajo queda confirmado y pagarás directamente al profesional cuando finalice el trabajo.
                     </div>
                 </div>
             </div>
             
-            <div class="modal-precio-trabajo-footer">
-                <button class="btn-precio-trabajo btn-cancelar-precio-trabajo" onclick="cerrarModalMetodoPago()">
+            <div class="modal-aceptar-trabajo-footer">
+                <button class="btn-aceptar-trabajo btn-cancelar-aceptar" onclick="cerrarModalMetodoPago()">
                     Cancelar
                 </button>
-                <button class="btn-precio-trabajo btn-confirmar-precio-trabajo" onclick="confirmarMetodoPago()">
+                <button class="btn-aceptar-trabajo btn-confirmar-pago" onclick="confirmarMetodoPago()">
                     <i class="fas fa-check"></i> Confirmar Método de Pago
                 </button>
             </div>
@@ -1256,78 +1027,6 @@
                 confirmarPrecioTrabajo();
             }
         });
-        
-        // Función para filtrar publicaciones en el muro (solo para trabajadores)
-        function filtrarPublicacionesMuro() {
-            const searchText = document.getElementById('buscadorMuro').value.toLowerCase();
-            const publicaciones = document.querySelectorAll('.publicacion-card');
-            
-            // Obtener las especialidades del trabajador desde los badges
-            const especialidadesTrabajador = Array.from(document.querySelectorAll('.especialidad-badge'))
-                .map(badge => badge.textContent.trim().toLowerCase());
-            
-            publicaciones.forEach(pub => {
-                // Obtener datos de la publicación
-                const titulo = pub.querySelector('.pub-titulo').textContent.toLowerCase();
-                const descripcion = pub.querySelector('.pub-descripcion').textContent.toLowerCase();
-                const categoriaElement = pub.querySelector('.detalle-item span');
-                const categoria = categoriaElement ? 
-                    categoriaElement.textContent.replace('Categoría:', '').trim().toLowerCase() : '';
-                const textoOculto = pub.querySelector('.all-specialties-muro')?.textContent.toLowerCase() || '';
-                
-                // Verificar si es de las especialidades del trabajador
-                let esDeEspecialidad = false;
-                for (const especialidad of especialidadesTrabajador) {
-                    if (categoria.includes(especialidad) || especialidad.includes(categoria)) {
-                        esDeEspecialidad = true;
-                        break;
-                    }
-                }
-                
-                // Si no es de sus especialidades, ocultar directamente
-                if (!esDeEspecialidad) {
-                    pub.style.display = 'none';
-                    return;
-                }
-                
-                // Si hay texto de búsqueda, verificar coincidencia
-                if (searchText.trim()) {
-                    // Combinar todo el texto buscable
-                    const textoCompleto = titulo + ' ' + descripcion + ' ' + categoria + ' ' + textoOculto;
-                    
-                    // Verificar si coincide con la búsqueda
-                    const coincideBusqueda = textoCompleto.includes(searchText);
-                    
-                    // Mostrar solo si coincide con la búsqueda
-                    pub.style.display = coincideBusqueda ? 'block' : 'none';
-                } else {
-                    // Si no hay texto de búsqueda, mostrar todas de sus especialidades
-                    pub.style.display = 'block';
-                }
-            });
-        }
-        
-        // Función para resetear la búsqueda
-        function resetearBusquedaMuro() {
-            document.getElementById('buscadorMuro').value = '';
-            filtrarPublicacionesMuro();
-        }
-        
-        // Inicializar búsqueda al cargar la página
-        document.addEventListener('DOMContentLoaded', function() {
-            const buscador = document.getElementById('buscadorMuro');
-            if (buscador) {
-                // Permitir buscar con Enter
-                buscador.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        filtrarPublicacionesMuro();
-                    }
-                });
-                
-                // Aplicar filtro inicial
-                filtrarPublicacionesMuro();
-            }
-        });
         {% endif %}
         
         // Cerrar modales al hacer clic fuera
@@ -1335,13 +1034,13 @@
             if (e.target.classList.contains('modal-overlay')) {
                 {% if user_type == '1' %}
                 cerrarModalPublicar();
-                {% endif %}
-            }
-            if (e.target.classList.contains('modal-precio-trabajo')) {
-                {% if user_type == '1' %}
-                cerrarModalMetodoPago();
                 {% elif user_type == '2' %}
                 cerrarModalPrecioTrabajo();
+                {% endif %}
+            }
+            if (e.target.classList.contains('modal-aceptar-trabajo')) {
+                {% if user_type == '1' %}
+                cerrarModalMetodoPago();
                 {% endif %}
             }
         });

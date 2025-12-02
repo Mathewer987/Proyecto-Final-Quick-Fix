@@ -183,26 +183,51 @@ def obtener_pagos_pendientes():
         user_id = session.get('user_id')
         user_type = session.get('user_type')
         
-        if user_type != '1':
+        if user_type != '1':  # Solo clientes
             return jsonify({'success': False, 'trabajos': []})
         
+        print(f"🔄 Buscando trabajos para cliente: {user_id}")
+        
+        # PRIMERO: Todos los trabajos ACEPTADOS del cliente
         pendientes_ref = db.collection('PendClienteTrabajador')
         query = pendientes_ref.where('cliente_id', '==', user_id)\
-                             .where('estado', '==', 'aceptado')\
-                             .where('pago', '==', 'pendiente')\
-                             .where('metodo_pago', '==', 'mercadopago')
+                             .where('estado', '==', 'aceptado')
         
         docs = query.stream()
         
         trabajos_pendientes = []
+        trabajos_encontrados = 0
+        
         for doc in docs:
             trabajo_data = doc.to_dict()
             trabajo_data['id'] = doc.id
+            trabajos_encontrados += 1
+            
+            print(f"📄 Trabajo encontrado: {doc.id}")
+            print(f"   Método pago: {trabajo_data.get('metodo_pago')}")
+            print(f"   Estado pago: {trabajo_data.get('pago')}")
+            
+            # SEGUNDO: Filtrar SOLO MercadoPago
+            if trabajo_data.get('metodo_pago') != 'mercadopago':
+                print(f"   ❌ No es MercadoPago, saltando...")
+                continue
+            
+            # TERCERO: Filtrar SOLO pendientes
+            if trabajo_data.get('pago') != 'pendiente':
+                print(f"   ❌ No está pendiente de pago, saltando...")
+                continue
+            
+            # ✅ CUMPLE TODAS LAS CONDICIONES
+            print(f"   ✅ ES MercadoPago y está pendiente!")
             
             if 'profesional_nombre' not in trabajo_data:
                 trabajo_data['profesional_nombre'] = 'Trabajador'
             
             trabajos_pendientes.append(trabajo_data)
+        
+        print(f"📊 Resumen:")
+        print(f"   Total trabajos aceptados: {trabajos_encontrados}")
+        print(f"   MercadoPago pendientes: {len(trabajos_pendientes)}")
         
         return jsonify({
             'success': True,
@@ -210,7 +235,7 @@ def obtener_pagos_pendientes():
         })
         
     except Exception as e:
-        print(f"Error obteniendo pagos pendientes: {str(e)}")
+        print(f"❌ Error obteniendo pagos pendientes: {str(e)}")
         return jsonify({'success': False, 'trabajos': []})
 
 @app.route('/')

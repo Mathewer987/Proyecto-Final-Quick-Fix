@@ -6,7 +6,7 @@ from datetime import datetime
 import functools
 import json
 import re  #
-from pago import generar_enlace_pago, generar_qr
+from pago import generar_enlace_pago, generar_qr_base64
 from pago import sdk
 
 
@@ -86,22 +86,36 @@ ESPECIALIDADES_PREDEFINIDAS = [
 
 @app.route('/crear-pago/<trabajo_id>')
 def crear_pago_para_trabajo(trabajo_id):
+    try:
+        # 1. Obtener información del trabajo
+        t = db.collection('PendClienteTrabajador').document(trabajo_id).get()
+        
+        if not t.exists:
+            return "Trabajo no encontrado", 404
+            
+        data = t.to_dict()
 
-    # 1. Obtener info del trabajo
-    t = db.collection('PendClienteTrabajador').document(trabajo_id).get()
-    data = t.to_dict()
+        # 2. Generar enlace de pago con MercadoPago
+        link = generar_enlace_pago(
+            monto=data.get("precio_estimado", 150),
+            descripcion=f"Pago trabajo: {data.get('especializacion', '')}",
+            referencia=trabajo_id
+        )
 
-    link = generar_enlace_pago(
-        monto=data.get("precio_estimado", 150),
-        descripcion=f"Pago trabajo: {data.get('especializacion', '')}",
-        referencia=trabajo_id
-    )
+        # 3. Generar código QR en memoria (sin guardar archivo)
+        qr_base64 = generar_qr_base64(link["init_point"])
 
-    generar_qr(link["init_point"], "static/qr.png")
-
-    return render_template("resultado_pago.html",
+        # 4. Mostrar página con opciones de pago
+        return render_template("resultado_pago.html",
                            link=link["init_point"],
-                           qr_file="/static/qr.png")
+                           qr_base64=qr_base64,
+                           trabajo_id=trabajo_id,
+                           monto=data.get("precio_estimado", 150),
+                           descripcion=data.get('especializacion', 'Trabajo'))
+                           
+    except Exception as e:
+        print(f"Error en crear_pago_para_trabajo: {str(e)}")
+        return f"Error: {str(e)}", 500
 
 
 
@@ -169,15 +183,14 @@ def obtener_pagos_pendientes():
         user_id = session.get('user_id')
         user_type = session.get('user_type')
         
-        # Solo clientes (tipo 1) tienen pagos pendientes
         if user_type != '1':
             return jsonify({'success': False, 'trabajos': []})
         
-        # Buscar trabajos ACEPTADOS con pago PENDIENTE
         pendientes_ref = db.collection('PendClienteTrabajador')
         query = pendientes_ref.where('cliente_id', '==', user_id)\
                              .where('estado', '==', 'aceptado')\
-                             .where('pago', '==', 'pendiente')
+                             .where('pago', '==', 'pendiente')\
+                             .where('metodo_pago', '==', 'mercadopago')
         
         docs = query.stream()
         
@@ -186,20 +199,8 @@ def obtener_pagos_pendientes():
             trabajo_data = doc.to_dict()
             trabajo_data['id'] = doc.id
             
-            # Obtener nombre del trabajador para mostrar en popup
-            if 'profesional_nombre' in trabajo_data:
-                trabajo_data['trabajador_nombre'] = trabajo_data['profesional_nombre']
-            else:
-                # Buscar en la colección de trabajadores
-                profesional_id = trabajo_data.get('profesional_id')
-                if profesional_id:
-                    trabajador_ref = db.collection('trabajadores').document(profesional_id)
-                    trabajador_doc = trabajador_ref.get()
-                    if trabajador_doc.exists:
-                        trabajador_data = trabajador_doc.to_dict()
-                        trabajo_data['trabajador_nombre'] = f"{trabajador_data.get('nombre', '')} {trabajador_data.get('apellido', '')}".strip()
-                    else:
-                        trabajo_data['trabajador_nombre'] = 'Trabajador'
+            if 'profesional_nombre' not in trabajo_data:
+                trabajo_data['profesional_nombre'] = 'Trabajador'
             
             trabajos_pendientes.append(trabajo_data)
         

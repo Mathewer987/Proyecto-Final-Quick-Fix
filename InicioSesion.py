@@ -207,8 +207,6 @@ def obtener_pagos_pendientes():
             print(f"   Método pago: {trabajo_data.get('metodo_pago')}")
             print(f"   Estado pago: {trabajo_data.get('pago')}")
             print(f"   profesional_nombre actual: {trabajo_data.get('profesional_nombre')}")
-            print(f"   especializacion actual: {trabajo_data.get('especializacion')}")  # ← NUEVO
-            print(f"   Todos los campos: {list(trabajo_data.keys())}")  # ← NUEVO
             
             # SEGUNDO: Filtrar SOLO MercadoPago
             if trabajo_data.get('metodo_pago') != 'mercadopago':
@@ -258,28 +256,6 @@ def obtener_pagos_pendientes():
                     print(f"   ❌ No hay profesional_id")
             else:
                 print(f"   ✅ Ya tiene profesional_nombre: {trabajo_data['profesional_nombre']}")
-            
-            # 🔍 ASEGURAR QUE TENGA ESPECIALIZACIÓN (NUEVO)
-            if 'especializacion' not in trabajo_data or not trabajo_data['especializacion']:
-                print(f"   🔍 Buscando especialización del trabajo...")
-                
-                # Intentar con diferentes campos posibles
-                if 'categoria' in trabajo_data and trabajo_data['categoria']:
-                    trabajo_data['especializacion'] = trabajo_data['categoria']
-                    print(f"   ✅ Usando categoría como especialización: {trabajo_data['especializacion']}")
-                elif 'titulo' in trabajo_data and trabajo_data['titulo']:
-                    trabajo_data['especializacion'] = trabajo_data['titulo']
-                    print(f"   ✅ Usando título como especialización: {trabajo_data['especializacion']}")
-                elif 'descripcion' in trabajo_data and trabajo_data['descripcion']:
-                    # Tomar primeras palabras de la descripción
-                    desc = trabajo_data['descripcion'][:30] + '...' if len(trabajo_data['descripcion']) > 30 else trabajo_data['descripcion']
-                    trabajo_data['especializacion'] = desc
-                    print(f"   ✅ Usando descripción como especialización: {trabajo_data['especializacion']}")
-                else:
-                    trabajo_data['especializacion'] = 'trabajo'
-                    print(f"   ⚠️ No se encontró especialización, usando 'trabajo'")
-            else:
-                print(f"   ✅ Ya tiene especialización: {trabajo_data.get('especializacion')}")
             
             trabajos_pendientes.append(trabajo_data)
         

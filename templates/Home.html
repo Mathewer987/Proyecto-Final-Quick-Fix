@@ -410,8 +410,8 @@ function abrirPopupPagoPendiente(trabajo) {
                        'trabajo';
     
     console.log('👷 Nombre trabajador:', nombreTrabajador);
-    console('🔧 Tipo de trabajo:', tipoTrabajo);
-    
+    console.log('🔧 Tipo de trabajo:', tipoTrabajo);  // Falta el .log 
+       
     document.getElementById('popupTextoPago').innerText =
         `${nombreTrabajador} aceptó tu solicitud de ${tipoTrabajo}.\n` +  // ← CAMBIAR AQUÍ
         `Como seleccionaste Mercado Pago, debés pagar ahora para confirmar el trabajo.`;

@@ -420,26 +420,124 @@ def muro_publicaciones():
     
     try:
         user_type = session.get('user_type')
+        user_id = session.get('user_id')
         
-        # Obtener solo las publicaciones DISPONIBLES (no las que están en proceso)
+        # Lista para almacenar las categorías del trabajador
+        categorias_trabajador = []
+        
+        # Solo para trabajadores (user_type == '2'), obtenemos sus especialidades
+        if user_type == '2':
+            # Obtener el documento del trabajador
+            trabajador_ref = db.collection('trabajadores').document(user_id)
+            trabajador_doc = trabajador_ref.get()
+            
+            if trabajador_doc.exists:
+                trabajador_data = trabajador_doc.to_dict()
+                
+                # Mapeo de campos de especialidad a nombres de categoría
+                # (ajusta según cómo nombras las categorías en tus publicaciones)
+                mapeo_especialidad_a_categoria = {
+                    'Albañil': ['Albañilería', 'Albañil', 'Construcción'],
+                    'Carpintero': ['Carpintería', 'Carpintero'],
+                    'Cerrajero': ['Cerrajería', 'Cerrajero'],
+                    'Electricista': ['Electricidad', 'Electricista'],
+                    'Fontanero_Plomero': ['Plomería', 'Fontanería', 'Fontanero', 'Plomero'],
+                    'Fumigador': ['Fumigación', 'Fumigador'],
+                    'Gasista_matriculado': ['Gasista', 'Instalaciones de gas'],
+                    'Herrero': ['Herrería', 'Herrero'],
+                    'InstaladorDeRedes_WiFi': ['Redes', 'WiFi', 'Instalación de redes'],
+                    'Instalador_de_aires_acondicionados': ['Aire acondicionado', 'Climatización'],
+                    'Instalador_de_alarmas_cámaras_de_seguridad': ['Alarmas', 'Seguridad', 'Cámaras de seguridad'],
+                    'Jardinero': ['Jardinería', 'Jardinero'],
+                    'LavadoDeAlfombras_cortinas': ['Limpieza', 'Lavado', 'Alfombras', 'Cortinas'],
+                    'Limpieza_de_tanques_de_agua': ['Limpieza', 'Tanques de agua'],
+                    'Limpieza_de_vidrios_en_altura': ['Limpieza', 'Vidrios', 'Limpieza de altura'],
+                    'Mantenimiento_de_piletas': ['Piletas', 'Mantenimiento de piletas'],
+                    'Paisajista': ['Paisajismo', 'Paisajista'],
+                    'Personal_de_limpieza': ['Limpieza', 'Personal de limpieza'],
+                    'Pintor': ['Pintura', 'Pintor'],
+                    'Podador_de_árboles': ['Jardinería', 'Poda', 'Árboles'],
+                    'Techista_Impermeabilizador': ['Techos', 'Impermeabilización', 'Techista'],
+                    'TécnicoDeComputadoras_laptops': ['Computadoras', 'Laptops', 'Técnico de computadoras'],
+                    'TécnicoDeTelevisores_equiposelectrónicos': ['Televisores', 'Electrónica', 'Reparación'],
+                    'Técnico_de_celulares': ['Celulares', 'Reparación de celulares'],
+                    'Técnico_de_electrodomésticos': ['Electrodomésticos', 'Reparación'],
+                    'Técnico_de_impresoras': ['Impresoras', 'Reparación de impresoras']
+                }
+                
+                # Buscar las especialidades del trabajador (campos booleanos = True)
+                especialidades_booleanas = [
+                    'Albañil', 'Carpintero', 'Cerrajero', 'Electricista', 
+                    'Fontanero_Plomero', 'Fumigador', 'Gasista_matriculado', 
+                    'Herrero', 'InstaladorDeRedes_WiFi', 'Instalador_de_aires_acondicionados',
+                    'Instalador_de_alarmas_cámaras_de_seguridad', 'Jardinero', 
+                    'LavadoDeAlfombras_cortinas', 'Limpieza_de_tanques_de_agua',
+                    'Limpieza_de_vidrios_en_altura', 'Mantenimiento_de_piletas',
+                    'Paisajista', 'Personal_de_limpieza', 'Pintor', 
+                    'Podador_de_árboles', 'Techista_Impermeabilizador',
+                    'TécnicoDeComputadoras_laptops', 'TécnicoDeTelevisores_equiposelectrónicos',
+                    'Técnico_de_celulares', 'Técnico_de_electrodomésticos', 'Técnico_de_impresoras'
+                ]
+                
+                for especialidad in especialidades_booleanas:
+                    if trabajador_data.get(especialidad) == True:
+                        # Añadir las categorías correspondientes a esta especialidad
+                        if especialidad in mapeo_especialidad_a_categoria:
+                            categorias_trabajador.extend(mapeo_especialidad_a_categoria[especialidad])
+                
+                # También considerar las especialidades en el campo "Otro" (array)
+                if 'Otro' in trabajador_data and trabajador_data['Otro']:
+                    # Agregar las especialidades personalizadas directamente
+                    for otra_especialidad in trabajador_data['Otro']:
+                        categorias_trabajador.append(otra_especialidad.strip())
+        
+        # Obtener solo las publicaciones DISPONIBLES
         muro_ref = db.collection('MuroPublicaciones')
-        query = muro_ref.where('estado', '==', 'disponible')  # SOLO LAS DISPONIBLES
-        docs = query.stream()
         
-        publicaciones = []
-        for doc in docs:
-            pub_data = doc.to_dict()
-            pub_data['id'] = doc.id
-            pub_data['fecha_publicacion_str'] = pub_data.get('fecha_publicacion').strftime('%d/%m/%Y %H:%M') if pub_data.get('fecha_publicacion') else 'Fecha no disponible'
-            publicaciones.append(pub_data)
+        if user_type == '2' and categorias_trabajador:
+            # Para trabajadores con especialidades: filtrar por estado Y por categoría
+            # Primero obtenemos todas las disponibles
+            query = muro_ref.where('estado', '==', 'disponible')
+            docs = query.stream()
+            
+            publicaciones = []
+            for doc in docs:
+                pub_data = doc.to_dict()
+                pub_categoria = pub_data.get('categoria', '').lower()
+                
+                # Verificar si la categoría de la publicación coincide con alguna especialidad del trabajador
+                categoria_coincide = False
+                for categoria in categorias_trabajador:
+                    if categoria.lower() in pub_categoria or pub_categoria in categoria.lower():
+                        categoria_coincide = True
+                        break
+                
+                # Si el trabajador no tiene especialidades o la categoría coincide, agregamos la publicación
+                if categoria_coincide:
+                    pub_data['id'] = doc.id
+                    pub_data['fecha_publicacion_str'] = pub_data.get('fecha_publicacion').strftime('%d/%m/%Y %H:%M') if pub_data.get('fecha_publicacion') else 'Fecha no disponible'
+                    publicaciones.append(pub_data)
+        else:
+            # Para clientes o trabajadores sin especialidades: mostrar todas las disponibles
+            query = muro_ref.where('estado', '==', 'disponible')
+            docs = query.stream()
+            
+            publicaciones = []
+            for doc in docs:
+                pub_data = doc.to_dict()
+                pub_data['id'] = doc.id
+                pub_data['fecha_publicacion_str'] = pub_data.get('fecha_publicacion').strftime('%d/%m/%Y %H:%M') if pub_data.get('fecha_publicacion') else 'Fecha no disponible'
+                publicaciones.append(pub_data)
         
         # Ordenar por fecha más reciente
         publicaciones.sort(key=lambda x: x.get('fecha_publicacion', datetime.min), reverse=True)
         
+        # Pasar también las categorías del trabajador al template (opcional, para debug)
         return render_template('muro.html', 
                              publicaciones=publicaciones,
                              user_type=user_type,
-                             user_id=session.get('user_id'))
+                             user_id=user_id,
+                             categorias_trabajador=categorias_trabajador if user_type == '2' else [])
         
     except Exception as e:
         print(f"Error al cargar el muro: {str(e)}")

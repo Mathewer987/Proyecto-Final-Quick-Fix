@@ -274,7 +274,7 @@ def obtener_pagos_pendientes():
 
 @app.route('/')
 def index():
-    return render_template('Inicio_de_Sesion.html')
+    return render_template('Landing.html')
 
 @app.route('/chat_home')
 def chat_home():

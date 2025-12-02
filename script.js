@@ -85,3 +85,4 @@ function confirmarSeleccion() {
 }
 
 document.getElementById("okButton").addEventListener("click", confirmarSeleccion);
+

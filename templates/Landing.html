@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QuickFix - Encuentra Profesionales de Confianza</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+
+
+    :root {
+      --primary-color: #2563eb;
+      --secondary-color: #3b82f6;
+      --accent-color: #2563eb;
+      --light-color: #f8fafc;
+      --dark-color: #1e293b;
+      --text-color: #334155;
+      --text-light: #64748b;
+      --white: #ffffff;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .background-lines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .line {
+      position: absolute;
+      background: linear-gradient(90deg, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0.4) 50%, rgba(37, 99, 235, 0.1) 100%);
+      border-radius: 20px;
+      transform-origin: left center;
+      animation: float 15s infinite linear;
+    }
+
+    .line-1 {
+      width: 150%;
+      height: 2px;
+      top: 20%;
+      left: -50%;
+      transform: rotate(15deg);
+      animation-delay: 0s;
+    }
+
+    .line-2 {
+      width: 120%;
+      height: 1px;
+      top: 40%;
+      left: -30%;
+      transform: rotate(-10deg);
+      animation-delay: 2s;
+    }
+
+    .line-3 {
+      width: 180%;
+      height: 3px;
+      top: 65%;
+      left: -80%;
+      transform: rotate(5deg);
+      animation-delay: 4s;
+    }
+
+    .line-4 {
+      width: 200%;
+      height: 1.5px;
+      bottom: 15%;
+      left: -100%;
+      transform: rotate(-15deg);
+      animation-delay: 6s;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateX(0) rotate(15deg);
+      }
+      100% {
+        transform: translateX(100vw) rotate(15deg);
+      }
+    }
+
+    .header {
+      background-color: transparent;
+    }
+
+    body {
+      background-color: var(--light-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 25px 0;
+      margin-bottom: 60px;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--dark-color);
+      letter-spacing: -0.5px;
+    }
+
+    .logo span {
+      color: var(--accent-color);
+    }
+
+    .nav {
+      display: flex;
+      gap: 25px;
+      align-items: center;
+    }
+
+    .nav-item {
+      position: relative;
+      font-weight: 500;
+      color: var(--text-color);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-size: 15px;
+    }
+
+    .nav-item:hover {
+      color: var(--accent-color);
+    }
+
+    .nav-item.active {
+      color: var(--accent-color);
+      font-weight: 600;
+    }
+
+    .nav-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: var(--accent-color);
+    }
+
+    .login-btn {
+      padding: 8px 20px;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    .login-btn:hover {
+      background-color: rgba(59, 130, 246, 0.1);
+      color: var(--primary-color);
+    }
+
+    .register-btn {
+      padding: 8px 20px;
+      background-color: var(--primary-color);
+      color: white;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    .register-btn:hover {
+      background-color: #1d4ed8;
+      color: white;
+    }
+
+    .login-alt {
+      padding: 8px 20px;
+      background-color: #ffffff;   
+      color: #000000;              
+      border: 0px solid #000000;   
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
+      transition: all 0.3s ease;
+    }
+
+    .login-alt:hover {
+      background-color: #f1f1f1;   
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+
+
+    .mobile-menu-btn {
+      display: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--dark-color);
+    }
+
+    .hero {
+      padding: 80px 0;
+      text-align: center;
+      background: linear-gradient(135deg, #e6f7ff 0%, #edf2ff 100%);
+      border-radius: 0 0 20px 20px;
+      margin-bottom: 60px;
+    }
+
+    .hero-text {
+      max-width: 600px;
+      margin: 0 auto;
+      animation: fadeIn 1s ease-out;
+    }
+
+    .tagline {
+      display: inline-block;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--accent-color);
+      margin-bottom: 15px;
+      font-weight: 600;
+      padding: 6px 12px;
+      background-color: rgba(37, 99, 235, 0.1);
+      border-radius: 50px;
+    }
+
+    .title {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      line-height: 1.2;
+      color: var(--dark-color);
+    }
+
+    .title span {
+      color: var(--accent-color);
+    }
+
+    .description {
+      font-size: 18px;
+      color: var(--text-light);
+      margin-bottom: 30px;
+      line-height: 1.7;
+    }
+
+    .cta-container {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 15px 30px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+      font-size: 16px;
+    }
+
+    .cta-button.primary {
+      background-color: var(--accent-color);
+      color: white;
+      box-shadow: var(--shadow);
+    }
+
+    .cta-button.primary:hover {
+      background-color: rgb(46, 46, 247);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .cta-button.secondary {
+      background-color: var(--white);
+      color: var(--dark-color);
+      border: 1px solid #e2e8f0;
+    }
+
+    .cta-button.secondary:hover {
+      background-color: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .categories {
+      padding: 80px 0;
+      background-color: var(--white);
+    }
+
+    .categories h2 {
+      text-align: center;
+      margin-bottom: 50px;
+      font-size: 2.2rem;
+      color: var(--dark-color);
+    }
+
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+
+    .category-card {
+      background: var(--light-color);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: all 0.3s;
+    }
+
+    .category-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .category-img {
+      height: 180px;
+      background-color: var(--light-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-color);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .category-img i {
+      font-size: 64px;
+      opacity: 0.8;
+    }
+
+    .category-content {
+      padding: 25px;
+    }
+
+    .category-content h3 {
+      margin-bottom: 15px;
+      color: var(--primary-color);
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .category-list {
+      list-style: none;
+    }
+
+    .category-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--light-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s;
+    }
+
+    .category-list li:last-child {
+      border-bottom: none;
+    }
+
+    .category-list li:hover {
+      background-color: rgba(37, 99, 235, 0.05);
+      padding-left: 10px;
+      border-radius: 6px;
+    }
+
+    .category-list i {
+      color: var(--primary-color);
+      width: 20px;
+      text-align: center;
+    }
+
+    .form-section {
+      background-color: var(--white);
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 60px;
+    }
+
+    .form-section h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--dark-color);
+      font-size: 1.8rem;
+    }
+
+    #budget-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    #budget-form input,
+    #budget-form textarea,
+    #budget-form select {
+      padding: 15px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    #budget-form input:focus,
+    #budget-form textarea:focus,
+    #budget-form select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    #budget-form textarea {
+      grid-column: span 2;
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .file-input-container {
+      grid-column: span 2;
+      position: relative;
+    }
+
+    .file-input-container input {
+      width: 100%;
+      padding: 15px;
+      border: 1px dashed #e2e8f0;
+      border-radius: 8px;
+      background-color: #fafafa;
+    }
+
+    .file-input-container::before {
+      content: 'Subir imágenes (opcional)';
+      position: absolute;
+      top: -10px;
+      left: 15px;
+      background: var(--white);
+      padding: 0 10px;
+      font-size: 14px;
+      color: var(--text-light);
+    }
+
+    .submit-btn {
+      grid-column: span 2;
+      padding: 16px;
+      background-color: var(--primary-color);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    .submit-btn:hover {
+      background-color: #1d4ed8;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .testimonials {
+      margin-bottom: -40px;
+    }
+
+    .testimonials h2 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 2rem;
+      color: var(--dark-color);
+    }
+
+    .testimonial-slider {
+  overflow: hidden;
+  position: relative;
+}
+
+.testimonial-track {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.testimonial-card {
+  flex: 0 0 100%; /* si querés 1 x vez */
+  /* 👉 si querés 3 por vez poné: flex: 0 0 33.333%; */
+  box-sizing: border-box;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin: 10px;
+  text-align: center;
+}
+
+.slider-nav {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+  gap: 10px;
+}
+
+.slider-dot {
+  width: 12px;
+  height: 12px;
+  background: #ccc;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.slider-dot.active {
+  background: #2563eb;
+}
+
+
+    .stars {
+      color: #f59e0b;
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+
+    .testimonial-text {
+      font-style: italic;
+      margin-bottom: 15px;
+      color: var(--text-light);
+    }
+
+    .testimonial-author {
+      font-weight: 600;
+      color: var(--dark-color);
+    }
+
+    
+
+    .download-app {
+      background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+      padding: 60px 0;
+      border-radius: 16px;
+      color: var(--white);
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .download-app h2 {
+      font-size: 2.2rem;
+      margin-bottom: 20px;
+    }
+
+    .download-app p {
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto 30px;
+      opacity: 0.9;
+    }
+
+    .app-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .app-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px 25px;
+      background: var(--white);
+      color: var(--dark-color);
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .app-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .app-btn i {
+      font-size: 24px;
+    }
+
+    .blog-ideas {
+      margin-bottom: 60px;
+    }
+
+    .blog-ideas h2 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 2rem;
+      color: var(--dark-color);
+    }
+
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+
+    .blog-card {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: all 0.3s;
+    }
+
+    .blog-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .blog-img {
+      height: 180px;
+      background-color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-light);
+    }
+
+    .blog-content {
+      padding: 25px;
+    }
+
+    .blog-card h3 {
+      margin-bottom: 15px;
+      color: var(--dark-color);
+    }
+
+    .blog-card p {
+      color: var(--text-light);
+      margin-bottom: 20px;
+    }
+
+    .read-more {
+      display: inline-flex;
+      align-items: center;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+      gap: 5px;
+      transition: gap 0.3s;
+    }
+
+    .read-more:hover {
+      gap: 10px;
+    }
+
+    footer {
+      background-color: var(--dark-color);
+      color: var(--white);
+      padding: 50px 0 20px;
+      width: 100%; 
+    }
+
+    .footer-inner {
+      max-width: 1200px; 
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-logo {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: var(--white);
+    }
+
+    .footer-desc {
+      opacity: 0.8;
+      margin-bottom: 20px;
+    }
+
+    .cities {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .city-tag {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .city-tag:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .footer-heading {
+      font-size: 18px;
+      margin-bottom: 20px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    .footer-heading::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background-color: var(--primary-color);
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 12px;
+    }
+
+    .footer-links a {
+      color: #cbd5e1;
+      text-decoration: none;
+      opacity: 0.8;
+      transition: all 0.3s;
+    }
+
+    .footer-links a:hover {
+      opacity: 1;
+      color: var(--white);
+      padding-left: 5px;
+    }
+
+    .copyright {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      opacity: 0.7;
+      font-size: 14px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 992px) {
+      .title {
+        font-size: 40px;
+      }
+      
+      .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      #budget-form {
+        grid-template-columns: 1fr;
+      }
+      
+      #budget-form textarea,
+      .file-input-container,
+      .submit-btn {
+        grid-column: 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav {
+        display: none;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        right: 0;
+        background: var(--white);
+        flex-direction: column;
+        padding: 20px;
+        box-shadow: var(--shadow-lg);
+        gap: 15px;
+      }
+      
+      .nav.active {
+        display: flex;
+        animation: fadeIn 0.3s;
+      }
+      
+      .mobile-menu-btn {
+        display: block;
+      }
+      
+      .title {
+        font-size: 36px;
+      }
+      
+      .description {
+        font-size: 16px;
+      }
+      
+      .cta-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .categories-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .form-section {
+        padding: 30px 20px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .title {
+        font-size: 32px;
+      }
+      
+      .hero-text {
+        text-align: center;
+      }
+      
+      .cta-container {
+        align-items: center;
+      }
+      
+      .cta-button {
+        width: 100%;
+        text-align: center;
+      }
+      
+      .testimonial-card {
+        padding: 20px;
+      }
+      
+      .app-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+      
+      .blog-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="background-lines">
+    <div class="line line-1"></div>
+    <div class="line line-2"></div>
+    <div class="line line-3"></div>
+    <div class="line line-4"></div>
+  </div>
+
+  <div class="container">
+    <header class="header">
+      <div class="logo">Quick<span>Fix</span></div>
+      <nav class="nav">
+        <a href="#" class="nav-item">¿Sos desempleado?</a>
+        <a href="#" class="nav-item">¿Sos profesional?</a>
+        <a href="#" class="nav-item active">Servicios</a>
+        <a href="#" class="nav-item">Acerca de</a>
+        <a href="#" class="nav-item login-alt">Inicia Sesion</a>
+
+        <a href="#" class="nav-item register-btn">Registrarse</a>
+
+      </nav>
+      <button class="mobile-menu-btn" id="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    </header>
+
+    <section class="hero">
+      <div class="hero-text">
+        <span class="tagline">Encontrá profesionales de confianza</span>
+        <h1 class="title">Los mejores <span>servicios</span> para tu hogar</h1>
+        <p class="description">Te conectamos con profesionales de confianza para todo tipo de trabajos y servicios</p>
+        <div class="cta-container">
+          <a href="#form" class="cta-button primary">Solicitar servicio</a>
+          <a href="#categories" class="cta-button secondary">Ver categorías</a>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="container" id="form">
+  <div class="form-section">
+    <h2>¿Qué servicio necesitás?</h2>
+    <form id="budget-form" action="/login" method="GET">
+      <input type="text" placeholder="Título del trabajo" name="titulo" required />
+      <select name="categoria" required>
+        <option value="" disabled selected>Seleccionar categoría</option>
+        <option value="fontanero">Fontanero / Plomero</option>
+        <option value="electricista">Electricista</option>
+        <option value="gasista">Gasista matriculado</option>
+        <option value="albañil">Albañil</option>
+        <option value="carpintero">Carpintero</option>
+        <option value="pintor">Pintor</option>
+        <option value="herrero">Herrero</option>
+        <option value="techista">Techista / Impermeabilizador</option>
+        <option value="cerrajero">Cerrajero</option>
+        <option value="aires">Instalador de aires acondicionados</option>
+        <option value="alarmas">Instalador de alarmas / cámaras de seguridad</option>
+        <option value="limpieza">Personal de limpieza</option>
+        <option value="tanques">Limpieza de tanques de agua</option>
+        <option value="vidrios">Limpieza de vidrios en altura</option>
+        <option value="alfombras">Lavado de alfombras / cortinas</option>
+        <option value="fumigador">Fumigador</option>
+        <option value="jardinero">Jardinero</option>
+        <option value="podador">Podador de árboles</option>
+        <option value="piletas">Mantenimiento de piletas</option>
+        <option value="paisajista">Paisajista</option>
+        <option value="electrodomesticos">Técnico de electrodomésticos</option>
+        <option value="celulares">Técnico de celulares</option>
+        <option value="computadoras">Técnico de computadoras / laptops</option>
+        <option value="televisores">Técnico de televisores / equipos electrónicos</option>
+        <option value="impresoras">Técnico de impresoras</option>
+        <option value="redes">Instalador de redes / WiFi</option>
+      </select>
+      <textarea placeholder="Describe tu proyecto/problema en detalle..." name="descripcion" required></textarea>
+      <div class="file-input-container">
+        <input type="file" name="imagenes" multiple />
+      </div>
+      <input type="text" placeholder="Ubicación" name="ubicacion" required />
+      <button type="submit" class="submit-btn">Pedir presupuesto</button>
+    </form>
+  </div>
+</section>
+    
+    <section class="categories" id="categories">
+  <div class="container">
+    <h2>¿Qué servicio necesitás?</h2>
+    <div class="categories-grid">
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-tools"></i></div>
+        <h3>Reparaciones y mantenimiento</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-broom"></i></div>
+        <h3>Limpieza</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-leaf"></i></div>
+        <h3>Jardinería</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-laptop-code"></i></div>
+        <h3>Servicios técnicos</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-paint-roller"></i></div>
+        <h3>Pintura</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-plug"></i></div>
+        <h3>Electricidad</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-fire"></i></div>
+        <h3>Gasista matriculado</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-trowel"></i></div>
+        <h3>Albañil</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-hammer"></i></div>
+        <h3>Carpintero / Herrero</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-house-damage"></i></div>
+        <h3>Techista / Impermeabilizador</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-key"></i></div>
+        <h3>Cerrajero</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-fan"></i></div>
+        <h3>Instalador de aires acondicionados</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-shield-alt"></i></div>
+        <h3>Instalador de alarmas / cámaras</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-soap"></i></div>
+        <h3>Personal de limpieza</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-tint"></i></div>
+        <h3>Limpieza de tanques de agua</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-window-restore"></i></div>
+        <h3>Limpieza de vidrios en altura</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-rug"></i></div>
+        <h3>Lavado de alfombras / cortinas</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-bug"></i></div>
+        <h3>Fumigador</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-seedling"></i></div>
+        <h3>Jardinero</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-tree"></i></div>
+        <h3>Podador de árboles</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-swimming-pool"></i></div>
+        <h3>Mantenimiento de piletas</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-mountain"></i></div>
+        <h3>Paisajista</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-blender"></i></div>
+        <h3>Técnico de electrodomésticos</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-mobile-alt"></i></div>
+        <h3>Técnico de celulares</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-laptop"></i></div>
+        <h3>Técnico de computadoras / laptops</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-tv"></i></div>
+        <h3>Técnico de televisores / electrónicos</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-print"></i></div>
+        <h3>Técnico de impresoras</h3>
+      </div>
+
+      <div class="category-card">
+        <div class="icon-circle"><i class="fas fa-wifi"></i></div>
+        <h3>Instalador de redes / WiFi</h3>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+    
+
+    <!-- Primera sección -->
+<section class="testimonials container">
+  <h2>Lo que cuentan nuestros clientes</h2>
+  <div class="testimonial-slider">
+    <div class="testimonial-track">
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <p class="testimonial-text">"Me encanta la app, conseguí un plomero rapidísimo y a muy buen precio."</p>
+        <div class="testimonial-author">- María L.</div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <p class="testimonial-text">"Muy fácil de usar, encontré un electricista en minutos."</p>
+        <div class="testimonial-author">- Carlos R.</div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <p class="testimonial-text">"Los profesionales están verificados y los precios son justos."</p>
+        <div class="testimonial-author">- Laura M.</div>
+      </div>
+    </div>
+  </div>
+  <div class="slider-nav">
+    <div class="slider-dot active"></div>
+    <div class="slider-dot"></div>
+    <div class="slider-dot"></div>
+  </div>
+</section>
+
+<!-- Segunda sección -->
+<section class="testimonials container">
+  <div class="testimonial-slider">
+    <div class="testimonial-track">
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <p class="testimonial-text">"La app me ahorró tiempo y dinero."</p>
+        <div class="testimonial-author">- Pedro S.</div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <p class="testimonial-text">"Excelente experiencia, súper rápida."</p>
+        <div class="testimonial-author">- Ana G.</div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <p class="testimonial-text">"Pude resolver mi problema el mismo día."</p>
+        <div class="testimonial-author">- Javier M.</div>
+      </div>
+    </div>
+  </div>
+  <div class="slider-nav">
+    <div class="slider-dot active"></div>
+    <div class="slider-dot"></div>
+    <div class="slider-dot"></div>
+  </div>
+</section>
+
+
+    <section class="download-app">
+        <h2>Descargá la APP de QuickFix</h2>
+        <p>Encontrá profesionales, pedí presupuestos y gestioná tus proyectos desde tu celular</p>
+        <div class="app-buttons">
+          <a href="#" class="app-btn">
+            <i class="fab fa-google-play"></i>
+            <span>Google Play</span>
+          </a>
+          <a href="#" class="app-btn">
+            <i class="fab fa-apple"></i>
+            <span>App Store</span>
+          </a>
+        </div>
+        </div>
+    </section>
+
+   
+
+  <footer>
+  <div class="footer-inner">
+    <div class="footer-content">
+      <div>
+        <div class="footer-logo">QuickFix</div>
+        <p class="footer-desc">Conectamos clientes con profesionales de confianza para hacer realidad tus proyectos.</p>
+        <div class="cities">
+          <span class="city-tag">Buenos Aires</span>
+        </div>
+      </div>
+      <div>
+        <h3 class="footer-heading">Enlaces útiles</h3>
+        <ul class="footer-links">
+          <li><a href="#">¿Sos desempleado?</a></li>
+          <li><a href="#">¿Sos profesional?</a></li>
+          <li><a href="#">Preguntas frecuentes</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="footer-heading">Legal</h3>
+        <ul class="footer-links">
+          <li><a href="#">Términos y condiciones</a></li>
+          <li><a href="#">Política de privacidad</a></li>
+          <li><a href="#">Cookies</a></li>
+          <li><a href="#">Contacto</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>© 2025 QuickFix. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</footer>
+
+
+  <script>
+    document.getElementById('mobile-menu-toggle').addEventListener('click', function() {
+      document.querySelector('.nav').classList.toggle('active');
+    });
+
+    const track = document.getElementById('testimonial-track');
+    const dots = document.querySelectorAll('.slider-dot');
+    let currentIndex = 0;
+
+    function moveSlider(index) {
+      currentIndex = index;
+      track.style.transform = `translateX(-${currentIndex * 100}%)`;
+      
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentIndex);
+      });
+    }
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => moveSlider(index));
+    });
+
+    setInterval(() => {
+      currentIndex = (currentIndex + 1) % dots.length;
+      moveSlider(currentIndex);
+    }, 5000);
+
+    document.getElementById('budget-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Obtener los datos del formulario
+    const formData = new FormData(this);
+    const titulo = this.querySelector('input[name="titulo"]').value;
+    const categoria = this.querySelector('select[name="categoria"]').value;
+    const descripcion = this.querySelector('textarea[name="descripcion"]').value;
+    const ubicacion = this.querySelector('input[name="ubicacion"]').value;
+    
+    // Validar que todos los campos requeridos estén completos
+    if (!titulo || !categoria || !descripcion || !ubicacion) {
+        alert('Por favor, completá todos los campos obligatorios.');
+        return;
+    }
+    
+    const submitBtn = this.querySelector('.submit-btn');
+    submitBtn.innerHTML = 'Redirigiendo... <i class="fas fa-spinner fa-spin"></i>';
+    submitBtn.disabled = true;
+    
+    // Redirigir a la página de inicio de sesión después de un breve retraso
+    setTimeout(() => {
+        // Guardar los datos del formulario en sessionStorage para usarlos después del login
+        const formDataToSave = {
+            titulo: titulo,
+            categoria: categoria,
+            descripcion: descripcion,
+            ubicacion: ubicacion,
+            timestamp: new Date().getTime()
+        };
+        
+        sessionStorage.setItem('presupuesto_pendiente', JSON.stringify(formDataToSave));
+        
+        // Redirigir a la página de inicio de sesión
+        window.location.href = '/login';
+    }, 1000);
+});
+
+    document.getElementById('services-btn').addEventListener('click', () => {
+  document.getElementById('services-list').classList.toggle('show');
+});
+
+document.getElementById('budget-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  alert('¡Tu solicitud fue enviada con éxito! (simulado)');
+});
+
+  </script>
+</body>
+</html>

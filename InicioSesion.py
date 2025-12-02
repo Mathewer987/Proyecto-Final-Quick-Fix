@@ -160,6 +160,57 @@ def estado_pago(referencia):
 def pago_confirmado():
     return render_template("mis_solicitudes.html")
 
+@app.route('/api/pagos_pendientes')
+def obtener_pagos_pendientes():
+    if not session.get('is_logged_in'):
+        return jsonify({'success': False, 'message': 'No autorizado'})
+    
+    try:
+        user_id = session.get('user_id')
+        user_type = session.get('user_type')
+        
+        # Solo clientes (tipo 1) tienen pagos pendientes
+        if user_type != '1':
+            return jsonify({'success': False, 'trabajos': []})
+        
+        # Buscar trabajos ACEPTADOS con pago PENDIENTE
+        pendientes_ref = db.collection('PendClienteTrabajador')
+        query = pendientes_ref.where('cliente_id', '==', user_id)\
+                             .where('estado', '==', 'aceptado')\
+                             .where('pago', '==', 'pendiente')
+        
+        docs = query.stream()
+        
+        trabajos_pendientes = []
+        for doc in docs:
+            trabajo_data = doc.to_dict()
+            trabajo_data['id'] = doc.id
+            
+            # Obtener nombre del trabajador para mostrar en popup
+            if 'profesional_nombre' in trabajo_data:
+                trabajo_data['trabajador_nombre'] = trabajo_data['profesional_nombre']
+            else:
+                # Buscar en la colección de trabajadores
+                profesional_id = trabajo_data.get('profesional_id')
+                if profesional_id:
+                    trabajador_ref = db.collection('trabajadores').document(profesional_id)
+                    trabajador_doc = trabajador_ref.get()
+                    if trabajador_doc.exists:
+                        trabajador_data = trabajador_doc.to_dict()
+                        trabajo_data['trabajador_nombre'] = f"{trabajador_data.get('nombre', '')} {trabajador_data.get('apellido', '')}".strip()
+                    else:
+                        trabajo_data['trabajador_nombre'] = 'Trabajador'
+            
+            trabajos_pendientes.append(trabajo_data)
+        
+        return jsonify({
+            'success': True,
+            'trabajos': trabajos_pendientes
+        })
+        
+    except Exception as e:
+        print(f"Error obteniendo pagos pendientes: {str(e)}")
+        return jsonify({'success': False, 'trabajos': []})
 
 @app.route('/')
 def index():

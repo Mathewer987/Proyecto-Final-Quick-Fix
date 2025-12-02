@@ -310,7 +310,7 @@
             <button class="btn-perfil btn-cancelar-perfil" onclick="cerrarPopupPago()">
                 Más tarde
             </button>
-            
+
             <button class="btn-perfil btn-contratar" onclick="redirigirAPago()">
                 Ir a pagar ahora
             </button>
@@ -396,10 +396,12 @@
 let trabajoPendienteID = "";
 
 function abrirPopupPagoPendiente(trabajo) {
+    console.log('🔍 Datos recibidos en abrirPopupPagoPendiente:', trabajo);  // Para debug
+    
     trabajoPendienteID = trabajo.id;
 
     document.getElementById('popupTextoPago').innerText =
-        `${trabajo.trabajador_nombre} aceptó tu solicitud.\n` +
+        `${trabajo.profesional_nombre} aceptó tu solicitud.\n` +  // ✅ CAMBIAR AQUÍ
         `Como seleccionaste Mercado Pago, debés pagar ahora para confirmar el trabajo.`;
 
     document.getElementById('modalPagoPendiente').style.display = "flex";

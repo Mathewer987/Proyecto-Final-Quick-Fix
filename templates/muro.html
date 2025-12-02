@@ -375,8 +375,8 @@
             opacity: 0.3;
         }
 
-        /* MODAL PRECIO MURO */
-        .modal-precio-muro {
+        /* MODAL PARA ACEPTAR TRABAJO (CLIENTE ELIGE MÉTODO PAGO) */
+        .modal-aceptar-trabajo {
             display: none;
             position: fixed;
             top: 0;
@@ -389,11 +389,11 @@
             align-items: center;
         }
 
-        .modal-precio-muro.active {
+        .modal-aceptar-trabajo.active {
             display: flex;
         }
 
-        .modal-precio-muro-content {
+        .modal-aceptar-trabajo-content {
             background: white;
             border-radius: 12px;
             width: 90%;
@@ -401,7 +401,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        .modal-precio-muro-header {
+        .modal-aceptar-trabajo-header {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
             padding: 20px;
@@ -411,12 +411,12 @@
             align-items: center;
         }
 
-        .modal-precio-muro-header h3 {
+        .modal-aceptar-trabajo-header h3 {
             margin: 0;
             font-size: 22px;
         }
 
-        .close-precio-muro-modal {
+        .close-aceptar-trabajo-modal {
             background: none;
             border: none;
             color: white;
@@ -425,62 +425,33 @@
             opacity: 0.8;
         }
 
-        .close-precio-muro-modal:hover {
+        .close-aceptar-trabajo-modal:hover {
             opacity: 1;
         }
 
-        .modal-precio-muro-body {
+        .modal-aceptar-trabajo-body {
             padding: 25px;
         }
 
-        .precio-muro-form-group {
+        .aceptar-trabajo-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
             margin-bottom: 20px;
         }
 
-        .precio-muro-form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #333;
+        .aceptar-trabajo-info p {
+            margin: 5px 0;
         }
 
-        .precio-muro-input-group {
-            position: relative;
-        }
-
-        .precio-muro-symbol {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-weight: 600;
+        .aceptar-trabajo-info .precio {
+            font-size: 24px;
+            font-weight: bold;
             color: #28a745;
+            margin: 10px 0;
         }
 
-        #inputPrecioMuro {
-            width: 100%;
-            padding: 12px 12px 12px 35px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        #inputPrecioMuro:focus {
-            outline: none;
-            border-color: #28a745;
-        }
-
-        .precio-muro-info {
-            margin-top: 10px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .modal-precio-muro-footer {
+        .modal-aceptar-trabajo-footer {
             padding: 20px;
             border-top: 1px solid #eee;
             display: flex;
@@ -488,7 +459,7 @@
             gap: 10px;
         }
 
-        .btn-precio-muro {
+        .btn-aceptar-trabajo {
             padding: 10px 25px;
             border: none;
             border-radius: 6px;
@@ -496,22 +467,61 @@
             font-weight: 600;
         }
 
-        .btn-cancelar-precio-muro {
+        .btn-cancelar-aceptar {
             background: #6c757d;
             color: white;
         }
 
-        .btn-cancelar-precio-muro:hover {
+        .btn-cancelar-aceptar:hover {
             background: #5a6268;
         }
 
-        .btn-confirmar-precio-muro {
+        .btn-confirmar-pago {
             background: #28a745;
             color: white;
         }
 
-        .btn-confirmar-precio-muro:hover {
+        .btn-confirmar-pago:hover {
             background: #218838;
+        }
+
+        /* Estado para trabajos ya aceptados */
+        .pub-info-aceptado {
+            background: #f0f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #28a745;
+        }
+
+        .pub-info-aceptado p {
+            margin: 5px 0;
+        }
+
+        .pub-precio {
+            font-size: 20px;
+            font-weight: bold;
+            color: #28a745;
+            margin: 10px 0;
+        }
+
+        .metodo-pago-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        .metodo-mercadopago {
+            background: #00b1ea;
+            color: white;
+        }
+
+        .metodo-efectivo {
+            background: #28a745;
+            color: white;
         }
     </style>
 </head>
@@ -579,13 +589,51 @@
                         {% endif %}
                     </div>
                     
+                    <!-- Si el trabajo ya fue aceptado por un trabajador -->
+                    {% if publicacion.aceptado_por %}
+                    <div class="pub-info-aceptado">
+                        <p><strong>✅ Trabajo aceptado por:</strong> {{ publicacion.trabajador_nombre }}</p>
+                        <p><strong>Precio acordado:</strong> <span class="pub-precio">${{ publicacion.precio_aceptado }}</span></p>
+                        
+                        <!-- Si el cliente aún no ha elegido método de pago -->
+                        {% if user_type == '1' and not publicacion.metodo_pago %}
+                        <p><strong>Estado:</strong> Esperando que elijas método de pago</p>
+                        <button class="btn-aceptar" onclick="abrirModalMetodoPago('{{ publicacion.id }}', {{ publicacion.precio_aceptado }})">
+                            <i class="fas fa-credit-card"></i> Elegir Método de Pago
+                        </button>
+                        {% elif publicacion.metodo_pago %}
+                        <p><strong>Método de pago:</strong> 
+                            {% if publicacion.metodo_pago == 'mercadopago' %}
+                            <span class="metodo-pago-badge metodo-mercadopago">MercadoPago</span>
+                            {% else %}
+                            <span class="metodo-pago-badge metodo-efectivo">Efectivo</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Estado:</strong> 
+                            {% if publicacion.metodo_pago == 'mercadopago' %}
+                            Esperando pago
+                            {% else %}
+                            Pendiente de pago en efectivo
+                            {% endif %}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
                     <div class="pub-footer">
+                        {% if not publicacion.aceptado_por %}
                         <div class="pub-estado estado-disponible">
                             Disponible
                         </div>
+                        {% else %}
+                        <div class="pub-estado estado-proceso">
+                            En proceso
+                        </div>
+                        {% endif %}
                         
-                        {% if user_type == '2' %}
-                        <button class="btn-aceptar" onclick="abrirModalPrecioMuro('{{ publicacion.id }}')">
+                        <!-- Solo trabajadores pueden aceptar trabajos disponibles -->
+                        {% if user_type == '2' and not publicacion.aceptado_por %}
+                        <button class="btn-aceptar" onclick="abrirModalPrecioTrabajo('{{ publicacion.id }}')">
                             <i class="fas fa-handshake"></i> Aceptar Trabajo
                         </button>
                         {% endif %}
@@ -661,66 +709,89 @@
     </div>
     {% endif %}
 
-    <!-- Modal para especificar precio (solo trabajadores) - VERSIÓN CORREGIDA -->
+    <!-- Modal para que trabajador especifique precio -->
     {% if user_type == '2' %}
-    <div class="modal-precio-muro" id="modalPrecioMuro">
-        <div class="modal-precio-muro-content">
-            <div class="modal-precio-muro-header">
-                <h3>Confirmar Aceptación del Trabajo</h3>
-                <button class="close-precio-muro-modal" onclick="cerrarModalPrecioMuro()">&times;</button>
+    <div class="modal-overlay" id="modalPrecioTrabajo">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Especificar Precio del Trabajo</h2>
+                <button class="close-modal" onclick="cerrarModalPrecioTrabajo()">&times;</button>
             </div>
-            
-            <div class="modal-precio-muro-body">
-                <div class="precio-muro-form-group">
-                    <label for="inputPrecioMuro">Precio estimado (ARS):</label>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="inputPrecioTrabajo">Precio estimado (ARS):</label>
                     <div class="precio-muro-input-group">
                         <span class="precio-muro-symbol">$</span>
-                        <input type="number" id="inputPrecioMuro" placeholder="Ej: 5000" min="1" step="100">
+                        <input type="number" id="inputPrecioTrabajo" placeholder="Ej: 5000" min="1" step="100">
                     </div>
                     <div class="precio-muro-info">
                         <i class="fas fa-info-circle"></i>
-                        Este será el precio que el cliente deberá pagar.
+                        Este será el precio que propondrás al cliente. El cliente podrá elegir cómo pagarte (MercadoPago o Efectivo).
                     </div>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="cerrarModalPrecioTrabajo()">Cancelar</button>
+                <button class="btn btn-submit" onclick="confirmarPrecioTrabajo()">Enviar Propuesta</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
-                <!-- SELECCIÓN DE MÉTODO DE PAGO -->
-                <div class="precio-muro-form-group">
-                    <label for="selectMetodoPagoMuro">Método de pago:</label>
+    <!-- Modal para que cliente elija método de pago -->
+    {% if user_type == '1' %}
+    <div class="modal-aceptar-trabajo" id="modalMetodoPago">
+        <div class="modal-aceptar-trabajo-content">
+            <div class="modal-aceptar-trabajo-header">
+                <h3>Elegir Método de Pago</h3>
+                <button class="close-aceptar-trabajo-modal" onclick="cerrarModalMetodoPago()">&times;</button>
+            </div>
+            
+            <div class="modal-aceptar-trabajo-body">
+                <div class="aceptar-trabajo-info">
+                    <p><strong>Trabajo:</strong> <span id="tituloTrabajoMetodo"></span></p>
+                    <p><strong>Profesional:</strong> <span id="trabajadorNombreMetodo"></span></p>
+                    <p><strong>Precio acordado:</strong></p>
+                    <div class="precio" id="precioMetodoPago">$0</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Selecciona cómo deseas pagar:</label>
                     <div class="metodo-pago-options">
                         <div class="metodo-pago-option">
-                            <input type="radio" id="metodoMercadoPago" name="metodoPagoMuro" value="mercadopago" checked>
-                            <label for="metodoMercadoPago">
+                            <input type="radio" id="metodoMercadoPagoCliente" name="metodoPagoCliente" value="mercadopago" checked>
+                            <label for="metodoMercadoPagoCliente">
                                 <i class="fas fa-credit-card"></i>
                                 <span>MercadoPago (Pago online)</span>
-                                <small>El cliente pagará online antes de comenzar</small>
+                                <small>Pagá ahora de forma segura con tarjeta o transferencia</small>
                             </label>
                         </div>
                         <div class="metodo-pago-option">
-                            <input type="radio" id="metodoEfectivo" name="metodoPagoMuro" value="efectivo">
-                            <label for="metodoEfectivo">
+                            <input type="radio" id="metodoEfectivoCliente" name="metodoPagoCliente" value="efectivo">
+                            <label for="metodoEfectivoCliente">
                                 <i class="fas fa-money-bill-wave"></i>
                                 <span>Efectivo</span>
-                                <small>El cliente pagará en efectivo al finalizar</small>
+                                <small>Pagás en efectivo cuando el trabajo esté terminado</small>
                             </label>
                         </div>
                     </div>
-                    <div class="precio-muro-info" id="infoMercadoPago" style="display: block;">
+                    <div class="precio-muro-info" id="infoMercadoPagoCliente" style="display: block;">
                         <i class="fas fa-info-circle"></i>
-                        Con MercadoPago, el trabajo se confirmará automáticamente cuando el cliente pague.
+                        Con MercadoPago, el trabajo se confirma inmediatamente al realizar el pago. El profesional recibirá el dinero después de que completes el trabajo.
                     </div>
-                    <div class="precio-muro-info" id="infoEfectivo" style="display: none;">
+                    <div class="precio-muro-info" id="infoEfectivoCliente" style="display: none;">
                         <i class="fas fa-info-circle"></i>
-                        Con efectivo, el trabajo quedará pendiente de pago hasta que el cliente confirme el pago.
+                        Con efectivo, el trabajo queda confirmado y pagarás directamente al profesional cuando finalice el trabajo.
                     </div>
                 </div>
             </div>
             
-            <div class="modal-precio-muro-footer">
-                <button class="btn-precio-muro btn-cancelar-precio-muro" onclick="cerrarModalPrecioMuro()">
+            <div class="modal-aceptar-trabajo-footer">
+                <button class="btn-aceptar-trabajo btn-cancelar-aceptar" onclick="cerrarModalMetodoPago()">
                     Cancelar
                 </button>
-                <button class="btn-precio-muro btn-confirmar-precio-muro" onclick="confirmarAceptacionMuro()">
-                    <i class="fas fa-check"></i> Aceptar Trabajo
+                <button class="btn-aceptar-trabajo btn-confirmar-pago" onclick="confirmarMetodoPago()">
+                    <i class="fas fa-check"></i> Confirmar Método de Pago
                 </button>
             </div>
         </div>
@@ -775,83 +846,77 @@
                 alert('Error al publicar el trabajo');
             });
         }
-        {% endif %}
-        
-        {% if user_type == '2' %}
-        // Funciones para trabajadores
-        let publicacionActualId = '';
-        
-        function abrirModalPrecioMuro(publicacionId) {
-            publicacionActualId = publicacionId;
-            document.getElementById('modalPrecioMuro').classList.add('active');
-            document.getElementById('inputPrecioMuro').value = '';
-            document.getElementById('inputPrecioMuro').focus();
+
+        // Variables para método de pago
+        let trabajoActualIdMetodo = '';
+        let precioActualMetodo = 0;
+        let trabajadorNombreMetodo = '';
+        let trabajoTituloMetodo = '';
+
+        function abrirModalMetodoPago(trabajoId, precio, trabajadorNombre = '', trabajoTitulo = '') {
+            trabajoActualIdMetodo = trabajoId;
+            precioActualMetodo = precio;
+            trabajadorNombreMetodo = trabajadorNombre;
+            trabajoTituloMetodo = trabajoTitulo;
+            
+            document.getElementById('modalMetodoPago').classList.add('active');
+            document.getElementById('precioMetodoPago').textContent = '$' + precio;
+            document.getElementById('trabajadorNombreMetodo').textContent = trabajadorNombre || 'Profesional';
+            document.getElementById('tituloTrabajoMetodo').textContent = trabajoTitulo || 'Trabajo';
             
             // Resetear a MercadoPago por defecto
-            document.getElementById('metodoMercadoPago').checked = true;
-            document.getElementById('infoMercadoPago').style.display = 'block';
-            document.getElementById('infoEfectivo').style.display = 'none';
+            document.getElementById('metodoMercadoPagoCliente').checked = true;
+            document.getElementById('infoMercadoPagoCliente').style.display = 'block';
+            document.getElementById('infoEfectivoCliente').style.display = 'none';
         }
         
-        function cerrarModalPrecioMuro() {
-            document.getElementById('modalPrecioMuro').classList.remove('active');
-            publicacionActualId = '';
+        function cerrarModalMetodoPago() {
+            document.getElementById('modalMetodoPago').classList.remove('active');
+            trabajoActualIdMetodo = '';
+            precioActualMetodo = 0;
         }
-        
-        // Escuchar cambios en método de pago
-        document.querySelectorAll('input[name="metodoPagoMuro"]').forEach(radio => {
+
+        // Escuchar cambios en método de pago (cliente)
+        document.querySelectorAll('input[name="metodoPagoCliente"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 if (this.value === 'mercadopago') {
-                    document.getElementById('infoMercadoPago').style.display = 'block';
-                    document.getElementById('infoEfectivo').style.display = 'none';
+                    document.getElementById('infoMercadoPagoCliente').style.display = 'block';
+                    document.getElementById('infoEfectivoCliente').style.display = 'none';
                 } else {
-                    document.getElementById('infoMercadoPago').style.display = 'none';
-                    document.getElementById('infoEfectivo').style.display = 'block';
+                    document.getElementById('infoMercadoPagoCliente').style.display = 'none';
+                    document.getElementById('infoEfectivoCliente').style.display = 'block';
                 }
             });
         });
-        
-        function confirmarAceptacionMuro() {
-            const precioInput = document.getElementById('inputPrecioMuro');
-            const precio = parseFloat(precioInput.value);
-            
-            // Obtener método de pago seleccionado
-            const metodoPagoSeleccionado = document.querySelector('input[name="metodoPagoMuro"]:checked');
+
+        function confirmarMetodoPago() {
+            const metodoPagoSeleccionado = document.querySelector('input[name="metodoPagoCliente"]:checked');
             const metodoPago = metodoPagoSeleccionado ? metodoPagoSeleccionado.value : 'mercadopago';
             
-            // Validar precio
-            if (!precio || precio <= 0 || isNaN(precio)) {
-                alert('Por favor ingresa un precio válido mayor a 0');
-                precioInput.focus();
-                return;
-            }
-            
-            // Mensaje diferente según método de pago
             let mensajeConfirmacion = '';
             if (metodoPago === 'mercadopago') {
-                mensajeConfirmacion = `¿Confirmas aceptar el trabajo con un precio de $${precio}?\n\nEl cliente deberá pagar por MercadoPago antes de comenzar.`;
+                mensajeConfirmacion = `¿Confirmas pagar $${precioActualMetodo} por MercadoPago?\n\nSerás redirigido a la plataforma de pago.`;
             } else {
-                mensajeConfirmacion = `¿Confirmas aceptar el trabajo con un precio de $${precio}?\n\nEl cliente pagará en efectivo al finalizar el trabajo.`;
+                mensajeConfirmacion = `¿Confirmas pagar $${precioActualMetodo} en efectivo al finalizar el trabajo?\n\nEl profesional será notificado.`;
             }
             
             if (!confirm(mensajeConfirmacion)) {
                 return;
             }
             
-            console.log('Enviando aceptación:', {
-                publicacionId: publicacionActualId,
-                precio: precio,
-                metodo_pago: metodoPago
+            console.log('Enviando método de pago:', {
+                trabajoId: trabajoActualIdMetodo,
+                metodo_pago: metodoPago,
+                precio: precioActualMetodo
             });
             
-            // Enviar al backend con precio Y método de pago
-            fetch(`/aceptar_trabajo_muro/${publicacionActualId}`, {
+            // Enviar al backend
+            fetch(`/elegir_metodo_pago/${trabajoActualIdMetodo}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    precio: precio,
                     metodo_pago: metodoPago
                 })
             })
@@ -860,49 +925,122 @@
                 console.log('Respuesta del backend:', data);
                 
                 if (data.success) {
-                    let mensajeExito = '';
-                    if (metodoPago === 'mercadopago') {
-                        mensajeExito = '✅ Trabajo aceptado con éxito!\n\nEl cliente ha sido notificado y deberá realizar el pago por MercadoPago para confirmar el trabajo.';
+                    if (metodoPago === 'mercadopago' && data.payment_link) {
+                        // Redirigir a MercadoPago
+                        alert('✅ Serás redirigido a MercadoPago para completar el pago.');
+                        window.location.href = data.payment_link;
                     } else {
-                        mensajeExito = '✅ Trabajo aceptado con éxito!\n\nEl trabajo está confirmado. El cliente pagará en efectivo al finalizar.';
+                        let mensajeExito = '';
+                        if (metodoPago === 'mercadopago') {
+                            mensajeExito = '✅ Método de pago confirmado.\n\nPor favor, realiza el pago por MercadoPago para confirmar el trabajo.';
+                        } else {
+                            mensajeExito = '✅ Método de pago confirmado.\n\nEl trabajo está confirmado. Pagarás en efectivo al finalizar.';
+                        }
+                        
+                        alert(mensajeExito);
+                        cerrarModalMetodoPago();
+                        location.reload();
                     }
-                    
-                    alert(mensajeExito);
-                    cerrarModalPrecioMuro();
-                    location.reload();
                 } else {
                     alert('❌ Error: ' + data.message);
-                    cerrarModalPrecioMuro();
+                    cerrarModalMetodoPago();
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('❌ Error al procesar la solicitud');
-                cerrarModalPrecioMuro();
+                cerrarModalMetodoPago();
+            });
+        }
+        {% endif %}
+        
+        {% if user_type == '2' %}
+        // Funciones para trabajadores
+        let publicacionActualId = '';
+        
+        function abrirModalPrecioTrabajo(publicacionId) {
+            publicacionActualId = publicacionId;
+            document.getElementById('modalPrecioTrabajo').classList.add('active');
+            document.getElementById('inputPrecioTrabajo').value = '';
+            document.getElementById('inputPrecioTrabajo').focus();
+        }
+        
+        function cerrarModalPrecioTrabajo() {
+            document.getElementById('modalPrecioTrabajo').classList.remove('active');
+            publicacionActualId = '';
+        }
+        
+        function confirmarPrecioTrabajo() {
+            const precioInput = document.getElementById('inputPrecioTrabajo');
+            const precio = parseFloat(precioInput.value);
+            
+            // Validar precio
+            if (!precio || precio <= 0 || isNaN(precio)) {
+                alert('Por favor ingresa un precio válido mayor a 0');
+                precioInput.focus();
+                return;
+            }
+            
+            if (!confirm(`¿Confirmas proponer un precio de $${precio} para este trabajo?\n\nEl cliente deberá elegir cómo pagarte (MercadoPago o Efectivo).`)) {
+                return;
+            }
+            
+            console.log('Enviando propuesta de precio:', {
+                publicacionId: publicacionActualId,
+                precio: precio
+            });
+            
+            // Enviar al backend solo el precio
+            fetch(`/aceptar_trabajo_muro/${publicacionActualId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    precio: precio
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Respuesta del backend:', data);
+                
+                if (data.success) {
+                    alert('✅ Propuesta enviada con éxito!\n\nEl cliente ha sido notificado y deberá elegir el método de pago.');
+                    cerrarModalPrecioTrabajo();
+                    location.reload();
+                } else {
+                    alert('❌ Error: ' + data.message);
+                    cerrarModalPrecioTrabajo();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error al procesar la solicitud');
+                cerrarModalPrecioTrabajo();
             });
         }
         
         // Permitir presionar Enter en el input de precio
-        document.getElementById('inputPrecioMuro').addEventListener('keypress', function(e) {
+        document.getElementById('inputPrecioTrabajo').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                confirmarAceptacionMuro();
-            }
-        });
-        
-        // Cerrar modal al hacer clic fuera
-        document.getElementById('modalPrecioMuro').addEventListener('click', function(e) {
-            if (e.target === this) {
-                cerrarModalPrecioMuro();
+                confirmarPrecioTrabajo();
             }
         });
         {% endif %}
         
-        // Cerrar modal al hacer clic fuera (para modal de publicar)
+        // Cerrar modales al hacer clic fuera
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('modal-overlay')) {
                 {% if user_type == '1' %}
                 cerrarModalPublicar();
+                {% elif user_type == '2' %}
+                cerrarModalPrecioTrabajo();
+                {% endif %}
+            }
+            if (e.target.classList.contains('modal-aceptar-trabajo')) {
+                {% if user_type == '1' %}
+                cerrarModalMetodoPago();
                 {% endif %}
             }
         });

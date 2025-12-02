@@ -507,15 +507,19 @@ def aceptar_trabajo_muro(publicacion_id):
         
         publicacion_data = publicacion.to_dict()
         
-        # Pedir al trabajador que especifique el precio
+        # Obtener precio Y método de pago del trabajador
         data = request.get_json()
         precio = float(data.get('precio', 0)) if data else 0
+        metodo_pago = data.get('metodo_pago', 'mercadopago')  # ⭐ NUEVO: método de pago
         
         if precio <= 0:
             return jsonify({'success': False, 'message': 'Debe especificar un precio válido'})
         
-        # ⭐ CORRECCIÓN: Usar el precio del trabajador, NO el presupuesto del cliente
-        # Crear solicitud de trabajo directamente ACEPTADA
+        # Determinar estado según método de pago
+        estado = 'aceptado'
+        pago_estado = 'pendiente' if metodo_pago == 'mercadopago' else 'por_confirmar'
+        
+        # Crear solicitud de trabajo
         trabajo_data = {
             'cliente_id': publicacion_data.get('cliente_id'),
             'cliente_nombre': publicacion_data.get('cliente_nombre'),
@@ -526,13 +530,13 @@ def aceptar_trabajo_muro(publicacion_id):
             'descripcion': publicacion_data.get('descripcion'),
             'categoria': publicacion_data.get('categoria'),
             'ubicacion': publicacion_data.get('ubicacion'),
-            'presupuesto_cliente': publicacion_data.get('presupuesto'),  # ⭐ CAMBIAR NOMBRE
-            'precio_estimado': precio,  # ⭐ PRECIO DEL TRABAJADOR
+            'presupuesto_cliente': publicacion_data.get('presupuesto'),
+            'precio_estimado': precio,
             'fecha_trabajo_propuesta': publicacion_data.get('fecha_limite'),
             'especificaciones': publicacion_data.get('descripcion'),
-            'metodo_pago': 'mercadopago',
-            'estado': 'aceptado',
-            'pago': 'pendiente',
+            'metodo_pago': metodo_pago,  # ⭐ GUARDAR MÉTODO DE PAGO
+            'estado': estado,
+            'pago': pago_estado,  # ⭐ ESTADO DE PAGO SEGÚN MÉTODO
             'fecha_solicitud': datetime.now(),
             'fecha_actualizacion': datetime.now(),
             'origen': 'muro',
@@ -543,21 +547,30 @@ def aceptar_trabajo_muro(publicacion_id):
         pendientes_ref = db.collection('PendClienteTrabajador')
         nuevo_trabajo = pendientes_ref.add(trabajo_data)
         
-        # Marcar publicación como "aceptado" (desaparecerá del muro)
+        # Marcar publicación como "aceptado"
         pub_ref.update({
             'estado': 'aceptado',
             'trabajador_asignado_id': session.get('user_id'),
             'trabajador_asignado_nombre': session.get('user_name', 'Trabajador'),
             'fecha_asignacion': datetime.now(),
             'trabajo_id': nuevo_trabajo[1].id,
-            'precio_aceptado': precio
+            'precio_aceptado': precio,
+            'metodo_pago_aceptado': metodo_pago  # ⭐ GUARDAR MÉTODO DE PAGO ACEPTADO
         })
+        
+        # Mensaje según método de pago
+        mensaje = ''
+        if metodo_pago == 'mercadopago':
+            mensaje = 'Trabajo aceptado exitosamente. El cliente deberá pagar por MercadoPago para confirmar.'
+        else:
+            mensaje = 'Trabajo aceptado exitosamente. El cliente pagará en efectivo al finalizar.'
         
         return jsonify({
             'success': True, 
-            'message': 'Trabajo aceptado exitosamente. Ya aparece en tus trabajos pendientes.',
+            'message': mensaje,
             'trabajo_id': nuevo_trabajo[1].id,
-            'precio': precio
+            'precio': precio,
+            'metodo_pago': metodo_pago
         })
         
     except Exception as e:

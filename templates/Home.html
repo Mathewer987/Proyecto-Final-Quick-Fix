@@ -399,21 +399,35 @@ function abrirPopupPagoPendiente(trabajo) {
     console.log('🔍 Datos recibidos en abrirPopupPagoPendiente:', trabajo);
     
     trabajoPendienteID = trabajo.id;
-
+    const metodoPago = trabajo.metodo_pago || 'mercadopago';
+    
+    // Si el método de pago NO es MercadoPago, no mostrar popup
+    if (metodoPago !== 'mercadopago') {
+        console.log('Método de pago no es MercadoPago:', metodoPago);
+        return;
+    }
+    
     // Obtener el nombre del trabajador
     const nombreTrabajador = trabajo.profesional_nombre || 'el trabajador';
     
-    // Obtener el tipo de trabajo (especialización)
+    // Obtener el tipo de trabajo
     const tipoTrabajo = trabajo.especializacion || 
                        trabajo.categoria || 
                        trabajo.tipo || 
                        'trabajo';
     
+    // Obtener el precio
+    const precio = trabajo.precio_estimado || 
+                   trabajo.presupuesto || 
+                   'un monto';
+    
     console.log('👷 Nombre trabajador:', nombreTrabajador);
-    console.log('🔧 Tipo de trabajo:', tipoTrabajo);  // Falta el .log 
+    console.log('🔧 Tipo de trabajo:', tipoTrabajo);
+    console.log('💰 Precio:', precio);
        
     document.getElementById('popupTextoPago').innerText =
-        `${nombreTrabajador} aceptó tu solicitud de ${tipoTrabajo}.\n` +  // ← CAMBIAR AQUÍ
+        `${nombreTrabajador} aceptó tu solicitud de ${tipoTrabajo}.\n` +
+        `Precio acordado: $${precio}\n\n` +
         `Como seleccionaste Mercado Pago, debés pagar ahora para confirmar el trabajo.`;
 
     document.getElementById('modalPagoPendiente').style.display = "flex";

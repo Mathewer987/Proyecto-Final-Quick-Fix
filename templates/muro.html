@@ -174,6 +174,63 @@
             gap: 5px;
         }
 
+        /* Buscador para el muro */
+        .search-container-muro {
+            margin-bottom: 20px;
+        }
+
+        .search-box-muro {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-box-muro input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .search-box-muro button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-buscar {
+            background: #4e73df;
+            color: white;
+        }
+
+        .btn-buscar:hover {
+            background: #3a56c4;
+        }
+
+        .btn-limpiar {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-limpiar:hover {
+            background: #5a6268;
+        }
+
+        /* Texto oculto para búsqueda */
+        .all-specialties-muro {
+            display: none;
+            opacity: 0;
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+
         /* Modal publicar */
         .modal-overlay {
             position: fixed;
@@ -621,108 +678,167 @@
                 {% endfor %}
             </div>
         </div>
+        
+        <!-- Buscador dentro del muro (solo para trabajadores) -->
+        <div class="search-container-muro">
+            <div class="search-box-muro">
+                <input type="text" 
+                       id="buscadorMuro" 
+                       placeholder="Buscar dentro de tus especialidades..."
+                       oninput="filtrarPublicacionesMuro()">
+                <button class="btn-buscar" onclick="filtrarPublicacionesMuro()">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+                <button class="btn-limpiar" onclick="resetearBusquedaMuro()">
+                    <i class="fas fa-times"></i> Limpiar
+                </button>
+            </div>
+        </div>
         {% endif %}
         
         <main class="publicaciones-container">
             {% if publicaciones %}
+                {% set tiene_trabajos_visibles = false %}
+                
                 {% for publicacion in publicaciones %}
-                <!-- Para trabajadores: solo mostrar trabajos de sus especialidades -->
-                {% if user_type == '1' or (user_type == '2' and publicacion.categoria in especialidades_trabajador) %}
-                <div class="publicacion-card">
-                    <div class="pub-header">
-                        <div>
-                            <h3 class="pub-titulo">{{ publicacion.titulo }}</h3>
-                            <div class="pub-cliente">
-                                <i class="fas fa-user"></i> Publicado por: {{ publicacion.cliente_nombre }}
-                            </div>
-                        </div>
-                        <div class="pub-fecha">
-                            {{ publicacion.fecha_publicacion_str }}
-                        </div>
-                    </div>
+                    {% set mostrar = false %}
                     
-                    <div class="pub-descripcion">
-                        {{ publicacion.descripcion }}
-                    </div>
+                    <!-- Para clientes: mostrar todas las publicaciones -->
+                    {% if user_type == '1' %}
+                        {% set mostrar = true %}
                     
-                    <div class="pub-detalles">
-                        <div class="detalle-item">
-                            <i class="fas fa-tag"></i>
-                            <span><strong>Categoría:</strong> {{ publicacion.categoria }}</span>
-                        </div>
-                        <div class="detalle-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span><strong>Ubicación:</strong> {{ publicacion.ubicacion }}</span>
-                        </div>
-                        {% if publicacion.presupuesto %}
-                        <div class="detalle-item">
-                            <i class="fas fa-dollar-sign"></i>
-                            <span><strong>Presupuesto sugerido:</strong> ${{ publicacion.presupuesto }}</span>
-                        </div>
-                        {% endif %}
-                        {% if publicacion.fecha_limite %}
-                        <div class="detalle-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span><strong>Fecha límite:</strong> {{ publicacion.fecha_limite }}</span>
-                        </div>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Si el trabajo ya fue aceptado por un trabajador -->
-                    {% if publicacion.aceptado_por %}
-                    <div class="pub-info-aceptado">
-                        <p><strong>✅ Trabajo aceptado por:</strong> {{ publicacion.trabajador_nombre }}</p>
-                        <p><strong>Precio acordado:</strong> <span class="pub-precio">${{ publicacion.precio_aceptado }}</span></p>
-                        
-                        <!-- Si el cliente aún no ha elegido método de pago -->
-                        {% if user_type == '1' and not publicacion.metodo_pago %}
-                        <p><strong>Estado:</strong> Esperando que elijas método de pago</p>
-                        <button class="btn-aceptar" onclick="abrirModalMetodoPago('{{ publicacion.id }}', {{ publicacion.precio_aceptado }}, '{{ publicacion.trabajador_nombre }}', '{{ publicacion.titulo }}')">
-                            <i class="fas fa-credit-card"></i> Elegir Método de Pago
-                        </button>
-                        {% elif publicacion.metodo_pago %}
-                        <p><strong>Método de pago:</strong> 
-                            {% if publicacion.metodo_pago == 'mercadopago' %}
-                            <span class="metodo-pago-badge metodo-mercadopago">MercadoPago</span>
-                            {% else %}
-                            <span class="metodo-pago-badge metodo-efectivo">Efectivo</span>
+                    <!-- Para trabajadores: solo mostrar si la categoría está en sus especialidades -->
+                    {% elif user_type == '2' %}
+                        {% set categoria_publicacion = publicacion.categoria %}
+                        {% for especialidad in especialidades_trabajador %}
+                            {% if especialidad|lower == categoria_publicacion|lower %}
+                                {% set mostrar = true %}
+                                {% set tiene_trabajos_visibles = true %}
                             {% endif %}
-                        </p>
-                        <p><strong>Estado:</strong> 
-                            {% if publicacion.metodo_pago == 'mercadopago' %}
-                            Esperando pago
-                            {% else %}
-                            Pendiente de pago en efectivo
-                            {% endif %}
-                        </p>
-                        {% endif %}
-                    </div>
+                        {% endfor %}
                     {% endif %}
                     
-                    <div class="pub-footer">
-                        {% if not publicacion.aceptado_por %}
-                        <div class="pub-estado estado-disponible">
-                            Disponible
+                    {% if mostrar %}
+                    <div class="publicacion-card">
+                        <div class="pub-header">
+                            <div>
+                                <h3 class="pub-titulo">{{ publicacion.titulo }}</h3>
+                                <div class="pub-cliente">
+                                    <i class="fas fa-user"></i> Publicado por: {{ publicacion.cliente_nombre }}
+                                </div>
+                            </div>
+                            <div class="pub-fecha">
+                                {{ publicacion.fecha_publicacion_str }}
+                            </div>
                         </div>
-                        {% else %}
-                        <div class="pub-estado estado-proceso">
-                            En proceso
+                        
+                        <div class="pub-descripcion">
+                            {{ publicacion.descripcion }}
+                        </div>
+                        
+                        <div class="pub-detalles">
+                            <div class="detalle-item">
+                                <i class="fas fa-tag"></i>
+                                <span><strong>Categoría:</strong> {{ publicacion.categoria }}</span>
+                            </div>
+                            <div class="detalle-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span><strong>Ubicación:</strong> {{ publicacion.ubicacion }}</span>
+                            </div>
+                            {% if publicacion.presupuesto %}
+                            <div class="detalle-item">
+                                <i class="fas fa-dollar-sign"></i>
+                                <span><strong>Presupuesto sugerido:</strong> ${{ publicacion.presupuesto }}</span>
+                            </div>
+                            {% endif %}
+                            {% if publicacion.fecha_limite %}
+                            <div class="detalle-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span><strong>Fecha límite:</strong> {{ publicacion.fecha_limite }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Texto oculto para búsqueda (con variaciones de palabras) -->
+                        <div class="all-specialties-muro">
+                            {% if publicacion.categoria == "Plomería" or publicacion.categoria == "Plomeria" %}
+                                plomero plomeria fontanería cañerías tuberías desagüe sanitario
+                            {% elif publicacion.categoria == "Electricidad" %}
+                                electricista electricidad instalación cableado luces enchufes
+                            {% elif publicacion.categoria == "Albañilería" or publicacion.categoria == "Albañileria" %}
+                                albañil albañilería construcción mampostería paredes ladrillos
+                            {% elif publicacion.categoria == "Pintura" %}
+                                pintor pintura pintar revestimiento color brochas
+                            {% elif publicacion.categoria == "Carpintería" or publicacion.categoria == "Carpinteria" %}
+                                carpintero carpintería madera muebles estanterías puertas
+                            {% elif publicacion.categoria == "Limpieza" %}
+                                limpieza limpiar aseo higiene orden desinfección
+                            {% elif publicacion.categoria == "Jardinería" or publicacion.categoria == "Jardineria" %}
+                                jardinero jardinería plantas jardín poda césped
+                            {% elif publicacion.categoria == "Gasista" %}
+                                gasista gas instalación gas natural garrafa cañerías
+                            {% else %}
+                                {{ publicacion.categoria|lower }}
+                            {% endif %}
+                            {{ publicacion.descripcion|lower }}
+                            {{ publicacion.titulo|lower }}
+                        </div>
+                        
+                        <!-- Si el trabajo ya fue aceptado por un trabajador -->
+                        {% if publicacion.aceptado_por %}
+                        <div class="pub-info-aceptado">
+                            <p><strong>✅ Trabajo aceptado por:</strong> {{ publicacion.trabajador_nombre }}</p>
+                            <p><strong>Precio acordado:</strong> <span class="pub-precio">${{ publicacion.precio_aceptado }}</span></p>
+                            
+                            <!-- Si el cliente aún no ha elegido método de pago -->
+                            {% if user_type == '1' and not publicacion.metodo_pago %}
+                            <p><strong>Estado:</strong> Esperando que elijas método de pago</p>
+                            <button class="btn-aceptar" onclick="abrirModalMetodoPago('{{ publicacion.id }}', {{ publicacion.precio_aceptado }}, '{{ publicacion.trabajador_nombre }}', '{{ publicacion.titulo }}')">
+                                <i class="fas fa-credit-card"></i> Elegir Método de Pago
+                            </button>
+                            {% elif publicacion.metodo_pago %}
+                            <p><strong>Método de pago:</strong> 
+                                {% if publicacion.metodo_pago == 'mercadopago' %}
+                                <span class="metodo-pago-badge metodo-mercadopago">MercadoPago</span>
+                                {% else %}
+                                <span class="metodo-pago-badge metodo-efectivo">Efectivo</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Estado:</strong> 
+                                {% if publicacion.metodo_pago == 'mercadopago' %}
+                                Esperando pago
+                                {% else %}
+                                Pendiente de pago en efectivo
+                                {% endif %}
+                            </p>
+                            {% endif %}
                         </div>
                         {% endif %}
                         
-                        <!-- Solo trabajadores pueden aceptar trabajos disponibles -->
-                        {% if user_type == '2' and not publicacion.aceptado_por %}
-                        <button class="btn-aceptar" onclick="abrirModalPrecioTrabajo('{{ publicacion.id }}')">
-                            <i class="fas fa-handshake"></i> Aceptar Trabajo
-                        </button>
-                        {% endif %}
+                        <div class="pub-footer">
+                            {% if not publicacion.aceptado_por %}
+                            <div class="pub-estado estado-disponible">
+                                Disponible
+                            </div>
+                            {% else %}
+                            <div class="pub-estado estado-proceso">
+                                En proceso
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Solo trabajadores pueden aceptar trabajos disponibles -->
+                            {% if user_type == '2' and not publicacion.aceptado_por %}
+                            <button class="btn-aceptar" onclick="abrirModalPrecioTrabajo('{{ publicacion.id }}')">
+                                <i class="fas fa-handshake"></i> Aceptar Trabajo
+                            </button>
+                            {% endif %}
+                        </div>
                     </div>
-                </div>
-                {% endif %}
+                    {% endif %}
                 {% endfor %}
                 
-                <!-- Mensaje si el trabajador no ve ningún trabajo -->
-                {% if user_type == '2' and publicaciones and not tiene_trabajos_visibles %}
+                <!-- Mensaje si el trabajador no ve ningún trabajo en sus especialidades -->
+                {% if user_type == '2' and not tiene_trabajos_visibles and publicaciones %}
                 <div class="no-publicaciones">
                     <i class="fas fa-search"></i>
                     <h3>No hay trabajos disponibles en tus especialidades</h3>
@@ -735,6 +851,15 @@
                         </span>
                         {% endfor %}
                     </p>
+                </div>
+                {% endif %}
+                
+                <!-- Mensaje si no hay publicaciones en absoluto -->
+                {% if user_type == '2' and tiene_trabajos_visibles == false and not publicaciones %}
+                <div class="no-publicaciones">
+                    <i class="fas fa-newspaper"></i>
+                    <h3>No hay publicaciones en el muro</h3>
+                    <p>No hay trabajos disponibles en este momento</p>
                 </div>
                 {% endif %}
             {% else %}
@@ -759,7 +884,7 @@
                 <form id="formPublicar">
                     <div class="form-group">
                         <label for="titulo">Título del trabajo</label>
-                        <input type="text" id="titulo" name="titulo" placeholder="Ej: Necesito plomero para reparar cañería" required>
+                        <input type="text" id="titulo" name="titulo" placeholder="Ej: Necesito gasista para instalación" required>
                     </div>
                     
                     <div class="form-group">
@@ -778,6 +903,7 @@
                             <option value="Carpintería">Carpintería</option>
                             <option value="Limpieza">Limpieza</option>
                             <option value="Jardinería">Jardinería</option>
+                            <option value="Gasista">Gasista</option>
                             <option value="Otros">Otros</option>
                         </select>
                     </div>
@@ -1128,6 +1254,78 @@
             if (e.key === 'Enter') {
                 e.preventDefault();
                 confirmarPrecioTrabajo();
+            }
+        });
+        
+        // Función para filtrar publicaciones en el muro (solo para trabajadores)
+        function filtrarPublicacionesMuro() {
+            const searchText = document.getElementById('buscadorMuro').value.toLowerCase();
+            const publicaciones = document.querySelectorAll('.publicacion-card');
+            
+            // Obtener las especialidades del trabajador desde los badges
+            const especialidadesTrabajador = Array.from(document.querySelectorAll('.especialidad-badge'))
+                .map(badge => badge.textContent.trim().toLowerCase());
+            
+            publicaciones.forEach(pub => {
+                // Obtener datos de la publicación
+                const titulo = pub.querySelector('.pub-titulo').textContent.toLowerCase();
+                const descripcion = pub.querySelector('.pub-descripcion').textContent.toLowerCase();
+                const categoriaElement = pub.querySelector('.detalle-item span');
+                const categoria = categoriaElement ? 
+                    categoriaElement.textContent.replace('Categoría:', '').trim().toLowerCase() : '';
+                const textoOculto = pub.querySelector('.all-specialties-muro')?.textContent.toLowerCase() || '';
+                
+                // Verificar si es de las especialidades del trabajador
+                let esDeEspecialidad = false;
+                for (const especialidad of especialidadesTrabajador) {
+                    if (categoria.includes(especialidad) || especialidad.includes(categoria)) {
+                        esDeEspecialidad = true;
+                        break;
+                    }
+                }
+                
+                // Si no es de sus especialidades, ocultar directamente
+                if (!esDeEspecialidad) {
+                    pub.style.display = 'none';
+                    return;
+                }
+                
+                // Si hay texto de búsqueda, verificar coincidencia
+                if (searchText.trim()) {
+                    // Combinar todo el texto buscable
+                    const textoCompleto = titulo + ' ' + descripcion + ' ' + categoria + ' ' + textoOculto;
+                    
+                    // Verificar si coincide con la búsqueda
+                    const coincideBusqueda = textoCompleto.includes(searchText);
+                    
+                    // Mostrar solo si coincide con la búsqueda
+                    pub.style.display = coincideBusqueda ? 'block' : 'none';
+                } else {
+                    // Si no hay texto de búsqueda, mostrar todas de sus especialidades
+                    pub.style.display = 'block';
+                }
+            });
+        }
+        
+        // Función para resetear la búsqueda
+        function resetearBusquedaMuro() {
+            document.getElementById('buscadorMuro').value = '';
+            filtrarPublicacionesMuro();
+        }
+        
+        // Inicializar búsqueda al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const buscador = document.getElementById('buscadorMuro');
+            if (buscador) {
+                // Permitir buscar con Enter
+                buscador.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        filtrarPublicacionesMuro();
+                    }
+                });
+                
+                // Aplicar filtro inicial
+                filtrarPublicacionesMuro();
             }
         });
         {% endif %}
